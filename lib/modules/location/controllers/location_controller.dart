@@ -39,7 +39,7 @@ class LocationController extends GetxController {
     }
 
     _storage.write(AppConstants.storageKeySelectedCity, selectedCity.value);
-    Get.offAllNamed(AppRoutes.home);
+    Get.offAllNamed(AppRoutes.main);
 
     Get.snackbar(
       'Success',

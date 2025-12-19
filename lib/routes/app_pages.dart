@@ -9,8 +9,12 @@ import 'package:meatwaala_app/modules/auth/views/signup_view.dart';
 import 'package:meatwaala_app/modules/auth/views/otp_view.dart';
 import 'package:meatwaala_app/modules/location/bindings/location_binding.dart';
 import 'package:meatwaala_app/modules/location/views/location_view.dart';
+import 'package:meatwaala_app/modules/navigation/bindings/bottom_nav_binding.dart';
+import 'package:meatwaala_app/modules/navigation/views/main_screen.dart';
 import 'package:meatwaala_app/modules/home/bindings/home_binding.dart';
 import 'package:meatwaala_app/modules/home/views/home_view.dart';
+import 'package:meatwaala_app/modules/categories/bindings/categories_binding.dart';
+import 'package:meatwaala_app/modules/categories/views/categories_view.dart';
 import 'package:meatwaala_app/modules/products/bindings/product_binding.dart';
 import 'package:meatwaala_app/modules/products/views/product_list_view.dart';
 import 'package:meatwaala_app/modules/products/views/product_detail_view.dart';
@@ -59,9 +63,19 @@ class AppPages {
       binding: LocationBinding(),
     ),
     GetPage(
+      name: AppRoutes.main,
+      page: () => const MainScreen(),
+      binding: BottomNavBinding(),
+    ),
+    GetPage(
       name: AppRoutes.home,
       page: () => const HomeView(),
       binding: HomeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.categories,
+      page: () => const CategoriesView(),
+      binding: CategoriesBinding(),
     ),
     GetPage(
       name: AppRoutes.productList,

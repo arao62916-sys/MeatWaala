@@ -9,7 +9,7 @@ class SplashController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-     print("✅ SplashController onReady called");
+    print("✅ SplashController onReady called");
     _navigateToNext();
   }
 
@@ -24,11 +24,10 @@ class SplashController extends GetxController {
     if (isFirstTime) {
       Get.offAllNamed(AppRoutes.onboarding);
     } else {
-      final token =
-          _storage.read<String>(AppConstants.storageKeyToken);
+      final token = _storage.read<String>(AppConstants.storageKeyToken);
 
       if (token != null && token.isNotEmpty) {
-        Get.offAllNamed(AppRoutes.home);
+        Get.offAllNamed(AppRoutes.main);
       } else {
         Get.offAllNamed(AppRoutes.login);
       }

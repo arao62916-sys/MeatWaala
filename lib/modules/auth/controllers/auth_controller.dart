@@ -99,7 +99,7 @@ class AuthController extends GetxController {
     if (hasCity == null) {
       Get.offAllNamed(AppRoutes.location);
     } else {
-      Get.offAllNamed(AppRoutes.home);
+      Get.offAllNamed(AppRoutes.main);
     }
 
     Get.snackbar(
