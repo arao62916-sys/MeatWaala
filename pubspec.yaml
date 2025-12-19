@@ -1,0 +1,39 @@
+name: meatwaala_app
+description: "A modern meat & grocery delivery Flutter application"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management & Navigation
+  get: ^4.6.6
+  
+  # UI & Styling
+  google_fonts: ^6.1.0
+  cached_network_image: ^3.3.0
+  shimmer: ^3.0.0
+  smooth_page_indicator: ^1.1.0
+  
+  # Utilities
+  intl: ^0.18.1
+  get_storage: ^2.1.1
+  
+  # Icons
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
