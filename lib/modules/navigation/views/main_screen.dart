@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/modules/navigation/controllers/bottom_nav_controller.dart';
+import 'package:meatwaala_app/modules/navigation/widgets/custom_bottom_nav_bar.dart';
 import 'package:meatwaala_app/modules/home/views/home_view.dart';
 import 'package:meatwaala_app/modules/categories/views/categories_view.dart';
 import 'package:meatwaala_app/modules/orders/views/order_history_view.dart';
 import 'package:meatwaala_app/modules/profile/views/profile_view.dart';
+
+import 'package:meatwaala_app/core/widgets/drawer/app_drawer.dart';
 
 class MainScreen extends GetView<BottomNavController> {
   const MainScreen({super.key});
@@ -20,37 +23,26 @@ class MainScreen extends GetView<BottomNavController> {
     ];
 
     return Scaffold(
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: screens,
-          )),
+      key: controller.scaffoldKey,
+      drawer: const AppDrawer(),
+
+      /// Body with PageView for smooth transitions
+      body: PageView(
+        controller: controller.pageController,
+        physics: const NeverScrollableScrollPhysics(), // Disable swipe
+        onPageChanged: controller.onPageChanged,
+        children: screens,
+      ),
+
+      /// Extended body to allow content behind the notch
+      extendBody: true,
+
+      /// Animated Bottom Navigation Bar
       bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
-          currentIndex: controller.selectedIndex.value,
+        () => CustomBottomNavBar(
+          controller: controller.notchBottomBarController,
+          selectedIndex: controller.selectedIndex.value,
           onTap: controller.changeTab,
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.category_outlined),
-              activeIcon: Icon(Icons.category),
-              label: 'Categories',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long_outlined),
-              activeIcon: Icon(Icons.receipt_long),
-              label: 'Orders',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
         ),
       ),
     );

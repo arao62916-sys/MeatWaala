@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/home/controllers/home_controller.dart';
 
+import 'package:meatwaala_app/modules/navigation/controllers/bottom_nav_controller.dart';
+
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
@@ -11,6 +13,12 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            Get.find<BottomNavController>().openDrawer();
+          },
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -40,6 +48,7 @@ class HomeView extends GetView<HomeController> {
         return RefreshIndicator(
           onRefresh: controller.onRefresh,
           child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 80), // Space for bottom nav
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

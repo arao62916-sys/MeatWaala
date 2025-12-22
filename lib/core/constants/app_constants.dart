@@ -12,17 +12,6 @@ class AppConstants {
   static const String storageKeySelectedCity = 'selected_city';
   static const String storageKeyCart = 'cart_items';
   static const String storageKeySavedAddresses = 'saved_addresses';
-
-  // API Endpoints (Placeholder for future integration)
-  static const String baseUrl = 'https://api.meatwaala.com/v1';
-  static const String apiLogin = '/auth/login';
-  static const String apiSignup = '/auth/signup';
-  static const String apiVerifyOtp = '/auth/verify-otp';
-  static const String apiProducts = '/products';
-  static const String apiCategories = '/categories';
-  static const String apiOrders = '/orders';
-  static const String apiProfile = '/profile';
-
   // Pagination
   static const int defaultPageSize = 20;
 
@@ -91,6 +80,6 @@ class AppConstants {
   static const int otpLength = 6;
 
   // Animation Durations
-  static const int splashDuration = 2; // seconds
+  static const int splashDuration = 3; // seconds
   static const int animationDuration = 300; // milliseconds
 }
