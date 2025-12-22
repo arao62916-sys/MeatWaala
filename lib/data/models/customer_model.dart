@@ -68,7 +68,10 @@ class CustomerModel {
   }
 
   /// Check if user is active
-  bool get isActive => status.toLowerCase() == 'enabled' || status == '1' || status.toLowerCase() == 'active';
+  bool get isActive =>
+      status.toLowerCase() == 'enabled' ||
+      status == '1' ||
+      status.toLowerCase() == 'active';
 
   /// Check if user has complete profile
   bool get hasCompleteProfile =>
