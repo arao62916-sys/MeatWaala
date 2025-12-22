@@ -4,14 +4,16 @@ class AppConstants {
   static const String appVersion = '1.0.0';
   static const String appTagline = 'Fresh & Hygienic Meat Delivered';
 
-  // Storage Keys
+  // Storage Keys (for legacy compatibility)
   static const String storageKeyIsFirstTime = 'is_first_time';
   static const String storageKeyToken = 'auth_token';
   static const String storageKeyUserId = 'user_id';
   static const String storageKeyUserData = 'user_data';
-  static const String storageKeySelectedCity = 'selected_city';
+  static const String storageKeySelectedCity =
+      'selected_area_name'; // Updated for area
   static const String storageKeyCart = 'cart_items';
   static const String storageKeySavedAddresses = 'saved_addresses';
+
   // Pagination
   static const int defaultPageSize = 20;
 

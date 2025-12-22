@@ -1,50 +1,26 @@
 import 'package:get/get.dart';
-import 'package:meatwaala_app/core/constants/app_constants.dart';
+import 'package:meatwaala_app/modules/location/controllers/area_controller.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
-import 'package:meatwaala_app/services/storage_service.dart';
 
+/// Location Controller - wrapper for navigation logic
+/// Uses AreaController for actual area data management
 class LocationController extends GetxController {
-  final StorageService _storage = StorageService();
+  // Get AreaController instance
+  AreaController get areaController => Get.find<AreaController>();
 
-  final selectedCity = ''.obs;
-  final cities = AppConstants.availableCities;
-  final searchQuery = ''.obs;
+  /// Confirm location selection and navigate
+  void confirmLocation() async {
+    final success = await areaController.confirmSelection();
 
-  List<String> get filteredCities {
-    if (searchQuery.value.isEmpty) {
-      return cities;
-    }
-    return cities
-        .where((city) =>
-            city.toLowerCase().contains(searchQuery.value.toLowerCase()))
-        .toList();
-  }
-
-  void selectCity(String city) {
-    selectedCity.value = city;
-  }
-
-  void onSearchChanged(String query) {
-    searchQuery.value = query;
-  }
-
-  void confirmLocation() {
-    if (selectedCity.value.isEmpty) {
+    if (success) {
       Get.snackbar(
-        'Error',
-        'Please select a city',
+        'Success',
+        'Location set to ${areaController.selectedAreaName}',
         snackPosition: SnackPosition.BOTTOM,
       );
-      return;
+
+      // Navigate to signup for new users
+      Get.offAllNamed(AppRoutes.signup);
     }
-
-    _storage.write(AppConstants.storageKeySelectedCity, selectedCity.value);
-    Get.offAllNamed(AppRoutes.main);
-
-    Get.snackbar(
-      'Success',
-      'Location set to ${selectedCity.value}',
-      snackPosition: SnackPosition.BOTTOM,
-    );
   }
 }

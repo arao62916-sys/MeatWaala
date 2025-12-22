@@ -4,8 +4,40 @@ import 'package:meatwaala_app/core/constants/app_constants.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/splash/controllers/splash_controller.dart';
 
-class SplashView extends GetView<SplashController> {
+class SplashView extends StatefulWidget {
   const SplashView({super.key});
+
+  @override
+  State<SplashView> createState() => _SplashViewState();
+}
+
+class _SplashViewState extends State<SplashView>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutBack,
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,52 +50,68 @@ class SplashView extends GetView<SplashController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // App Logo (placeholder)
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.restaurant,
-                  size: 60,
-                  color: AppColors.primary,
-                ),
+              /// Animated Logo
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: _buildLogo(),
               ),
-              const SizedBox(height: 24),
-              // App Name
+
+              const SizedBox(height: 28),
+
+              /// App Name (Styled like logo)
               Text(
-                AppConstants.appName,
+                'Meat Waala',
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
                     ),
               ),
+
               const SizedBox(height: 8),
-              // Tagline
+
+              /// Tagline
               Text(
                 AppConstants.appTagline,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.white.withOpacity(0.9),
                     ),
               ),
+
               const SizedBox(height: 48),
-              // Loading Indicator
+
+              /// Loader
               const CircularProgressIndicator(
+                strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Asset Logo with White Background
+  Widget _buildLogo() {
+    return Container(
+      width: 260,
+      height: 160,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Image.asset(
+        'assets/images/logo.jpg',
+        fit: BoxFit.contain,
       ),
     );
   }

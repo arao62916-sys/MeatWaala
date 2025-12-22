@@ -36,62 +36,22 @@ class LoginView extends GetView<AuthController> {
 
                 const SizedBox(height: 48),
 
-                // Login Method Toggle
-                Obx(() => Row(
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            text: 'Phone',
-                            onPressed: () {
-                              if (!controller.isPhoneLogin.value) {
-                                controller.toggleLoginMethod();
-                              }
-                            },
-                            isOutlined: !controller.isPhoneLogin.value,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: CustomButton(
-                            text: 'Email',
-                            onPressed: () {
-                              if (controller.isPhoneLogin.value) {
-                                controller.toggleLoginMethod();
-                              }
-                            },
-                            isOutlined: controller.isPhoneLogin.value,
-                          ),
-                        ),
-                      ],
-                    )),
-
-                const SizedBox(height: 32),
-
-                // Phone/Email Input
-                Obx(() => controller.isPhoneLogin.value
-                    ? CustomTextField(
-                        controller: controller.phoneController,
-                        hintText: 'Enter phone number',
-                        labelText: 'Phone Number',
-                        prefixIcon: Icons.phone,
-                        keyboardType: TextInputType.phone,
-                        validator: controller.validatePhone,
-                      )
-                    : CustomTextField(
-                        controller: controller.emailController,
-                        hintText: 'Enter email',
-                        labelText: 'Email',
-                        prefixIcon: Icons.email,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: controller.validateEmail,
-                      )),
+                // Email Input
+                CustomTextField(
+                  controller: controller.emailController,
+                  hintText: 'Enter your email',
+                  labelText: 'Email',
+                  prefixIcon: Icons.email,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: controller.validateEmail,
+                ),
 
                 const SizedBox(height: 16),
 
                 // Password Input
                 Obx(() => CustomTextField(
                       controller: controller.passwordController,
-                      hintText: 'Enter password',
+                      hintText: 'Enter your password',
                       labelText: 'Password',
                       prefixIcon: Icons.lock,
                       obscureText: controller.obscurePassword.value,
@@ -120,7 +80,35 @@ class LoginView extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+
+                // Error Message
+                Obx(() => controller.errorMessage.value.isNotEmpty
+                    ? Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border:
+                              Border.all(color: Colors.red.withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error_outline,
+                                color: Colors.red, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                controller.errorMessage.value,
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink()),
 
                 // Login Button
                 Obx(() => CustomButton(
