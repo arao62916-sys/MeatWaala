@@ -12,19 +12,19 @@ class OnboardingController extends GetxController {
       title: 'Fresh & Hygienic Meat',
       description:
           'Get the freshest and most hygienic meat delivered to your doorstep',
-      icon: '🥩',
+      imageAsset: 'assets/images/logo.jpg',
     ),
     OnboardingPage(
       title: 'Fast Delivery',
       description:
           'Quick and reliable delivery service. Your order reaches you fresh and on time',
-      icon: '🚚',
+      lottieAsset: 'assets/data/Delivery Fudis.json',
     ),
     OnboardingPage(
       title: 'Trusted Quality',
       description:
           'Premium quality products from trusted sources. 100% satisfaction guaranteed',
-      icon: '⭐',
+      lottieAsset: 'assets/data/Cooking.json',
     ),
   ];
 
@@ -53,11 +53,13 @@ class OnboardingController extends GetxController {
 class OnboardingPage {
   final String title;
   final String description;
-  final String icon;
+  final String? imageAsset;
+  final String? lottieAsset;
 
   OnboardingPage({
     required this.title,
     required this.description,
-    required this.icon,
+    this.imageAsset,
+    this.lottieAsset,
   });
 }

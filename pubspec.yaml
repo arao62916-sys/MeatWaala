@@ -30,6 +30,7 @@ dependencies:
   # Icons
   cupertino_icons: ^1.0.2
   shared_preferences: ^2.5.4
+  lottie: ^3.3.2
 
 dev_dependencies:
   flutter_test:
@@ -42,4 +43,6 @@ flutter:
   assets:
     - assets/images/
     - assets/images/logo.jpg
+    - assets/data/Cooking.json
+    - assets/data/Delivery Fudis.json
     - assets/icons/

@@ -4,40 +4,45 @@ import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/core/widgets/custom_button.dart';
 import 'package:meatwaala_app/core/widgets/custom_text_field.dart';
 import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
-import 'package:meatwaala_app/routes/app_routes.dart';
 
-class LoginView extends GetView<AuthController> {
-  const LoginView({super.key});
+import '../../../routes/app_routes.dart';
+
+class ForgotPasswordView extends GetView<AuthController> {
+  const ForgotPasswordView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Forgot Password'),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Form(
-            key: controller.loginFormKey,
+            key: controller.forgotPasswordFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
-                // Welcome Text
+                // Title
                 Text(
-                  'Welcome Back!',
+                  'Reset your password 🔐',
                   style: Theme.of(context).textTheme.displaySmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Login to continue',
+                  'Enter your registered email and mobile number.\nA new password will be sent to your email.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.textSecondary,
                       ),
                 ),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 40),
 
-                // Email Input
+                // Email Field
                 CustomTextField(
                   controller: controller.emailController,
                   hintText: 'Enter your email',
@@ -49,36 +54,17 @@ class LoginView extends GetView<AuthController> {
 
                 const SizedBox(height: 16),
 
-                // Password Input
-                Obx(() => CustomTextField(
-                      controller: controller.passwordController,
-                      hintText: 'Enter your password',
-                      labelText: 'Password',
-                      prefixIcon: Icons.lock,
-                      obscureText: controller.obscurePassword.value,
-                      suffixIcon: controller.obscurePassword.value
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      onSuffixIconTap: controller.togglePasswordVisibility,
-                      validator: controller.validatePassword,
-                    )),
-
-                const SizedBox(height: 8),
-
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                     
-                        Get.toNamed('/forgot-password');
-                      
-                    },
-                    child: const Text('Forgot Password?'),
-                  ),
+                // Mobile Field
+                CustomTextField(
+                  controller: controller.phoneController,
+                  hintText: 'Enter your mobile number',
+                  labelText: 'Mobile Number',
+                  prefixIcon: Icons.phone,
+                  keyboardType: TextInputType.phone,
+                  validator: controller.validatePhone,
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
                 // Error Message
                 Obx(() => controller.errorMessage.value.isNotEmpty
@@ -108,27 +94,25 @@ class LoginView extends GetView<AuthController> {
                       )
                     : const SizedBox.shrink()),
 
-                // Login Button
+                // Reset Button
                 Obx(() => CustomButton(
-                      text: 'Login',
-                      onPressed: controller.login,
+                      text: 'Send New Password',
+                      onPressed: controller.forgotPassword,
                       isLoading: controller.isLoading.value,
                       width: double.infinity,
                     )),
 
                 const SizedBox(height: 24),
 
-                // Signup Link
+                // Back to Login
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Don't have an account? ",
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                    const Text('Remember your password? '),
                     TextButton(
-                      onPressed: controller.navigateToSignup,
-                      child: const Text('Sign Up'),
+                      onPressed: ()=>Get.offAllNamed(AppRoutes.main),
+                      // onPressed: controller.navigateToLogin,
+                      child: const Text('Login'),
                     ),
                   ],
                 ),

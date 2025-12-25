@@ -1,4 +1,7 @@
 import 'package:get/get.dart';
+import 'package:meatwaala_app/modules/auth/views/forgot_password_view.dart';
+import 'package:meatwaala_app/modules/profile/views/change_password_view.dart';
+import 'package:meatwaala_app/modules/profile/views/edit_profile_view.dart';
 import 'package:meatwaala_app/modules/splash/bindings/splash_binding.dart';
 import 'package:meatwaala_app/modules/splash/views/splash_view.dart';
 import 'package:meatwaala_app/modules/onboarding/bindings/onboarding_binding.dart';
@@ -6,7 +9,6 @@ import 'package:meatwaala_app/modules/onboarding/views/onboarding_view.dart';
 import 'package:meatwaala_app/modules/auth/bindings/auth_binding.dart';
 import 'package:meatwaala_app/modules/auth/views/login_view.dart';
 import 'package:meatwaala_app/modules/auth/views/signup_view.dart';
-import 'package:meatwaala_app/modules/auth/views/otp_view.dart';
 import 'package:meatwaala_app/modules/location/bindings/location_binding.dart';
 import 'package:meatwaala_app/modules/location/views/location_view.dart';
 import 'package:meatwaala_app/modules/navigation/bindings/bottom_nav_binding.dart';
@@ -48,13 +50,13 @@ class AppPages {
       binding: AuthBinding(),
     ),
     GetPage(
-      name: AppRoutes.signup,
-      page: () => const SignupView(),
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordView(),
       binding: AuthBinding(),
     ),
     GetPage(
-      name: AppRoutes.otp,
-      page: () => const OtpView(),
+      name: AppRoutes.signup,
+      page: () => const SignupView(),
       binding: AuthBinding(),
     ),
     GetPage(
@@ -110,6 +112,16 @@ class AppPages {
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileView(),
+      binding: ProfileBinding(),
+    ),
+     GetPage(
+      name: AppRoutes.editProfile,
+      page: () => const EditProfileView(),
+      binding: ProfileBinding(),
+    ),
+     GetPage(
+      name: AppRoutes.changePassword,
+      page: () => const ChangePasswordView(),
       binding: ProfileBinding(),
     ),
     GetPage(

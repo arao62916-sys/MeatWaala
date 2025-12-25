@@ -2,15 +2,18 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/core/constants/app_constants.dart';
+import 'package:meatwaala_app/core/network/base_api_service.dart';
+import 'package:meatwaala_app/core/network/network_constents.dart';
+import 'package:meatwaala_app/core/services/storage_service.dart';
 import 'package:meatwaala_app/data/models/customer_model.dart';
 import 'package:meatwaala_app/data/services/auth_api_service.dart';
 import 'package:meatwaala_app/modules/location/controllers/area_controller.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
-import 'package:meatwaala_app/services/storage_service.dart';
 
 class AuthController extends GetxController {
   final StorageService _storage = StorageService();
   final AuthApiService _authApiService = AuthApiService();
+  final BaseApiService _apiService = BaseApiService();
 
   // Form Controllers
   final emailController = TextEditingController();
@@ -18,7 +21,7 @@ class AuthController extends GetxController {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
   final otpController = TextEditingController();
-
+final forgotPasswordFormKey = GlobalKey<FormState>();
   // Observable States
   final isLoading = false.obs;
   final obscurePassword = true.obs;
@@ -42,19 +45,20 @@ class AuthController extends GetxController {
     _loadCurrentUser();
   }
 
-  void _prefillEmailFromSignup() {
-    final tempEmail = _storage.getTempEmail();
+  void _prefillEmailFromSignup() async {
+    final tempEmail = await StorageService.getTempEmail();
     if (tempEmail != null && tempEmail.isNotEmpty) {
       emailController.text = tempEmail;
       log('📧 Pre-filled email from signup: $tempEmail');
     }
   }
 
-  void _loadCurrentUser() {
-    final userData = _storage.getUserData();
-    if (userData != null) {
-      currentCustomer.value = CustomerModel.fromJson(userData);
-      log('👤 Loaded current user: ${currentCustomer.value?.name}');
+  void _loadCurrentUser() async {
+    final userId = await StorageService.getUserId();
+    if (userId != null && userId.isNotEmpty) {
+      // User is logged in but we don't have full customer data here
+      // It will be loaded on login
+      log('👤 User ID found: $userId');
     }
   }
 
@@ -140,7 +144,7 @@ class AuthController extends GetxController {
         log('✅ Signup successful: ${result.message}');
 
         // Save email temporarily for login prefill
-        await _storage.saveTempEmail(emailController.text.trim());
+        await StorageService.saveTempEmail(emailController.text.trim());
 
         // Confirm area selection
         await areaController.confirmSelection();
@@ -207,7 +211,7 @@ class AuthController extends GetxController {
       if (result.success && result.data != null) {
         final loginData = result.data!;
 
-        // Check if customer is active
+        // 🚫 Check if customer is active
         if (loginData.customer != null && !loginData.customer!.isActive) {
           errorMessage.value =
               'Your account is disabled. Please contact support.';
@@ -222,24 +226,39 @@ class AuthController extends GetxController {
           return;
         }
 
-        log('✅ Login successful: ${loginData.message}');
+        log('✅ Login successful 🎉');
+        log('📩 Message: ${loginData.message}');
 
-        // Save user data to storage
-        await _storage.saveUserData(
-          token: loginData
-              .customerId, // Using customerId as token if no separate token
-          customerId: loginData.customerId,
-          customerData: loginData.customer?.toJson() ?? {},
+        // 💾 Save user data to storage with proper customer information
+        await StorageService.saveLoginData(
+          token: loginData.customerId, // using customerId as token for auth
+          userId: loginData.customerId,
+          userName: loginData.customer?.name ?? '',
+          userEmail: loginData.customer?.emailId,
+          userPhone: loginData.customer?.mobile,
+          refreshToken: '', // Add if API provides refresh token
         );
 
-        // Clear temp email
-        await _storage.clearTempEmail();
+        // 🧾 PRINT STORED DATA WITH EMOJIS
+        log('================ 🔐 STORED LOGIN DATA 🔐 ================');
+        log('🆔 Customer ID: ${loginData.customerId}');
+        log('🔑 Token: ${loginData.customerId}');
+        log('👤 Customer Name: ${loginData.customer?.name}');
+        log('📧 Email: ${loginData.customer?.emailId}');
+        log('📱 Mobile: ${loginData.customer?.mobile}');
+        log('📦 Full Customer Data: ${loginData.customer?.toJson()}');
+        log('==========================================================');
 
-        // Update current customer
+        // 🧹 Clear temp email
+        await StorageService.clearTempEmail();
+        log('🗑️ Temporary email cleared');
+
+        // 🔄 Update current customer
         currentCustomer.value = loginData.customer;
+        log('🔄 Current customer updated');
 
         Get.snackbar(
-          'Welcome!',
+          'Welcome 🎉',
           loginData.message.isNotEmpty
               ? loginData.message
               : 'Logged in successfully',
@@ -248,15 +267,18 @@ class AuthController extends GetxController {
           colorText: Colors.white,
         );
 
-        // Clear form
+        // 🧽 Clear form
         _clearLoginForm();
+        log('🧼 Login form cleared');
 
-        // Navigate to home
+        // 🚀 Navigate to home
+        log('🏠 Navigating to Main Screen');
         Get.offAllNamed(AppRoutes.main);
       } else {
         errorMessage.value = result.message;
+        log('❌ Login failed: ${result.message}');
         Get.snackbar(
-          'Login Failed',
+          'Login Failed ❌',
           result.message,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -264,10 +286,11 @@ class AuthController extends GetxController {
         );
       }
     } catch (e) {
-      log('❌ Login error: $e');
+      log('🔥 Login error occurred');
+      log('❌ Error: $e');
       errorMessage.value = 'Login failed. Please try again.';
       Get.snackbar(
-        'Error',
+        'Error ⚠️',
         'Something went wrong. Please try again.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
@@ -275,6 +298,7 @@ class AuthController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+      log('⏳ Loading stopped');
     }
   }
 
@@ -282,33 +306,85 @@ class AuthController extends GetxController {
     emailController.clear();
     passwordController.clear();
   }
+// Forgot Password  
+// ============ FORGOT PASSWORD ============
+Future<void> forgotPassword() async {
+  if (forgotPasswordFormKey.currentState != null &&
+      !forgotPasswordFormKey.currentState!.validate()) {
+    return;
+  }
 
-  // ============ LOGOUT ============
-  Future<void> logout() async {
-    isLoading.value = true;
+  isLoading.value = true;
+  clearError();
 
-    try {
-      // Call logout API
-      await _authApiService.logout();
-    } catch (e) {
-      log('❌ Logout API error (continuing with local logout): $e');
-    }
+  try {
+    log('🔑 Forgot Password request started');
 
-    // Clear local data regardless of API result
-    await _storage.clearUserData();
-    currentCustomer.value = null;
-
-    isLoading.value = false;
-
-    Get.snackbar(
-      'Logged Out',
-      'You have been logged out successfully',
-      snackPosition: SnackPosition.BOTTOM,
+    final result = await _authApiService.forgotPassword(
+      emailId: emailController.text.trim(),
+      mobile: phoneController.text.trim(),
     );
 
-    // Navigate to login
-    Get.offAllNamed(AppRoutes.login);
+    if (result.success && result.data != null) {
+      final data = result.data!;
+
+      log('✅ Forgot Password Success');
+      log('📩 Message: ${data.message}');
+      log('👤 Customer ID: ${data.customerId}');
+      log('📦 Customer Data: ${data.customer?.toJson()}');
+
+      // Save email for login prefill
+      await StorageService.saveTempEmail(emailController.text.trim());
+
+      Get.snackbar(
+        'Success 🔐',
+        data.message.isNotEmpty
+            ? data.message
+            : 'New password sent to your email',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+
+      // Clear fields
+      phoneController.clear();
+      passwordController.clear();
+
+      // Navigate back to login
+      Get.offAllNamed(AppRoutes.main);
+    } else {
+      errorMessage.value = result.message;
+
+      log('❌ Forgot Password Failed: ${result.message}');
+
+      Get.snackbar(
+        'Failed ❌',
+        result.message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  } catch (e) {
+    log('🔥 Forgot Password Error');
+    log('❌ Error: $e');
+
+    errorMessage.value = 'Forgot password failed. Please try again.';
+
+    Get.snackbar(
+      'Error ⚠️',
+      'Something went wrong. Please try again.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } finally {
+    isLoading.value = false;
+    log('⏳ Forgot Password loading stopped');
   }
+}
+
 
   // ============ NAVIGATION ============
   void navigateToSignup() {
@@ -316,52 +392,78 @@ class AuthController extends GetxController {
   }
 
   void navigateToLogin() {
-    Get.back();
+    Get.offAllNamed('login');
   }
 
-  // ============ OTP VERIFICATION ============
-  Future<void> verifyOtp() async {
-    isLoading.value = true;
-    clearError();
+  // ============ GETTERS ============
+  Future<bool> isLoggedIn() async {
+    return await StorageService.isLoggedIn();
+  }
+
+  Future<String?> get currentUserId async => await StorageService.getUserId();
+  String? get currentUserName => currentCustomer.value?.name;
+
+  // ============ LOGOUT ============
+  /// Logout API - Calls backend and clears local session
+  Future<void> logout() async {
     try {
-      final otp = otpController.text.trim();
-      if (otp.length != AppConstants.otpLength) {
-        Get.snackbar(
-          'Invalid OTP',
-          'Please enter a valid ${AppConstants.otpLength}-digit OTP.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        isLoading.value = false;
+      // Fetch customer ID from storage
+      final customerId = await StorageService.getUserId();
+
+      if (customerId == null || customerId.isEmpty) {
+        log('❌ Logout: No customer ID found');
+        // Still clear local data and navigate
+        await _clearSessionAndNavigate();
         return;
       }
-      // TODO: Implement actual OTP verification logic with API
-      // Example success:
-      Get.snackbar(
-        'Success',
-        'OTP verified successfully!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-      // Navigate to home or next screen
-      Get.offAllNamed(AppRoutes.main);
+
+      isLoading.value = true;
+
+      // Build endpoint: login/logout/{customerId}
+      final endpoint = '${NetworkConstantsUtil.logout}/$customerId';
+
+      log('🔓 Calling logout API for customer: $customerId');
+
+      // Call logout API
+      final result = await _apiService.get<Map<String, dynamic>>(endpoint);
+
+      if (result.success) {
+        log('✅ Logout successful: ${result.message}');
+
+        // Clear user session from storage
+        await StorageService.logout();
+
+        // Show success message
+        Get.snackbar(
+          'Logged Out',
+          result.message.isNotEmpty
+              ? result.message
+              : 'You have been logged out successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+
+        // Navigate to login screen
+        Get.offAllNamed(AppRoutes.login);
+      } else {
+        log('❌ Logout failed: ${result.message}');
+        // Even if API fails, clear local session
+        await _clearSessionAndNavigate();
+      }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to verify OTP. Please try again.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      log('❌ Logout error: $e');
+      // On error, still clear local session
+      await _clearSessionAndNavigate();
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ============ GETTERS ============
-  bool get isLoggedIn => _storage.isLoggedIn();
-  String? get currentUserId => _storage.getUserId();
-  String? get currentUserName => currentCustomer.value?.name;
+  /// Helper to clear session and navigate
+  Future<void> _clearSessionAndNavigate() async {
+    await StorageService.clearAll();
+    Get.offAllNamed(AppRoutes.login);
+  }
 }

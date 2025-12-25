@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:lottie/lottie.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/core/widgets/custom_button.dart';
 import 'package:meatwaala_app/modules/onboarding/controllers/onboarding_controller.dart';
@@ -41,11 +42,19 @@ class OnboardingView extends GetView<OnboardingController> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Icon
-                        Text(
-                          page.icon,
-                          style: const TextStyle(fontSize: 120),
-                        ),
+                        // Image or Lottie
+                        if (page.imageAsset != null)
+                          Image.asset(
+                            page.imageAsset!,
+                            height: 150,
+                          )
+                        else if (page.lottieAsset != null)
+                          Lottie.asset(
+                            page.lottieAsset!,
+                            height: 250,
+                           
+                            fit: BoxFit.contain,
+                          ),
                         const SizedBox(height: 48),
                         // Title
                         Text(

@@ -108,6 +108,32 @@ class BaseApiService {
     });
   }
 
+  /// POST Request (Form Data - URL Encoded)
+  Future<ApiResult<T>> postFormData<T>(
+    String endpoint, {
+    required Map<String, String> fields,
+    T Function(dynamic)? parser,
+  }) async {
+    return _executeWithRetry(() async {
+      final uri = Uri.parse('$baseUrl$endpoint');
+
+      log('$_logTag POST Form Data: $uri');
+      log('$_logTag Fields: $fields');
+
+      final response = await http
+          .post(
+            uri,
+            headers: _buildHeaders(additionalHeaders: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            }),
+            body: fields,
+          )
+          .timeout(Duration(seconds: _timeoutSeconds));
+
+      return _handleResponse(response, parser);
+    });
+  }
+
   /// POST Multipart Request (for form data with files)
   Future<ApiResult<T>> postMultipart<T>(
     String endpoint, {

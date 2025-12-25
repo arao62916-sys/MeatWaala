@@ -60,6 +60,36 @@ class LoginResponse {
   }
 }
 
+/// Response model for Forgot Password API
+class ForgotPasswordResponse {
+  final int status;
+  final String message;
+  final String customerId;
+  final CustomerModel? customer;
+
+  ForgotPasswordResponse({
+    required this.status,
+    required this.message,
+    required this.customerId,
+    this.customer,
+  });
+
+  factory ForgotPasswordResponse.fromJson(Map<String, dynamic> json) {
+    CustomerModel? customer;
+    if (json['aCustomer'] != null) {
+      customer =
+          CustomerModel.fromJson(json['aCustomer'] as Map<String, dynamic>);
+    }
+
+    return ForgotPasswordResponse(
+      status: json['status'] ?? 0,
+      message: json['message'] ?? '',
+      customerId: json['customer_id']?.toString() ?? '',
+      customer: customer,
+    );
+  }
+}
+
 /// API Service for Authentication (Signup, Login, Logout)
 class AuthApiService extends BaseApiService {
   /// Signup a new user
@@ -118,6 +148,30 @@ class AuthApiService extends BaseApiService {
       },
     );
   }
+
+/// Forgot Password
+Future<ApiResult<ForgotPasswordResponse>> forgotPassword({
+  required String emailId,
+  required String mobile,
+}) async {
+  return postMultipart<ForgotPasswordResponse>(
+    NetworkConstantsUtil.forgot_password,
+    fields: {
+      'email_id': emailId,
+      'mobile': mobile,
+    },
+    parser: (data) {
+      if (data is Map<String, dynamic>) {
+        return ForgotPasswordResponse.fromJson(data);
+      }
+      return ForgotPasswordResponse(
+        status: 0,
+        message: 'Invalid response',
+        customerId: '',
+      );
+    },
+  );
+}
 
   /// Logout user
   Future<ApiResult<Map<String, dynamic>>> logout() async {
