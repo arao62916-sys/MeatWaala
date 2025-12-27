@@ -13,6 +13,7 @@ class CheckoutView extends GetView<CheckoutController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Checkout'),
+        actions: const [SizedBox(width: 4)],
       ),
       body: Column(
         children: [
@@ -25,7 +26,10 @@ class CheckoutView extends GetView<CheckoutController> {
                   // Delivery Address Section
                   Text(
                     'Delivery Address',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                   ),
                   const SizedBox(height: 12),
                   Obx(() => Column(
@@ -49,7 +53,10 @@ class CheckoutView extends GetView<CheckoutController> {
                   // Delivery Time Slot
                   Text(
                     'Delivery Time Slot',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                   ),
                   const SizedBox(height: 12),
                   Obx(() => Wrap(
@@ -79,7 +86,10 @@ class CheckoutView extends GetView<CheckoutController> {
                   // Payment Method
                   Text(
                     'Payment Method',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                   ),
                   const SizedBox(height: 12),
                   Obx(() => Column(

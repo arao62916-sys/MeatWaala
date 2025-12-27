@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/core/theme/app_theme.dart';
 import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
+import 'package:meatwaala_app/modules/location/controllers/area_controller.dart';
 import 'package:meatwaala_app/modules/profile/controllers/profile_controller.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 import 'package:meatwaala_app/routes/app_pages.dart';
@@ -14,6 +15,7 @@ void main() async {
   await StorageService.init();
   // Register AuthController globally before any other controller
   Get.put(AuthController());
+  Get.put(AreaController());
   Get.lazyPut(() => ProfileController());
   runApp(const MeatWaalaApp());
 }

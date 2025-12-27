@@ -162,7 +162,13 @@ class SignupView extends GetView<AuthController> {
                     ),
                     TextButton(
                       onPressed: controller.navigateToLogin,
-                      child: const Text('/login'),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                   ],
                 ),

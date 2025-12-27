@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/products/controllers/product_list_controller.dart';
 import 'package:meatwaala_app/modules/products/views/widgets/product_widgets.dart';
 
@@ -21,12 +22,12 @@ class ProductListView extends GetView<ProductListController> {
             icon: const Icon(Icons.search),
             onPressed: () => _showSearchDialog(context),
           ),
-
           // Sort Icon
           IconButton(
             icon: const Icon(Icons.sort),
             onPressed: () => _showSortOptions(context),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: Obx(() {
@@ -39,26 +40,39 @@ class ProductListView extends GetView<ProductListController> {
         if (controller.errorMessage.value.isNotEmpty &&
             controller.products.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.red,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  controller.errorMessage.value,
-                  style: const TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: controller.refreshProducts,
-                  child: const Text('Retry'),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: AppColors.error.withOpacity(0.7),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Oops! Something went wrong',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    controller.errorMessage.value,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: controller.refreshProducts,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Try Again'),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -66,31 +80,41 @@ class ProductListView extends GetView<ProductListController> {
         // Empty State
         if (controller.products.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.inventory_2_outlined,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No products found',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 64,
+                    color: AppColors.textSecondary.withOpacity(0.5),
                   ),
-                ),
-                if (controller.searchQuery.value.isNotEmpty ||
-                    controller.selectedSortKey.value.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: controller.clearFilters,
-                    child: const Text('Clear Filters'),
+                  const SizedBox(height: 24),
+                  Text(
+                    'No products found',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Try adjusting your filters',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                  if (controller.searchQuery.value.isNotEmpty ||
+                      controller.selectedSortKey.value.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    OutlinedButton.icon(
+                      onPressed: controller.clearFilters,
+                      icon: const Icon(Icons.clear_all),
+                      label: const Text('Clear Filters'),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           );
         }

@@ -71,14 +71,22 @@ class AppTheme {
 
       // AppBar Theme
       appBarTheme: AppBarTheme(
-        elevation: 0,
+        elevation: 2,
         centerTitle: false,
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textWhite,
+        iconTheme: const IconThemeData(
+          color: AppColors.textWhite,
+          size: 24,
+        ),
+        actionsIconTheme: const IconThemeData(
+          color: AppColors.textWhite,
+          size: 24,
+        ),
         titleTextStyle: GoogleFonts.inter(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: AppColors.textWhite,
         ),
       ),
 

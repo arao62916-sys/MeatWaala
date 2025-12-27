@@ -11,8 +11,7 @@ class ChangePasswordView extends GetView<ProfileController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Change Password'),
-        elevation: 0,
-        backgroundColor: AppColors.primary,
+        actions: const [SizedBox(width: 4)],
       ),
       body: Obx(() {
         return Stack(
@@ -97,7 +96,8 @@ class ChangePasswordView extends GetView<ProfileController> {
                       controller: controller.oldPasswordController,
                       label: 'Current Password',
                       isVisible: controller.isOldPasswordVisible.value,
-                      onToggleVisibility: controller.toggleOldPasswordVisibility,
+                      onToggleVisibility:
+                          controller.toggleOldPasswordVisibility,
                       validator: controller.validatePassword,
                       textInputAction: TextInputAction.next,
                     ),
@@ -107,7 +107,8 @@ class ChangePasswordView extends GetView<ProfileController> {
                       controller: controller.newPasswordController,
                       label: 'New Password',
                       isVisible: controller.isNewPasswordVisible.value,
-                      onToggleVisibility: controller.toggleNewPasswordVisibility,
+                      onToggleVisibility:
+                          controller.toggleNewPasswordVisibility,
                       validator: controller.validatePassword,
                       textInputAction: TextInputAction.next,
                     ),

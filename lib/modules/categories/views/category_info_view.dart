@@ -12,7 +12,7 @@ class CategoryInfoView extends GetView<CategoryInfoController> {
     return Scaffold(
       appBar: AppBar(
         title: Text(controller.categoryName),
-        elevation: 1,
+        actions: const [SizedBox(width: 4)],
       ),
       body: Obx(() {
         // Loading State
@@ -24,26 +24,39 @@ class CategoryInfoView extends GetView<CategoryInfoController> {
         if (controller.errorMessage.value.isNotEmpty &&
             controller.categoryInfo.value == null) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.red,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  controller.errorMessage.value,
-                  style: const TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: controller.refreshCategoryInfo,
-                  child: const Text('Retry'),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: AppColors.error.withOpacity(0.7),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Failed to load information',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    controller.errorMessage.value,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: controller.refreshCategoryInfo,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           );
         }

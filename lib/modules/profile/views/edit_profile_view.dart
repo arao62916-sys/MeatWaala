@@ -11,8 +11,7 @@ class EditProfileView extends GetView<ProfileController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        elevation: 0,
-        backgroundColor: AppColors.primary,
+        actions: const [SizedBox(width: 4)],
       ),
       body: Obx(() {
         return Stack(

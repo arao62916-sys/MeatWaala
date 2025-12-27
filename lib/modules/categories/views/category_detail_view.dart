@@ -12,7 +12,7 @@ class CategoryDetailView extends GetView<CategoryDetailController> {
     return Scaffold(
       appBar: AppBar(
         title: Text(controller.categoryName),
-        elevation: 1,
+        actions: const [SizedBox(width: 4)],
       ),
       body: Obx(() {
         // Loading State
@@ -24,26 +24,39 @@ class CategoryDetailView extends GetView<CategoryDetailController> {
         if (controller.errorMessage.value.isNotEmpty &&
             controller.categoryDetail.value == null) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.red,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  controller.errorMessage.value,
-                  style: const TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: controller.refreshCategoryDetail,
-                  child: const Text('Retry'),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: AppColors.error.withOpacity(0.7),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Failed to load category',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    controller.errorMessage.value,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: controller.refreshCategoryDetail,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -51,34 +64,37 @@ class CategoryDetailView extends GetView<CategoryDetailController> {
         // Empty State
         if (controller.subCategories.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.inventory_2_outlined,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No subcategories available',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 64,
+                    color: AppColors.textSecondary.withOpacity(0.5),
                   ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    if (controller.categoryDetail.value != null) {
-                      controller.navigateToProductList(
-                        controller.categoryDetail.value!,
-                      );
-                    }
-                  },
-                  child: const Text('View All Products'),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  Text(
+                    'No subcategories available',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      if (controller.categoryDetail.value != null) {
+                        controller.navigateToProductList(
+                          controller.categoryDetail.value!,
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.shopping_bag_outlined),
+                    label: const Text('View All Products'),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -132,10 +148,10 @@ class CategoryDetailView extends GetView<CategoryDetailController> {
               // Subcategories Grid
               Expanded(
                 child: GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.85,
+                    childAspectRatio: 0.65,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                   ),

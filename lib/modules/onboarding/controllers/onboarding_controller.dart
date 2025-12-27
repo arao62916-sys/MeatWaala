@@ -44,8 +44,11 @@ class OnboardingController extends GetxController {
   }
 
   void _completeOnboarding() {
+    // Mark onboarding as completed
     _storage.setFirstTime(false);
-    Get.offAllNamed(AppRoutes.login);
+
+    // Navigate to location selection (first-time user flow)
+    Get.offAllNamed(AppRoutes.location);
   }
 }
 

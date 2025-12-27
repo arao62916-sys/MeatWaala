@@ -18,6 +18,7 @@ class LocationView extends GetView<LocationController> {
       appBar: AppBar(
         title: const Text('Select Your Area'),
         automaticallyImplyLeading: false,
+        actions: const [SizedBox(width: 4)],
       ),
       body: Column(
         children: [
@@ -56,27 +57,41 @@ class LocationView extends GetView<LocationController> {
               // Show error state
               if (areaController.hasError.value) {
                 return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        areaController.errorMessage.value,
-                        style: TextStyle(color: Colors.grey[600]),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomButton(
-                        text: 'Retry',
-                        onPressed: areaController.fetchAreas,
-                        icon: Icons.refresh,
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: AppColors.error.withOpacity(0.7),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Unable to load areas',
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          areaController.errorMessage.value,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: areaController.fetchAreas,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -84,20 +99,26 @@ class LocationView extends GetView<LocationController> {
               // Show empty state
               if (areaController.showEmptyState) {
                 return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.location_off,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No areas available',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.location_off,
+                          size: 64,
+                          color: AppColors.textSecondary.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'No areas available',
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -107,9 +128,26 @@ class LocationView extends GetView<LocationController> {
 
               if (areas.isEmpty) {
                 return Center(
-                  child: Text(
-                    'No areas match your search',
-                    style: TextStyle(color: Colors.grey[600]),
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off,
+                          size: 64,
+                          color: AppColors.textSecondary.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'No areas match your search',
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }

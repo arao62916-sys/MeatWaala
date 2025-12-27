@@ -17,20 +17,32 @@ class CartView extends GetView<CartController> {
       body: Obx(() {
         if (controller.cartItems.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.shopping_cart_outlined,
-                  size: 100,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Your cart is empty',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 80,
+                    color: AppColors.textSecondary.withOpacity(0.5),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Your cart is empty',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Add items to get started',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -45,24 +57,37 @@ class CartView extends GetView<CartController> {
                   final item = controller.cartItems[index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Product Image
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(10),
                             child: CachedNetworkImage(
                               imageUrl: item.product.imageUrl,
-                              width: 80,
-                              height: 80,
+                              width: 70,
+                              height: 70,
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
-                                color: AppColors.border,
+                                color: AppColors.border.withOpacity(0.3),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
                               ),
                               errorWidget: (context, url, error) => Container(
-                                color: AppColors.border,
-                                child: const Icon(Icons.error),
+                                color: AppColors.border.withOpacity(0.3),
+                                child: const Icon(
+                                  Icons.image_not_supported_outlined,
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                             ),
                           ),

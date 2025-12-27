@@ -20,6 +20,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
               // Navigate to cart
             },
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: Obx(() {
@@ -174,33 +175,51 @@ class ProductDetailView extends GetView<ProductDetailController> {
                           ),
                           const SizedBox(height: 12),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(
-                                onPressed: controller.decrementQuantity,
-                                icon: const Icon(Icons.remove_circle_outline),
-                                color: AppColors.primary,
-                              ),
-                              Obx(() => Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 8,
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.border),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: controller.decrementQuantity,
+                                      icon: const Icon(Icons.remove),
+                                      color: AppColors.primary,
+                                      padding: const EdgeInsets.all(8),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 40,
+                                        minHeight: 40,
+                                      ),
                                     ),
-                                    decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: AppColors.border),
-                                      borderRadius: BorderRadius.circular(8),
+                                    Obx(() => Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                          ),
+                                          child: Text(
+                                            '${controller.quantity.value}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleLarge
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        )),
+                                    IconButton(
+                                      onPressed: controller.incrementQuantity,
+                                      icon: const Icon(Icons.add),
+                                      color: AppColors.primary,
+                                      padding: const EdgeInsets.all(8),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 40,
+                                        minHeight: 40,
+                                      ),
                                     ),
-                                    child: Text(
-                                      '${controller.quantity.value}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge,
-                                    ),
-                                  )),
-                              IconButton(
-                                onPressed: controller.incrementQuantity,
-                                icon: const Icon(Icons.add_circle_outline),
-                                color: AppColors.primary,
+                                  ],
+                                ),
                               ),
                             ],
                           ),

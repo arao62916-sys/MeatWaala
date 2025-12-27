@@ -15,7 +15,8 @@ class ForgotPasswordView extends GetView<AuthController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Forgot Password'),
-        centerTitle: true,
+        centerTitle: false,
+        actions: const [SizedBox(width: 4)],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -110,7 +111,7 @@ class ForgotPasswordView extends GetView<AuthController> {
                   children: [
                     const Text('Remember your password? '),
                     TextButton(
-                      onPressed: ()=>Get.offAllNamed(AppRoutes.main),
+                      onPressed: () => Get.offAllNamed(AppRoutes.main),
                       // onPressed: controller.navigateToLogin,
                       child: const Text('Login'),
                     ),

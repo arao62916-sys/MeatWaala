@@ -13,16 +13,30 @@ class CategoriesView extends GetView<CategoriesController> {
       appBar: AppBar(
         title: const Text('Categories'),
         centerTitle: false,
-        elevation: 1,
-        bottom: TabBar(
-          controller: controller.tabController,
-          isScrollable: true,
-          indicatorColor: AppColors.primary,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: Colors.grey,
-          tabs: controller.parentCategories
-              .map((parent) => Tab(text: parent['name']))
-              .toList(),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            color: AppColors.primary,
+            child: TabBar(
+              controller: controller.tabController,
+              isScrollable: true,
+              indicatorColor: AppColors.textWhite,
+              indicatorWeight: 3,
+              labelColor: AppColors.textWhite,
+              unselectedLabelColor: AppColors.textWhite.withOpacity(0.7),
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.normal,
+                fontSize: 14,
+              ),
+              tabs: controller.parentCategories
+                  .map((parent) => Tab(text: parent['name']))
+                  .toList(),
+            ),
+          ),
         ),
       ),
       body: TabBarView(
@@ -118,7 +132,8 @@ class CategoriesView extends GetView<CategoriesController> {
       ),
       borderRadius: BorderRadius.circular(16),
       child: Card(
-        elevation: 2,
+        elevation: 3,
+        shadowColor: AppColors.textPrimary.withOpacity(0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -136,17 +151,17 @@ class CategoriesView extends GetView<CategoriesController> {
                   imageUrl: category.imageUrl,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    color: Colors.grey[200],
+                    color: AppColors.border.withOpacity(0.3),
                     child: const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                   ),
                   errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[200],
+                    color: AppColors.border.withOpacity(0.3),
                     child: const Icon(
                       Icons.fastfood,
-                      size: 48,
-                      color: Colors.grey,
+                      size: 40,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ),
