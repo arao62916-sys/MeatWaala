@@ -179,45 +179,55 @@ class BaseApiService {
   }
 
   /// Handle API response and parse it
-  ApiResult<T> _handleResponse<T>(
-    http.Response response,
-    T Function(dynamic)? parser,
-  ) {
-    final statusCode = response.statusCode;
-    final emoji = statusCode >= 200 && statusCode < 300 ? '✅' : '❌';
-    log('$_logTag $emoji Response [$statusCode]: ${response.body}');
+ApiResult<T> _handleResponse<T>(
+  http.Response response,
+  T Function(dynamic)? parser,
+) {
+  final statusCode = response.statusCode;
+  final emoji = statusCode >= 200 && statusCode < 300 ? '✅' : '❌';
+  log('$_logTag $emoji Response [$statusCode]: ${response.body}');
 
-    try {
-      if (response.body.isEmpty) {
-        return ApiResult.error('Empty response from server',
-            status: statusCode);
-      }
-
-      final Map<String, dynamic> json = jsonDecode(response.body);
-      final apiStatus = json['status'] ?? 0;
-      final message = json['message'] ?? json['msg'] ?? '';
-
-      if (apiStatus == 1) {
-        // Success
-        final rawData = json['data'] ?? json;
-        final parsedData = parser != null ? parser(rawData) : rawData as T?;
-        return ApiResult.success(
-          parsedData as T,
-          message: message,
-          status: apiStatus,
-        );
-      } else {
-        // API returned error
-        return ApiResult.error(
-          message.isNotEmpty ? message : 'Request failed',
-          status: apiStatus,
-        );
-      }
-    } catch (e) {
-      log('$_logTag ❌ JSON parsing error: $e');
-      return ApiResult.error('Failed to parse response');
+  try {
+    if (response.body.isEmpty) {
+      return ApiResult.error(
+        'Empty response from server',
+        status: statusCode,
+      );
     }
+
+    final dynamic decoded = jsonDecode(response.body);
+
+    // ✅ HANDLE RAW & WRAPPED RESPONSES
+    final bool hasStatus =
+        decoded is Map<String, dynamic> && decoded.containsKey('status');
+
+    final int apiStatus = hasStatus ? decoded['status'] : 1;
+    final String message =
+        hasStatus ? (decoded['message'] ?? decoded['msg'] ?? '') : '';
+
+    if (apiStatus == 1) {
+      final dynamic rawData =
+          hasStatus && decoded is Map ? decoded['data'] : decoded;
+
+      final parsedData =
+          parser != null ? parser(rawData) : rawData as T;
+
+      return ApiResult.success(
+        parsedData,
+        message: message,
+        status: apiStatus,
+      );
+    } else {
+      return ApiResult.error(
+        message.isNotEmpty ? message : 'Request failed',
+        status: apiStatus,
+      );
+    }
+  } catch (e) {
+    log('$_logTag ❌ JSON parsing error: $e');
+    return ApiResult.error('Failed to parse response');
   }
+}
 
   /// Execute request with retry logic
   Future<ApiResult<T>> _executeWithRetry<T>(

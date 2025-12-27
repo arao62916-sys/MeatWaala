@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/home/controllers/home_controller.dart';
+import 'package:meatwaala_app/modules/home/views/widgets/sort_bottom_sheet.dart';
 
 import 'package:meatwaala_app/modules/navigation/controllers/bottom_nav_controller.dart';
 
@@ -74,6 +75,8 @@ class HomeView extends GetView<HomeController> {
                 // All Products Section
                 _buildSectionHeader(context, 'All Products'),
                 const SizedBox(height: 12),
+                _buildSortBar(),
+                const SizedBox(height: 12),
                 _buildAllProducts(),
 
                 const SizedBox(height: 24),
@@ -119,8 +122,8 @@ class HomeView extends GetView<HomeController> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              width: 70,
-                              height: 70,
+                              width: 80,
+                              height: 80,
                               decoration: BoxDecoration(
                                 color: AppColors.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(12),
@@ -133,7 +136,7 @@ class HomeView extends GetView<HomeController> {
                                 borderRadius: BorderRadius.circular(12),
                                 child: CachedNetworkImage(
                                   imageUrl: category.imageUrl,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.fill,
                                   placeholder: (context, url) => const Icon(
                                     Icons.restaurant,
                                     color: AppColors.primary,
@@ -369,5 +372,62 @@ class HomeView extends GetView<HomeController> {
         },
       );
     });
+  }
+
+  Widget _buildSortBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Obx(() {
+        return InkWell(
+          onTap: () {
+            Get.bottomSheet(
+              const SortBottomSheet(),
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+            );
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.border.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.border.withOpacity(0.4),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.sort,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Sort by: ${controller.selectedSortLabel.value}',
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+    );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:meatwaala_app/core/network/base_api_service.dart';
 import 'package:meatwaala_app/core/network/network_constents.dart';
 import 'package:meatwaala_app/data/models/product_model.dart';
@@ -7,17 +9,19 @@ class ProductApiService {
 
   /// Get sort options
   /// GET: product/sort-option
-  Future<ApiResult<Map<String, String>>> getSortOptions() async {
-    return await _apiService.get(
-      NetworkConstantsUtil.productSortOptions,
-      parser: (data) {
-        if (data is Map<String, dynamic>) {
-          return data.map((key, value) => MapEntry(key, value.toString()));
-        }
-        return <String, String>{};
-      },
-    );
-  }
+Future<ApiResult<Map<String, String>>> getSortOptions() async {
+  return await _apiService.get(
+    NetworkConstantsUtil.productSortOptions,
+    parser: (data) {
+      if (data is Map) {
+        return data.map<String, String>(
+          (k, v) => MapEntry(k.toString(), v.toString()),
+        );
+      }
+      return <String, String>{};
+    },
+  );
+}
 
   /// Get all products with optional filters
   /// GET: product/list

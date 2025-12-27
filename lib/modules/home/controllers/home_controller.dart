@@ -17,10 +17,17 @@ class HomeController extends GetxController {
   final currentBannerIndex = 0.obs;
   final errorMessage = ''.obs;
 
+  // Sort functionality
+  final sortOptions = <String, String>{}.obs;
+  final selectedSortKey = RxnString();
+  final selectedSortLabel = 'Default'.obs;
+  final isSortLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
     loadData();
+    loadSortOptions();
   }
 
   Future<void> loadData() async {
@@ -36,16 +43,8 @@ class HomeController extends GetxController {
         errorMessage.value = categoryResult.message;
       }
 
-      // Load products from API
-      final productResult = await _productService.getProductList();
-      if (productResult.success && productResult.data != null) {
-        // Store all products
-        products.value = productResult.data!;
-
-        // Filter featured products
-        featuredProducts.value =
-            productResult.data!.where((product) => product.isFeatured).toList();
-      }
+      // Load products from API with optional sort order
+      await _loadProducts();
 
       // TODO: Load banners from API or app configuration
       // For now, banners will be empty unless provided by backend
@@ -58,6 +57,100 @@ class HomeController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Load products with current sort order
+  Future<void> _loadProducts() async {
+    products.clear();
+    featuredProducts.clear();
+    isSortLoading.value = true;
+    try {
+      final productResult = await _productService.getProductList(
+        sortOrder: selectedSortKey.value,
+      );
+      if (productResult.success && productResult.data != null) {
+        products.assignAll(productResult.data!);
+        featuredProducts.assignAll(
+          productResult.data!.where((product) => product.isFeatured).toList(),
+        );
+      }
+    } finally {
+      isSortLoading.value = false;
+    }
+  }
+
+  /// Load sort options from API (cached after first load)
+  Future<void> loadSortOptions() async {
+    // Only load if not already cached
+    if (sortOptions.isNotEmpty) return;
+
+    try {
+      final result = await _productService.getSortOptions();
+      if (result.success && result.data != null) {
+        sortOptions.value = result.data!;
+      }
+    } catch (e) {
+      // Silent fail - sort is optional feature
+      // User can still use app without sorting
+    }
+  }
+
+  /// Apply selected sort option
+  Future<void> applySortOption(String sortKey, String sortLabel) async {
+    if (selectedSortKey.value == sortKey) return; // Already selected
+
+    selectedSortKey.value = sortKey;
+    selectedSortLabel.value = sortLabel;
+
+    isSortLoading.value = true;
+    try {
+      await _loadProducts();
+      Get.back(); // Close bottom sheet
+
+      Get.snackbar(
+        'Sorted',
+        'Products sorted by: $sortLabel',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to apply sorting',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isSortLoading.value = false;
+    }
+  }
+
+  /// Clear sort and show default order
+  Future<void> clearSort() async {
+    if (selectedSortKey.value == null) return; // Already cleared
+
+    selectedSortKey.value = null;
+    selectedSortLabel.value = 'Default';
+
+    isSortLoading.value = true;
+    try {
+      await _loadProducts();
+      Get.back(); // Close bottom sheet
+
+      Get.snackbar(
+        'Reset',
+        'Showing products in default order',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to reset sorting',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isSortLoading.value = false;
     }
   }
 
