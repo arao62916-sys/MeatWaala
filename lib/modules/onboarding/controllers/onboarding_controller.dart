@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:meatwaala_app/core/constants/app_constants.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
 
@@ -45,7 +44,7 @@ class OnboardingController extends GetxController {
   }
 
   void _completeOnboarding() {
-    _storage.write(AppConstants.storageKeyIsFirstTime, false);
+    _storage.setFirstTime(false);
     Get.offAllNamed(AppRoutes.login);
   }
 }

@@ -91,14 +91,14 @@ class SignupView extends GetView<AuthController> {
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(
                         Icons.info_outline,
                         color: AppColors.primary,
                         size: 20,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Your password will be sent to your email address',
@@ -243,8 +243,8 @@ class SignupView extends GetView<AuthController> {
               ),
             ),
             // Title
-            Padding(
-              padding: const EdgeInsets.all(16),
+            const Padding(
+              padding: EdgeInsets.all(16),
               child: Text(
                 'Select Delivery Area',
                 style: TextStyle(

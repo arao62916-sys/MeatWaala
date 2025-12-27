@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:meatwaala_app/core/constants/app_constants.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
-import 'package:meatwaala_app/modules/splash/controllers/splash_controller.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});

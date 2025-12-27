@@ -1,8 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meatwaala_app/core/services/storage_service.dart';
-import 'package:meatwaala_app/data/models/customer_profile_model.dart';
+import 'package:meatwaala_app/services/storage_service.dart';
 import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
 import 'package:meatwaala_app/modules/profile/model/user_model.dart';
 import 'package:meatwaala_app/modules/profile/profile_service.dart';
@@ -11,7 +10,8 @@ import 'package:meatwaala_app/routes/app_routes.dart';
 /// Controller for managing profile-related operations
 class ProfileController extends GetxController {
   final ProfileService _profileService = ProfileService();
-  
+  final StorageService _storage = StorageService();
+
   // ========== Observable States ==========
   final isLoading = false.obs;
   final isUpdating = false.obs;
@@ -50,7 +50,8 @@ class ProfileController extends GetxController {
   String get userName => profileData.value?.name ?? 'User';
   String get userEmail => profileData.value?.emailId ?? 'user@example.com';
   String get userPhone => profileData.value?.mobile ?? '+91 0000000000';
-  String get userAddress => profileData.value?.fullAddress ?? 'No address added';
+  String get userAddress =>
+      profileData.value?.fullAddress ?? 'No address added';
   String get userShortAddress => profileData.value?.shortAddress ?? '';
   String get userInitials => profileData.value?.initials ?? 'U';
   String get profileImage => profileData.value?.profileImage ?? '';
@@ -91,7 +92,7 @@ class ProfileController extends GetxController {
   /// Fetch customer profile from API
   Future<void> fetchProfile() async {
     try {
-      final customerId = await StorageService.getUserId();
+      final customerId = _storage.getUserId();
 
       if (customerId == null || customerId.isEmpty) {
         errorMessage.value = 'User not logged in';
@@ -105,11 +106,10 @@ class ProfileController extends GetxController {
       final profile = await _profileService.fetchProfile(customerId);
       profileData.value = profile;
       _populateFormFields();
-      
     } catch (e) {
       errorMessage.value = e.toString().replaceAll('Exception: ', '');
       log('❌ ProfileController: $e');
-      
+
       _showErrorSnackbar(errorMessage.value);
     } finally {
       isLoading.value = false;
@@ -140,7 +140,7 @@ class ProfileController extends GetxController {
     if (!updateProfileFormKey.currentState!.validate()) return;
 
     try {
-      final customerId = await StorageService.getUserId();
+      final customerId = _storage.getUserId();
 
       if (customerId == null || customerId.isEmpty) {
         log('❌ ProfileController: No customer ID found for update');
@@ -168,9 +168,8 @@ class ProfileController extends GetxController {
 
       Get.back(); // Close edit screen
       _showSuccessSnackbar(message);
-      
+
       await fetchProfile(); // Refresh profile
-      
     } catch (e) {
       log('❌ ProfileController: Update failed: $e');
       _showErrorSnackbar(e.toString().replaceAll('Exception: ', ''));
@@ -191,7 +190,7 @@ class ProfileController extends GetxController {
     }
 
     try {
-      final customerId = await StorageService.getUserId();
+      final customerId = _storage.getUserId();
 
       if (customerId == null || customerId.isEmpty) {
         log('❌ ProfileController: No customer ID found for password change');
@@ -207,7 +206,8 @@ class ProfileController extends GetxController {
         'confirm_password': confirmPasswordController.text,
       };
 
-      final message = await _profileService.changePassword(customerId, passwordData);
+      final message =
+          await _profileService.changePassword(customerId, passwordData);
 
       Get.back(); // Close change password screen
       _showSuccessSnackbar(message);
@@ -216,7 +216,6 @@ class ProfileController extends GetxController {
       oldPasswordController.clear();
       newPasswordController.clear();
       confirmPasswordController.clear();
-      
     } catch (e) {
       log('❌ ProfileController: Password change failed: $e');
       _showErrorSnackbar(e.toString().replaceAll('Exception: ', ''));

@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:meatwaala_app/data/models/cart_item_model.dart';
-import 'package:meatwaala_app/data/repositories/mock_data_repository.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 
 class CartController extends GetxController {
@@ -13,26 +12,10 @@ class CartController extends GetxController {
   }
 
   void loadMockCart() {
-    // Mock cart items for demonstration
-    final products = MockDataRepository.getProducts();
-    if (products.length >= 2) {
-      cartItems.value = [
-        CartItemModel(
-          id: '1',
-          product: products[0],
-          selectedWeight: products[0].availableWeights.first,
-          quantity: 2,
-          price: products[0].basePrice,
-        ),
-        CartItemModel(
-          id: '2',
-          product: products[2],
-          selectedWeight: products[2].availableWeights.first,
-          quantity: 1,
-          price: products[2].basePrice,
-        ),
-      ];
-    }
+    // TODO: Load cart from API or local storage
+    // Cart should be populated when user adds items from product detail page
+    // For now, cart starts empty
+    cartItems.value = [];
   }
 
   double get subtotal {

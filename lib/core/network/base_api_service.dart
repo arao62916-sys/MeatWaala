@@ -77,7 +77,7 @@ class BaseApiService {
 
       final response = await http
           .get(uri, headers: _buildHeaders())
-          .timeout(Duration(seconds: _timeoutSeconds));
+          .timeout(const Duration(seconds: _timeoutSeconds));
 
       return _handleResponse(response, parser);
     });
@@ -102,7 +102,7 @@ class BaseApiService {
                 additionalHeaders: {'Content-Type': 'application/json'}),
             body: body != null ? jsonEncode(body) : null,
           )
-          .timeout(Duration(seconds: _timeoutSeconds));
+          .timeout(const Duration(seconds: _timeoutSeconds));
 
       return _handleResponse(response, parser);
     });
@@ -128,7 +128,7 @@ class BaseApiService {
             }),
             body: fields,
           )
-          .timeout(Duration(seconds: _timeoutSeconds));
+          .timeout(const Duration(seconds: _timeoutSeconds));
 
       return _handleResponse(response, parser);
     });
@@ -170,7 +170,7 @@ class BaseApiService {
       log('$_logTag Fields: ${request.fields}');
 
       final streamedResponse = await request.send().timeout(
-            Duration(seconds: _timeoutSeconds),
+            const Duration(seconds: _timeoutSeconds),
           );
       final response = await http.Response.fromStream(streamedResponse);
 

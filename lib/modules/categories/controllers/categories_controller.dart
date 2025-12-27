@@ -1,66 +1,75 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/data/models/category_model.dart';
+import 'package:meatwaala_app/data/services/category_api_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 
-class CategoriesController extends GetxController {
-  // Observable list of categories
+class CategoriesController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  final CategoryApiService _categoryService = CategoryApiService();
+
+  // Tab Controller
+  late TabController tabController;
+
+  // Parent Categories
+  final List<Map<String, String>> parentCategories = [
+    {'id': '1', 'name': 'Chicken'},
+    {'id': '2', 'name': 'Mutton'},
+    {'id': '3', 'name': 'Fish'},
+    {'id': '4', 'name': 'Eggs'},
+    {'id': '5', 'name': 'Spices'},
+  ];
+
+  // Observable lists
   final RxList<CategoryModel> categories = <CategoryModel>[].obs;
+
+  // State
   final RxBool isLoading = false.obs;
+  final RxString errorMessage = ''.obs;
+  final RxInt selectedTabIndex = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadCategories();
+    tabController = TabController(
+      length: parentCategories.length,
+      vsync: this,
+    );
+    tabController.addListener(() {
+      if (!tabController.indexIsChanging) {
+        selectedTabIndex.value = tabController.index;
+        loadCategoriesByParentId(parentCategories[tabController.index]['id']!);
+      }
+    });
+    loadCategoriesByParentId('1'); // Load Chicken categories by default
   }
 
-  // Load categories
-  Future<void> loadCategories() async {
+  @override
+  void onClose() {
+    tabController.dispose();
+    super.onClose();
+  }
+
+  /// Load categories by parent ID
+  Future<void> loadCategoriesByParentId(String parentId) async {
     try {
       isLoading.value = true;
+      errorMessage.value = '';
 
-      // TODO: Replace with actual API call
-      // Simulating API call with dummy data
-      await Future.delayed(const Duration(milliseconds: 500));
+      final result = await _categoryService.getCategoryListById(parentId);
 
-      categories.value = [
-        CategoryModel(
-          id: '1',
-          name: 'Chicken',
-          imageUrl: 'https://via.placeholder.com/150',
-          description: 'Fresh chicken products',
-        ),
-        CategoryModel(
-          id: '2',
-          name: 'Mutton',
-          imageUrl: 'https://via.placeholder.com/150',
-          description: 'Premium mutton cuts',
-        ),
-        CategoryModel(
-          id: '3',
-          name: 'Fish',
-          imageUrl: 'https://via.placeholder.com/150',
-          description: 'Fresh seafood',
-        ),
-        CategoryModel(
-          id: '4',
-          name: 'Prawns',
-          imageUrl: 'https://via.placeholder.com/150',
-          description: 'Fresh prawns',
-        ),
-        CategoryModel(
-          id: '5',
-          name: 'Eggs',
-          imageUrl: 'https://via.placeholder.com/150',
-          description: 'Farm fresh eggs',
-        ),
-        CategoryModel(
-          id: '6',
-          name: 'Ready to Cook',
-          imageUrl: 'https://via.placeholder.com/150',
-          description: 'Marinated and ready to cook',
-        ),
-      ];
+      if (result.success && result.data != null) {
+        categories.value = result.data!;
+      } else {
+        errorMessage.value = result.message;
+        Get.snackbar(
+          'Error',
+          result.message,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
     } catch (e) {
+      errorMessage.value = 'Failed to load categories';
       Get.snackbar(
         'Error',
         'Failed to load categories: $e',
@@ -71,16 +80,21 @@ class CategoriesController extends GetxController {
     }
   }
 
-  // Navigate to product list filtered by category
-  void navigateToCategory(String categoryName) {
+  /// Navigate to category info screen
+  void navigateToCategoryInfo(String categoryId, String categoryName) {
     Get.toNamed(
-      AppRoutes.productList,
-      arguments: {'category': categoryName},
+      AppRoutes.categoryInfo,
+      arguments: {
+        'categoryId': categoryId,
+        'categoryName': categoryName,
+      },
     );
   }
 
-  // Refresh categories
-  Future<void> onRefresh() async {
-    await loadCategories();
+  /// Refresh categories
+  Future<void> refreshCategories() async {
+    await loadCategoriesByParentId(
+      parentCategories[selectedTabIndex.value]['id']!,
+    );
   }
 }

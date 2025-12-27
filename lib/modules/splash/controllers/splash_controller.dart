@@ -35,7 +35,7 @@ class SplashController extends GetxController {
     await _fetchCompanyData();
 
     // Wait for minimum splash duration
-    await Future.delayed(Duration(seconds: AppConstants.splashDuration));
+    await Future.delayed(const Duration(seconds: AppConstants.splashDuration));
 
     // Navigate to next screen
     _navigateToNext();
@@ -87,6 +87,13 @@ class SplashController extends GetxController {
 
     final isLoggedIn = _storage.isLoggedIn();
     final hasSelectedArea = _storage.hasSelectedArea();
+
+    // Debug logging
+    log('🔍 Navigation Check:');
+    log('   - isLoggedIn: $isLoggedIn');
+    log('   - hasSelectedArea: $hasSelectedArea');
+    log('   - token: ${_storage.getToken()}');
+    log('   - userId: ${_storage.getUserId()}');
 
     if (isLoggedIn) {
       log('👤 User logged in - navigating to main');

@@ -76,14 +76,14 @@ class CustomBottomNavBar extends StatelessWidget {
       removeMargins: false,
 
       /// Bottom bar items
-      bottomBarItems: [
+      bottomBarItems: const [
         /// Home
         BottomBarItem(
-          inActiveItem: const Icon(
+          inActiveItem: Icon(
             Icons.home_outlined,
             color: AppColors.textSecondary,
           ),
-          activeItem: const Icon(
+          activeItem: Icon(
             Icons.home,
             color: Colors.white,
           ),
@@ -92,11 +92,11 @@ class CustomBottomNavBar extends StatelessWidget {
 
         /// Categories
         BottomBarItem(
-          inActiveItem: const Icon(
+          inActiveItem: Icon(
             Icons.category_outlined,
             color: AppColors.textSecondary,
           ),
-          activeItem: const Icon(
+          activeItem: Icon(
             Icons.category,
             color: Colors.white,
           ),
@@ -105,11 +105,11 @@ class CustomBottomNavBar extends StatelessWidget {
 
         /// Orders
         BottomBarItem(
-          inActiveItem: const Icon(
+          inActiveItem: Icon(
             Icons.receipt_long_outlined,
             color: AppColors.textSecondary,
           ),
-          activeItem: const Icon(
+          activeItem: Icon(
             Icons.receipt_long,
             color: Colors.white,
           ),
@@ -118,11 +118,11 @@ class CustomBottomNavBar extends StatelessWidget {
 
         /// Profile
         BottomBarItem(
-          inActiveItem: const Icon(
+          inActiveItem: Icon(
             Icons.person_outline,
             color: AppColors.textSecondary,
           ),
-          activeItem: const Icon(
+          activeItem: Icon(
             Icons.person,
             color: Colors.white,
           ),

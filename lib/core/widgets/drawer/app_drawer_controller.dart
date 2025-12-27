@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/data/models/user_model.dart';
 import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
-import 'package:meatwaala_app/core/services/storage_service.dart';
+import 'package:meatwaala_app/services/storage_service.dart';
 
 /// Controller for managing drawer state and user data
 class AppDrawerController extends GetxController {
@@ -74,7 +74,8 @@ class AppDrawerController extends GetxController {
       } catch (e) {
         // If AuthController not found, handle logout manually
         print('⚠️ AuthController not found, clearing session manually');
-        await StorageService.logout();
+        final storage = StorageService();
+        await storage.logout();
         currentUser.value = null;
         Get.offAllNamed('/login');
       }

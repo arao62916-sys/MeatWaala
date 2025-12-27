@@ -13,58 +13,110 @@ class CategoriesView extends GetView<CategoriesController> {
       appBar: AppBar(
         title: const Text('Categories'),
         centerTitle: false,
+        elevation: 1,
+        bottom: TabBar(
+          controller: controller.tabController,
+          isScrollable: true,
+          indicatorColor: AppColors.primary,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: Colors.grey,
+          tabs: controller.parentCategories
+              .map((parent) => Tab(text: parent['name']))
+              .toList(),
+        ),
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      body: TabBarView(
+        controller: controller.tabController,
+        children: controller.parentCategories.map((parent) {
+          return Obx(() {
+            // Loading State
+            if (controller.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-        if (controller.categories.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.category_outlined,
-                  size: 64,
-                  color: AppColors.textSecondary,
+            // Error State
+            if (controller.errorMessage.value.isNotEmpty &&
+                controller.categories.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      controller.errorMessage.value,
+                      style: const TextStyle(fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: controller.refreshCategories,
+                      child: const Text('Retry'),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'No categories available',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
+              );
+            }
+
+            // Empty State
+            if (controller.categories.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.category_outlined,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No categories available',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
                       ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        }
+              );
+            }
 
-        return RefreshIndicator(
-          onRefresh: controller.onRefresh,
-          child: GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.85,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: controller.categories.length,
-            itemBuilder: (context, index) {
-              final category = controller.categories[index];
-              return _buildCategoryCard(context, category);
-            },
-          ),
-        );
-      }),
+            // Success State - Show Categories
+            return RefreshIndicator(
+              onRefresh: controller.refreshCategories,
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.85,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: controller.categories.length,
+                itemBuilder: (context, index) {
+                  final category = controller.categories[index];
+                  return _buildCategoryCard(context, category);
+                },
+              ),
+            );
+          });
+        }).toList(),
+      ),
     );
   }
 
   Widget _buildCategoryCard(BuildContext context, category) {
-    return GestureDetector(
-      onTap: () => controller.navigateToCategory(category.name),
+    return InkWell(
+      onTap: () => controller.navigateToCategoryInfo(
+        category.categoryId,
+        category.name,
+      ),
+      borderRadius: BorderRadius.circular(16),
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -84,65 +136,51 @@ class CategoriesView extends GetView<CategoriesController> {
                   imageUrl: category.imageUrl,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: Colors.grey[200],
                     child: const Center(
-                      child: Icon(
-                        Icons.category,
-                        size: 48,
-                        color: AppColors.primary,
-                      ),
+                      child: CircularProgressIndicator(),
                     ),
                   ),
                   errorWidget: (context, url, error) => Container(
-                    color: AppColors.primary.withOpacity(0.1),
-                    child: const Center(
-                      child: Icon(
-                        Icons.category,
-                        size: 48,
-                        color: AppColors.primary,
-                      ),
+                    color: Colors.grey[200],
+                    child: const Icon(
+                      Icons.fastfood,
+                      size: 48,
+                      color: Colors.grey,
                     ),
                   ),
                 ),
               ),
             ),
 
-            // Category Name
+            // Category Info
             Expanded(
               flex: 1,
-              child: Container(
+              child: Padding(
                 padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: AppColors.cardBackground,
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(16),
-                  ),
-                ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       category.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (category.description.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          category.description,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                    if (category.shortDescription != null &&
+                        category.shortDescription!.isNotEmpty)
+                      Text(
+                        category.shortDescription!,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey[600],
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                   ],
                 ),

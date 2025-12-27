@@ -63,7 +63,7 @@ class OrderHistoryView extends GetView<OrderHistoryController> {
                         ),
                         Text(
                           DateFormat('dd MMM yyyy').format(order.createdAt),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
                           ),

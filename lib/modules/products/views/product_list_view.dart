@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/products/controllers/product_list_controller.dart';
+import 'package:meatwaala_app/modules/products/views/widgets/product_widgets.dart';
 
 class ProductListView extends GetView<ProductListController> {
   const ProductListView({super.key});
@@ -12,141 +11,259 @@ class ProductListView extends GetView<ProductListController> {
     return Scaffold(
       appBar: AppBar(
         title: Obx(() => Text(
-              controller.category.value.isEmpty
+              controller.categoryName.value.isEmpty
                   ? 'All Products'
-                  : controller.category.value,
+                  : controller.categoryName.value,
             )),
+        actions: [
+          // Search Icon
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => _showSearchDialog(context),
+          ),
+
+          // Sort Icon
+          IconButton(
+            icon: const Icon(Icons.sort),
+            onPressed: () => _showSortOptions(context),
+          ),
+        ],
       ),
       body: Obx(() {
+        // Loading State
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (controller.products.isEmpty) {
-          return const Center(
-            child: Text('No products found'),
+        // Error State
+        if (controller.errorMessage.value.isNotEmpty &&
+            controller.products.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  controller.errorMessage.value,
+                  style: const TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: controller.refreshProducts,
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
           );
         }
 
-        return GridView.builder(
-          padding: const EdgeInsets.all(16.0),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.7,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: controller.products.length,
-          itemBuilder: (context, index) {
-            final product = controller.products[index];
-            return GestureDetector(
-              onTap: () => controller.navigateToProductDetail(product.id),
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+        // Empty State
+        if (controller.products.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.inventory_2_outlined,
+                  size: 64,
+                  color: Colors.grey[400],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Product Image
-                    Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(12),
-                          ),
-                          child: CachedNetworkImage(
-                            imageUrl: product.imageUrl,
-                            height: 140,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(
-                              color: AppColors.border,
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              color: AppColors.border,
-                              child: const Icon(Icons.error),
-                            ),
+                const SizedBox(height: 16),
+                Text(
+                  'No products found',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                if (controller.searchQuery.value.isNotEmpty ||
+                    controller.selectedSortKey.value.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: controller.clearFilters,
+                    child: const Text('Clear Filters'),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }
+
+        // Success State - Show Products
+        return RefreshIndicator(
+          onRefresh: controller.refreshProducts,
+          child: Column(
+            children: [
+              // Active Filters Chip
+              if (controller.selectedSortOrder.value.isNotEmpty ||
+                  controller.searchQuery.value.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  color: Colors.grey[100],
+                  child: Row(
+                    children: [
+                      if (controller.searchQuery.value.isNotEmpty)
+                        Chip(
+                          label:
+                              Text('Search: ${controller.searchQuery.value}'),
+                          onDeleted: () => controller.clearFilters(),
+                          deleteIcon: const Icon(Icons.close, size: 16),
+                        ),
+                      if (controller.selectedSortOrder.value.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Chip(
+                            label: Text(controller.selectedSortOrder.value),
+                            onDeleted: () {
+                              controller.selectedSortKey.value = '';
+                              controller.selectedSortOrder.value = '';
+                              controller.loadProducts();
+                            },
+                            deleteIcon: const Icon(Icons.close, size: 16),
                           ),
                         ),
+                    ],
+                  ),
+                ),
 
-                        // Discount Badge
-                        if (product.discount != null)
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.success,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                product.discount!,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Product Name
-                          Text(
-                            product.name,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-
-                          // Weight
-                          Text(
-                            product.availableWeights.first,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-
-                          // Price
-                          Text(
-                            '₹${product.basePrice}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              // Product Grid
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.65,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: controller.products.length,
+                  itemBuilder: (context, index) {
+                    final product = controller.products[index];
+                    return ProductGridCard(
+                      product: product,
+                      onTap: () => controller.navigateToProductDetail(product),
+                    );
+                  },
                 ),
               ),
-            );
-          },
+            ],
+          ),
         );
       }),
+    );
+  }
+
+  /// Show search dialog
+  void _showSearchDialog(BuildContext context) {
+    final searchController = TextEditingController(
+      text: controller.searchQuery.value,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Search Products'),
+          content: TextField(
+            controller: searchController,
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: 'Enter product name...',
+              prefixIcon: Icon(Icons.search),
+            ),
+            onSubmitted: (value) {
+              controller.searchProducts(value);
+              Navigator.pop(context);
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                controller.searchProducts(searchController.text);
+                Navigator.pop(context);
+              },
+              child: const Text('Search'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Show sort options bottom sheet
+  void _showSortOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Obx(() {
+          final sortOptions = controller.sortOptions;
+
+          return Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                const Text(
+                  'Sort By',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Sort Options
+                if (sortOptions.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text('No sort options available'),
+                    ),
+                  )
+                else
+                  ...sortOptions.entries.map((entry) {
+                    final isSelected =
+                        controller.selectedSortKey.value == entry.key;
+
+                    return RadioListTile<String>(
+                      title: Text(entry.value),
+                      value: entry.key,
+                      groupValue: controller.selectedSortKey.value,
+                      selected: isSelected,
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.applySortOrder(value, entry.value);
+                          Navigator.pop(context);
+                        }
+                      },
+                    );
+                  }),
+
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        });
+      },
     );
   }
 }

@@ -85,7 +85,7 @@ class CartView extends GetView<CartController> {
                                 const SizedBox(height: 4),
                                 Text(
                                   item.selectedWeight,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: AppColors.textSecondary,
                                   ),

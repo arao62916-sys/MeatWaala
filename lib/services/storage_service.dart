@@ -10,14 +10,21 @@ class StorageService {
 
   // Storage Keys
   static const String _keyIsFirstTime = 'is_first_time';
+  static const String _keyIsLoggedIn = 'is_logged_in';
   static const String _keyToken = 'auth_token';
+  static const String _keyRefreshToken = 'refresh_token';
   static const String _keyUserId = 'user_id';
+  static const String _keyUserName = 'user_name';
+  static const String _keyUserEmail = 'user_email';
+  static const String _keyUserPhone = 'user_phone';
+  static const String _keyUserRole = 'user_role';
   static const String _keyUserData = 'user_data';
   static const String _keyCompanyData = 'company_data';
   static const String _keySelectedAreaId = 'selected_area_id';
   static const String _keySelectedAreaName = 'selected_area_name';
-  static const String _keyCart = 'cart_items';
   static const String _keyTempEmail = 'temp_email'; // For signup to login flow
+  // TODO: Implement cart storage
+  // static const String _keyCart = 'cart_items';
 
   // Initialize storage
   static Future<void> init() async {
@@ -92,18 +99,92 @@ class StorageService {
     required String token,
     required String customerId,
     required Map<String, dynamic> customerData,
+    String? refreshToken,
   }) async {
     await _storage.write(_keyToken, token);
     await _storage.write(_keyUserId, customerId);
     await _storage.write(_keyUserData, jsonEncode(customerData));
+    await _storage.write(_keyIsLoggedIn, true);
+
+    // Save individual fields for easy access
+    if (customerData['name'] != null) {
+      await _storage.write(_keyUserName, customerData['name']);
+    }
+    if (customerData['emailId'] != null || customerData['email_id'] != null) {
+      await _storage.write(
+          _keyUserEmail, customerData['emailId'] ?? customerData['email_id']);
+    }
+    if (customerData['mobile'] != null || customerData['phone'] != null) {
+      await _storage.write(
+          _keyUserPhone, customerData['mobile'] ?? customerData['phone']);
+    }
+    if (customerData['role'] != null) {
+      await _storage.write(_keyUserRole, customerData['role']);
+    }
+    if (refreshToken != null) {
+      await _storage.write(_keyRefreshToken, refreshToken);
+    }
+  }
+
+  // Alternative method for compatibility with SharedPreferences-style calls
+  Future<void> saveLoginData({
+    required String token,
+    required String userId,
+    required String userName,
+    String? userEmail,
+    String? userPhone,
+    String? refreshToken,
+    String? userRole,
+    Map<String, dynamic>? fullUserData,
+  }) async {
+    await _storage.write(_keyToken, token);
+    await _storage.write(_keyUserId, userId);
+    await _storage.write(_keyUserName, userName);
+    await _storage.write(_keyIsLoggedIn, true);
+
+    if (userEmail != null) {
+      await _storage.write(_keyUserEmail, userEmail);
+    }
+    if (userPhone != null) {
+      await _storage.write(_keyUserPhone, userPhone);
+    }
+    if (userRole != null) {
+      await _storage.write(_keyUserRole, userRole);
+    }
+    if (refreshToken != null) {
+      await _storage.write(_keyRefreshToken, refreshToken);
+    }
+    if (fullUserData != null) {
+      await _storage.write(_keyUserData, jsonEncode(fullUserData));
+    }
   }
 
   String? getToken() {
     return _storage.read<String>(_keyToken);
   }
 
+  String? getRefreshToken() {
+    return _storage.read<String>(_keyRefreshToken);
+  }
+
   String? getUserId() {
     return _storage.read<String>(_keyUserId);
+  }
+
+  String? getUserName() {
+    return _storage.read<String>(_keyUserName);
+  }
+
+  String? getUserEmail() {
+    return _storage.read<String>(_keyUserEmail);
+  }
+
+  String? getUserPhone() {
+    return _storage.read<String>(_keyUserPhone);
+  }
+
+  String? getUserRole() {
+    return _storage.read<String>(_keyUserRole);
   }
 
   Map<String, dynamic>? getUserData() {
@@ -114,15 +195,45 @@ class StorageService {
     return null;
   }
 
+  Map<String, dynamic> getAllUserData() {
+    return {
+      'token': _storage.read<String>(_keyToken),
+      'userId': _storage.read<String>(_keyUserId),
+      'userName': _storage.read<String>(_keyUserName),
+      'userEmail': _storage.read<String>(_keyUserEmail),
+      'userPhone': _storage.read<String>(_keyUserPhone),
+      'userRole': _storage.read<String>(_keyUserRole),
+      'refreshToken': _storage.read<String>(_keyRefreshToken),
+    };
+  }
+
   bool isLoggedIn() {
+    final isLoggedIn = _storage.read<bool>(_keyIsLoggedIn) ?? false;
     final token = _storage.read<String>(_keyToken);
-    return token != null && token.isNotEmpty;
+    // User is logged in if flag is set AND token exists
+    return isLoggedIn && token != null && token.isNotEmpty;
   }
 
   Future<void> clearUserData() async {
     await _storage.remove(_keyToken);
+    await _storage.remove(_keyRefreshToken);
     await _storage.remove(_keyUserId);
+    await _storage.remove(_keyUserName);
+    await _storage.remove(_keyUserEmail);
+    await _storage.remove(_keyUserPhone);
+    await _storage.remove(_keyUserRole);
     await _storage.remove(_keyUserData);
+    await _storage.write(_keyIsLoggedIn, false);
+  }
+
+  // Logout - clears user data but keeps app data (company, area, etc.)
+  Future<void> logout() async {
+    await clearUserData();
+  }
+
+  // Clear all storage (for debugging or complete reset)
+  Future<void> clearAll() async {
+    await _storage.erase();
   }
 
   // ============ TEMP EMAIL (Signup -> Login flow) ============
@@ -145,5 +256,20 @@ class StorageService {
 
   Future<void> setFirstTime(bool value) async {
     await _storage.write(_keyIsFirstTime, value);
+  }
+
+  // ============ DEBUG ============
+  void debugPrintStorage() {
+    print('🧠 STORAGE DEBUG');
+    print('🔐 Token: ${_storage.read<String>(_keyToken)}');
+    print('🆔 UserId: ${_storage.read<String>(_keyUserId)}');
+    print('👤 Name: ${_storage.read<String>(_keyUserName)}');
+    print('📧 Email: ${_storage.read<String>(_keyUserEmail)}');
+    print('📞 Phone: ${_storage.read<String>(_keyUserPhone)}');
+    print('🎭 Role: ${_storage.read<String>(_keyUserRole)}');
+    print('🔁 RefreshToken: ${_storage.read<String>(_keyRefreshToken)}');
+    print('✅ LoggedIn: ${_storage.read<bool>(_keyIsLoggedIn)}');
+    print('📍 Area ID: ${_storage.read<String>(_keySelectedAreaId)}');
+    print('📍 Area Name: ${_storage.read<String>(_keySelectedAreaName)}');
   }
 }

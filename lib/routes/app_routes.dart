@@ -9,6 +9,8 @@ class AppRoutes {
   static const String main = '/main';
   static const String home = '/home';
   static const String categories = '/categories';
+  static const String categoryDetail = '/category-detail';
+  static const String categoryInfo = '/category-info';
   static const String productList = '/product-list';
   static const String productDetail = '/product-detail';
   static const String cart = '/cart';

@@ -17,6 +17,10 @@ import 'package:meatwaala_app/modules/home/bindings/home_binding.dart';
 import 'package:meatwaala_app/modules/home/views/home_view.dart';
 import 'package:meatwaala_app/modules/categories/bindings/categories_binding.dart';
 import 'package:meatwaala_app/modules/categories/views/categories_view.dart';
+import 'package:meatwaala_app/modules/categories/bindings/category_detail_binding.dart';
+import 'package:meatwaala_app/modules/categories/views/category_detail_view.dart';
+import 'package:meatwaala_app/modules/categories/bindings/category_info_binding.dart';
+import 'package:meatwaala_app/modules/categories/views/category_info_view.dart';
 import 'package:meatwaala_app/modules/products/bindings/product_binding.dart';
 import 'package:meatwaala_app/modules/products/views/product_list_view.dart';
 import 'package:meatwaala_app/modules/products/views/product_detail_view.dart';
@@ -80,6 +84,16 @@ class AppPages {
       binding: CategoriesBinding(),
     ),
     GetPage(
+      name: AppRoutes.categoryDetail,
+      page: () => const CategoryDetailView(),
+      binding: CategoryDetailBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.categoryInfo,
+      page: () => const CategoryInfoView(),
+      binding: CategoryInfoBinding(),
+    ),
+    GetPage(
       name: AppRoutes.productList,
       page: () => const ProductListView(),
       binding: ProductBinding(),
@@ -114,12 +128,12 @@ class AppPages {
       page: () => const ProfileView(),
       binding: ProfileBinding(),
     ),
-     GetPage(
+    GetPage(
       name: AppRoutes.editProfile,
       page: () => const EditProfileView(),
       binding: ProfileBinding(),
     ),
-     GetPage(
+    GetPage(
       name: AppRoutes.changePassword,
       page: () => const ChangePasswordView(),
       binding: ProfileBinding(),

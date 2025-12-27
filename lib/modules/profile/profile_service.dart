@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:meatwaala_app/core/network/base_api_service.dart';
 import 'package:meatwaala_app/core/network/network_constents.dart';
-import 'package:meatwaala_app/data/models/customer_profile_model.dart';
+
 import 'package:meatwaala_app/modules/profile/model/user_model.dart';
 
 class ProfileService {

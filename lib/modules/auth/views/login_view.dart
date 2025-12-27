@@ -4,7 +4,6 @@ import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/core/widgets/custom_button.dart';
 import 'package:meatwaala_app/core/widgets/custom_text_field.dart';
 import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
-import 'package:meatwaala_app/routes/app_routes.dart';
 
 class LoginView extends GetView<AuthController> {
   const LoginView({super.key});
@@ -70,9 +69,7 @@ class LoginView extends GetView<AuthController> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                     
-                        Get.toNamed('/forgot-password');
-                      
+                      Get.toNamed('/forgot-password');
                     },
                     child: const Text('Forgot Password?'),
                   ),

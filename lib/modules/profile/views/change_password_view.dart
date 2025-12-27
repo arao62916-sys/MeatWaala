@@ -134,7 +134,7 @@ class ChangePasswordView extends GetView<ProfileController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Password Requirements:',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -228,7 +228,7 @@ class ChangePasswordView extends GetView<ProfileController> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
         color: AppColors.textPrimary,
@@ -251,7 +251,7 @@ class ChangePasswordView extends GetView<ProfileController> {
       textInputAction: textInputAction,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(Icons.lock_outline, color: AppColors.primary),
+        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
         suffixIcon: IconButton(
           icon: Icon(
             isVisible ? Icons.visibility_off : Icons.visibility,
@@ -269,15 +269,15 @@ class ChangePasswordView extends GetView<ProfileController> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.error),
+          borderSide: const BorderSide(color: AppColors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.error, width: 2),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
         filled: true,
         fillColor: Colors.grey.shade50,
@@ -303,7 +303,7 @@ class ChangePasswordView extends GetView<ProfileController> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
               ),

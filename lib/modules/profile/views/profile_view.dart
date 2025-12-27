@@ -48,7 +48,7 @@ class ProfileView extends GetView<ProfileController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: 80,
               color: AppColors.error,
@@ -199,7 +199,7 @@ class ProfileView extends GetView<ProfileController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.email_outlined,
                 size: 16,
                 color: AppColors.textSecondary,
@@ -222,7 +222,7 @@ class ProfileView extends GetView<ProfileController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.phone_outlined,
                 size: 16,
                 color: AppColors.textSecondary,
@@ -242,7 +242,7 @@ class ProfileView extends GetView<ProfileController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.location_on_outlined,
                   size: 16,
                   color: AppColors.textSecondary,
@@ -459,7 +459,7 @@ class ProfileView extends GetView<ProfileController> {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.textSecondary,
           fontSize: 13,
         ),

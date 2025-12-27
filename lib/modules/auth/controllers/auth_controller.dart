@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:meatwaala_app/core/constants/app_constants.dart';
 import 'package:meatwaala_app/core/network/base_api_service.dart';
 import 'package:meatwaala_app/core/network/network_constents.dart';
-import 'package:meatwaala_app/core/services/storage_service.dart';
+import 'package:meatwaala_app/services/storage_service.dart';
 import 'package:meatwaala_app/data/models/customer_model.dart';
 import 'package:meatwaala_app/data/services/auth_api_service.dart';
 import 'package:meatwaala_app/modules/location/controllers/area_controller.dart';
@@ -21,7 +21,7 @@ class AuthController extends GetxController {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
   final otpController = TextEditingController();
-final forgotPasswordFormKey = GlobalKey<FormState>();
+  final forgotPasswordFormKey = GlobalKey<FormState>();
   // Observable States
   final isLoading = false.obs;
   final obscurePassword = true.obs;
@@ -46,7 +46,7 @@ final forgotPasswordFormKey = GlobalKey<FormState>();
   }
 
   void _prefillEmailFromSignup() async {
-    final tempEmail = await StorageService.getTempEmail();
+    final tempEmail = _storage.getTempEmail();
     if (tempEmail != null && tempEmail.isNotEmpty) {
       emailController.text = tempEmail;
       log('📧 Pre-filled email from signup: $tempEmail');
@@ -54,7 +54,7 @@ final forgotPasswordFormKey = GlobalKey<FormState>();
   }
 
   void _loadCurrentUser() async {
-    final userId = await StorageService.getUserId();
+    final userId = _storage.getUserId();
     if (userId != null && userId.isNotEmpty) {
       // User is logged in but we don't have full customer data here
       // It will be loaded on login
@@ -144,7 +144,7 @@ final forgotPasswordFormKey = GlobalKey<FormState>();
         log('✅ Signup successful: ${result.message}');
 
         // Save email temporarily for login prefill
-        await StorageService.saveTempEmail(emailController.text.trim());
+        await _storage.saveTempEmail(emailController.text.trim());
 
         // Confirm area selection
         await areaController.confirmSelection();
@@ -230,13 +230,14 @@ final forgotPasswordFormKey = GlobalKey<FormState>();
         log('📩 Message: ${loginData.message}');
 
         // 💾 Save user data to storage with proper customer information
-        await StorageService.saveLoginData(
+        await _storage.saveLoginData(
           token: loginData.customerId, // using customerId as token for auth
           userId: loginData.customerId,
           userName: loginData.customer?.name ?? '',
           userEmail: loginData.customer?.emailId,
           userPhone: loginData.customer?.mobile,
           refreshToken: '', // Add if API provides refresh token
+          fullUserData: loginData.customer?.toJson(),
         );
 
         // 🧾 PRINT STORED DATA WITH EMOJIS
@@ -250,7 +251,7 @@ final forgotPasswordFormKey = GlobalKey<FormState>();
         log('==========================================================');
 
         // 🧹 Clear temp email
-        await StorageService.clearTempEmail();
+        await _storage.clearTempEmail();
         log('🗑️ Temporary email cleared');
 
         // 🔄 Update current customer
@@ -306,85 +307,85 @@ final forgotPasswordFormKey = GlobalKey<FormState>();
     emailController.clear();
     passwordController.clear();
   }
-// Forgot Password  
+
+// Forgot Password
 // ============ FORGOT PASSWORD ============
-Future<void> forgotPassword() async {
-  if (forgotPasswordFormKey.currentState != null &&
-      !forgotPasswordFormKey.currentState!.validate()) {
-    return;
-  }
+  Future<void> forgotPassword() async {
+    if (forgotPasswordFormKey.currentState != null &&
+        !forgotPasswordFormKey.currentState!.validate()) {
+      return;
+    }
 
-  isLoading.value = true;
-  clearError();
+    isLoading.value = true;
+    clearError();
 
-  try {
-    log('🔑 Forgot Password request started');
+    try {
+      log('🔑 Forgot Password request started');
 
-    final result = await _authApiService.forgotPassword(
-      emailId: emailController.text.trim(),
-      mobile: phoneController.text.trim(),
-    );
-
-    if (result.success && result.data != null) {
-      final data = result.data!;
-
-      log('✅ Forgot Password Success');
-      log('📩 Message: ${data.message}');
-      log('👤 Customer ID: ${data.customerId}');
-      log('📦 Customer Data: ${data.customer?.toJson()}');
-
-      // Save email for login prefill
-      await StorageService.saveTempEmail(emailController.text.trim());
-
-      Get.snackbar(
-        'Success 🔐',
-        data.message.isNotEmpty
-            ? data.message
-            : 'New password sent to your email',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
+      final result = await _authApiService.forgotPassword(
+        emailId: emailController.text.trim(),
+        mobile: phoneController.text.trim(),
       );
 
-      // Clear fields
-      phoneController.clear();
-      passwordController.clear();
+      if (result.success && result.data != null) {
+        final data = result.data!;
 
-      // Navigate back to login
-      Get.offAllNamed(AppRoutes.main);
-    } else {
-      errorMessage.value = result.message;
+        log('✅ Forgot Password Success');
+        log('📩 Message: ${data.message}');
+        log('👤 Customer ID: ${data.customerId}');
+        log('📦 Customer Data: ${data.customer?.toJson()}');
 
-      log('❌ Forgot Password Failed: ${result.message}');
+        // Save email for login prefill
+        await _storage.saveTempEmail(emailController.text.trim());
+
+        Get.snackbar(
+          'Success 🔐',
+          data.message.isNotEmpty
+              ? data.message
+              : 'New password sent to your email',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+
+        // Clear fields
+        phoneController.clear();
+        passwordController.clear();
+
+        // Navigate back to login
+        Get.offAllNamed(AppRoutes.main);
+      } else {
+        errorMessage.value = result.message;
+
+        log('❌ Forgot Password Failed: ${result.message}');
+
+        Get.snackbar(
+          'Failed ❌',
+          result.message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      log('🔥 Forgot Password Error');
+      log('❌ Error: $e');
+
+      errorMessage.value = 'Forgot password failed. Please try again.';
 
       Get.snackbar(
-        'Failed ❌',
-        result.message,
+        'Error ⚠️',
+        'Something went wrong. Please try again.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+    } finally {
+      isLoading.value = false;
+      log('⏳ Forgot Password loading stopped');
     }
-  } catch (e) {
-    log('🔥 Forgot Password Error');
-    log('❌ Error: $e');
-
-    errorMessage.value = 'Forgot password failed. Please try again.';
-
-    Get.snackbar(
-      'Error ⚠️',
-      'Something went wrong. Please try again.',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-    );
-  } finally {
-    isLoading.value = false;
-    log('⏳ Forgot Password loading stopped');
   }
-}
-
 
   // ============ NAVIGATION ============
   void navigateToSignup() {
@@ -396,11 +397,11 @@ Future<void> forgotPassword() async {
   }
 
   // ============ GETTERS ============
-  Future<bool> isLoggedIn() async {
-    return await StorageService.isLoggedIn();
+  bool isLoggedIn() {
+    return _storage.isLoggedIn();
   }
 
-  Future<String?> get currentUserId async => await StorageService.getUserId();
+  String? get currentUserId => _storage.getUserId();
   String? get currentUserName => currentCustomer.value?.name;
 
   // ============ LOGOUT ============
@@ -408,7 +409,7 @@ Future<void> forgotPassword() async {
   Future<void> logout() async {
     try {
       // Fetch customer ID from storage
-      final customerId = await StorageService.getUserId();
+      final customerId = _storage.getUserId();
 
       if (customerId == null || customerId.isEmpty) {
         log('❌ Logout: No customer ID found');
@@ -431,7 +432,7 @@ Future<void> forgotPassword() async {
         log('✅ Logout successful: ${result.message}');
 
         // Clear user session from storage
-        await StorageService.logout();
+        await _storage.logout();
 
         // Show success message
         Get.snackbar(
@@ -463,7 +464,7 @@ Future<void> forgotPassword() async {
 
   /// Helper to clear session and navigate
   Future<void> _clearSessionAndNavigate() async {
-    await StorageService.clearAll();
+    await _storage.logout();
     Get.offAllNamed(AppRoutes.login);
   }
 }
