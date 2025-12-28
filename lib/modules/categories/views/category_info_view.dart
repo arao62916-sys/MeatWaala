@@ -11,7 +11,7 @@ class CategoryInfoView extends GetView<CategoryInfoController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(controller.categoryName),
+        title: Obx(() => Text(controller.categoryName)),
         actions: const [SizedBox(width: 4)],
       ),
       body: Obx(() {
@@ -71,12 +71,12 @@ class CategoryInfoView extends GetView<CategoryInfoController> {
               children: [
                 // Category Header Image
                 if (controller.categoryInfo.value != null &&
-                    controller.categoryInfo.value!.image.isNotEmpty)
+                    (controller.categoryInfo.value!.image?.isNotEmpty ?? false))
                   Container(
                     width: double.infinity,
                     height: 200,
                     child: CachedNetworkImage(
-                      imageUrl: controller.categoryInfo.value!.image,
+                      imageUrl: controller.categoryInfo.value!.image ?? '',
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: AppColors.border,
@@ -90,20 +90,20 @@ class CategoryInfoView extends GetView<CategoryInfoController> {
                   ),
 
                 // Category Description (if available)
-                if (controller.categoryInfo.value?.description != null &&
-                    controller.categoryInfo.value!.description.isNotEmpty)
+                if ((controller.categoryInfo.value?.description?.isNotEmpty ??
+                    false))
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          controller.categoryInfo.value!.heading,
+                          controller.categoryInfo.value!.heading ?? '',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          controller.categoryInfo.value!.description,
+                          controller.categoryInfo.value!.description ?? '',
                           style: TextStyle(
                             color: Colors.grey[700],
                             fontSize: 14,
@@ -196,7 +196,7 @@ class CategoryInfoView extends GetView<CategoryInfoController> {
                   top: Radius.circular(16),
                 ),
                 child: CachedNetworkImage(
-                  imageUrl: category.imageUrl,
+                  imageUrl: category.imageUrl ?? '',
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     color: Colors.grey[200],
@@ -226,7 +226,7 @@ class CategoryInfoView extends GetView<CategoryInfoController> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      category.name,
+                      category.name ?? '',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

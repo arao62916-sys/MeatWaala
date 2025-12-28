@@ -34,7 +34,7 @@ class CategoryGridCard extends StatelessWidget {
                   top: Radius.circular(16),
                 ),
                 child: CachedNetworkImage(
-                  imageUrl: category.image,
+                  imageUrl: category.image ?? '',
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     color: Colors.grey[200],
@@ -64,7 +64,7 @@ class CategoryGridCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      category.name,
+                      category.name ?? '',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -72,9 +72,9 @@ class CategoryGridCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (category.hasChildren)
+                    if ((category.aChild.isNotEmpty))
                       Text(
-                        '${category.aChild!.length} items',
+                        '${category.aChild.length} items',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -111,7 +111,7 @@ class CategoryListTile extends StatelessWidget {
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
-            imageUrl: category.image,
+            imageUrl: category.image ?? '',
             width: 60,
             height: 60,
             fit: BoxFit.cover,
@@ -130,13 +130,13 @@ class CategoryListTile extends StatelessWidget {
           ),
         ),
         title: Text(
-          category.name,
+          category.name ?? '',
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
-        subtitle: category.shortDescription != null
+        subtitle: (category.shortDescription?.isNotEmpty ?? false)
             ? Text(
                 category.shortDescription!,
                 maxLines: 1,
@@ -166,7 +166,7 @@ class SubCategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      label: Text(category.name),
+      label: Text(category.name ?? ''),
       selected: isSelected,
       onSelected: (_) => onTap(),
       backgroundColor: Colors.grey[200],

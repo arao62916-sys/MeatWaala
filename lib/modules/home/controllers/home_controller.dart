@@ -190,7 +190,7 @@ class HomeController extends GetxController {
 
   void navigateToCategoryDetail(String categoryId, String categoryName) {
     Get.toNamed(
-      AppRoutes.categoryDetail,
+      AppRoutes.categoryChildrenInfo,
       arguments: {
         'categoryId': categoryId,
         'categoryName': categoryName,

@@ -17,8 +17,8 @@ import 'package:meatwaala_app/modules/home/bindings/home_binding.dart';
 import 'package:meatwaala_app/modules/home/views/home_view.dart';
 import 'package:meatwaala_app/modules/categories/bindings/categories_binding.dart';
 import 'package:meatwaala_app/modules/categories/views/categories_view.dart';
-import 'package:meatwaala_app/modules/categories/bindings/category_detail_binding.dart';
-import 'package:meatwaala_app/modules/categories/views/category_detail_view.dart';
+import 'package:meatwaala_app/modules/categories/bindings/category_children_info_binding.dart';
+import 'package:meatwaala_app/modules/categories/views/category_children_info_view.dart';
 import 'package:meatwaala_app/modules/categories/bindings/category_info_binding.dart';
 import 'package:meatwaala_app/modules/categories/views/category_info_view.dart';
 import 'package:meatwaala_app/modules/products/bindings/product_binding.dart';
@@ -84,9 +84,9 @@ class AppPages {
       binding: CategoriesBinding(),
     ),
     GetPage(
-      name: AppRoutes.categoryDetail,
-      page: () => const CategoryDetailView(),
-      binding: CategoryDetailBinding(),
+      name: AppRoutes.categoryChildrenInfo,
+      page: () => const CategoryChildrenInfoView(),
+      binding: CategoryChildrenInfoBinding(),
     ),
     GetPage(
       name: AppRoutes.categoryInfo,
