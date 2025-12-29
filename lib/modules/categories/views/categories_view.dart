@@ -164,7 +164,7 @@ class CategoriesView extends GetView<CategoriesController> {
 
   Widget _buildCategoryCard(BuildContext context, category) {
     return InkWell(
-      onTap: () => controller.navigateToCategoryInfo(
+      onTap: () => controller.navigateToProductList(
         category.categoryId,
         category.name,
       ),
@@ -180,7 +180,6 @@ class CategoriesView extends GetView<CategoriesController> {
           children: [
             // Category Image
             Expanded(
-              
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),

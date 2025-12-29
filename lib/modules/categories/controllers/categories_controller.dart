@@ -171,10 +171,10 @@ class CategoriesController extends GetxController
     }
   }
 
-  /// Navigate to category info screen
-  void navigateToCategoryInfo(String categoryId, String categoryName) {
+  /// Navigate to product list screen for selected category
+  void navigateToProductList(String categoryId, String categoryName) {
     Get.toNamed(
-      AppRoutes.categoryInfo,
+      AppRoutes.productList,
       arguments: {
         'categoryId': categoryId,
         'categoryName': categoryName,
