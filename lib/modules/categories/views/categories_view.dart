@@ -15,113 +15,151 @@ class CategoriesView extends GetView<CategoriesController> {
         centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
-          child: Container(
-            color: AppColors.primary,
-            child: TabBar(
-              controller: controller.tabController,
-              isScrollable: true,
-              indicatorColor: AppColors.textWhite,
-              indicatorWeight: 3,
-              labelColor: AppColors.textWhite,
-              unselectedLabelColor: AppColors.textWhite.withOpacity(0.7),
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.normal,
-                fontSize: 14,
-              ),
-              tabs: controller.parentCategories
-                  .map((parent) => Tab(text: parent['name']))
-                  .toList(),
-            ),
-          ),
-        ),
-      ),
-      body: TabBarView(
-        controller: controller.tabController,
-        children: controller.parentCategories.map((parent) {
-          return Obx(() {
-            // Loading State
-            if (controller.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            // Error State
-            if (controller.errorMessage.value.isNotEmpty &&
-                controller.categories.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      controller.errorMessage.value,
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: controller.refreshCategories,
-                      child: const Text('Retry'),
-                    ),
-                  ],
+          child: Obx(() {
+            // Show loading indicator while menu is loading
+            if (controller.isMenuLoading.value) {
+              return Container(
+                color: AppColors.primary,
+                height: 48,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.textWhite,
+                    strokeWidth: 2,
+                  ),
                 ),
               );
             }
 
-            // Empty State
-            if (controller.categories.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.category_outlined,
-                      size: 64,
-                      color: Colors.grey[400],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No categories available',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              );
+            // Show tabs if menu categories are loaded
+            if (controller.menuCategories.isEmpty) {
+              return const SizedBox.shrink();
             }
 
-            // Success State - Show Categories
-            return RefreshIndicator(
-              onRefresh: controller.refreshCategories,
-              child: GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.85,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+            return Container(
+              color: AppColors.primary,
+              child: TabBar(
+                controller: controller.tabController,
+                isScrollable: true,
+                indicatorColor: AppColors.textWhite,
+                indicatorWeight: 3,
+                labelColor: AppColors.textWhite,
+                unselectedLabelColor: AppColors.textWhite.withOpacity(0.7),
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
-                itemCount: controller.categories.length,
-                itemBuilder: (context, index) {
-                  final category = controller.categories[index];
-                  return _buildCategoryCard(context, category);
-                },
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 14,
+                ),
+                tabs: controller.menuCategories
+                    .map((menu) => Tab(text: menu.name))
+                    .toList(),
               ),
             );
-          });
-        }).toList(),
+          }),
+        ),
       ),
+      body: Obx(() {
+        // Show menu loading state
+        if (controller.isMenuLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        // If no menu categories, show all categories in a single view
+        if (controller.menuCategories.isEmpty) {
+          return _buildCategoryGrid();
+        }
+
+        // Show tab view with menu categories
+        return TabBarView(
+          controller: controller.tabController,
+          children: controller.menuCategories.map((menu) {
+            return _buildCategoryGrid();
+          }).toList(),
+        );
+      }),
     );
+  }
+
+  Widget _buildCategoryGrid() {
+    return Obx(() {
+      // Loading State
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      // Error State
+      if (controller.errorMessage.value.isNotEmpty &&
+          controller.categories.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                controller.errorMessage.value,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: controller.refreshCategories,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        );
+      }
+
+      // Empty State
+      if (controller.categories.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.category_outlined,
+                size: 64,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No categories available',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      // Success State - Show Categories
+      return RefreshIndicator(
+        onRefresh: controller.refreshCategories,
+        child: GridView.builder(
+          padding: const EdgeInsets.all(10),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.85,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+          ),
+          itemCount: controller.categories.length,
+          itemBuilder: (context, index) {
+            final category = controller.categories[index];
+            return _buildCategoryCard(context, category);
+          },
+        ),
+      );
+    });
   }
 
   Widget _buildCategoryCard(BuildContext context, category) {
@@ -142,7 +180,7 @@ class CategoriesView extends GetView<CategoriesController> {
           children: [
             // Category Image
             Expanded(
-              flex: 3,
+              
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
@@ -172,7 +210,7 @@ class CategoriesView extends GetView<CategoriesController> {
             Expanded(
               flex: 1,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
