@@ -230,6 +230,7 @@ class AuthController extends GetxController {
         log('📩 Message: ${loginData.message}');
 
         // 💾 Save user data to storage with proper customer information
+        // CRITICAL: Ensure all storage operations complete before navigation
         await _storage.saveLoginData(
           token: loginData.customerId, // using customerId as token for auth
           userId: loginData.customerId,
@@ -240,15 +241,53 @@ class AuthController extends GetxController {
           fullUserData: loginData.customer?.toJson(),
         );
 
+        // Also save/update area if available in customer data
+        if (loginData.customer?.areaId != null &&
+            loginData.customer!.areaId.isNotEmpty) {
+          await _storage.saveSelectedArea(
+            areaId: loginData.customer!.areaId,
+            areaName: loginData.customer!.areaName,
+          );
+          log('📍 Area saved: ${loginData.customer!.areaName} (${loginData.customer!.areaId})');
+        }
+
+        // CRITICAL: Wait a brief moment to ensure GetStorage writes are flushed
+        await Future.delayed(const Duration(milliseconds: 100));
+
         // 🧾 PRINT STORED DATA WITH EMOJIS
         log('================ 🔐 STORED LOGIN DATA 🔐 ================');
         log('🆔 Customer ID: ${loginData.customerId}');
-        log('🔑 Token: ${loginData.customerId}');
+        log('🔑 Token (customer_id): ${loginData.customerId}');
         log('👤 Customer Name: ${loginData.customer?.name}');
         log('📧 Email: ${loginData.customer?.emailId}');
         log('📱 Mobile: ${loginData.customer?.mobile}');
+        log('📍 Area ID: ${loginData.customer?.areaId}');
+        log('📍 Area Name: ${loginData.customer?.areaName}');
+        log('✅ Status: ${loginData.customer?.status}');
+        log('🏠 Address: ${loginData.customer?.address}');
         log('📦 Full Customer Data: ${loginData.customer?.toJson()}');
         log('==========================================================');
+
+        // Verify storage was successful
+        final storedToken = _storage.getToken();
+        final storedIsLoggedIn = _storage.isLoggedIn();
+        log('🔍 Verification after save:');
+        log('   - Token stored: ${storedToken != null && storedToken.isNotEmpty}');
+        log('   - isLoggedIn flag: $storedIsLoggedIn');
+
+        if (!storedIsLoggedIn || storedToken == null || storedToken.isEmpty) {
+          log('❌ CRITICAL: Storage verification failed!');
+          errorMessage.value =
+              'Failed to save login session. Please try again.';
+          Get.snackbar(
+            'Error',
+            'Failed to save login session. Please try again.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          return;
+        }
 
         // 🧹 Clear temp email
         await _storage.clearTempEmail();
@@ -272,8 +311,10 @@ class AuthController extends GetxController {
         _clearLoginForm();
         log('🧼 Login form cleared');
 
-        // 🚀 Navigate to home
+        // 🚀 Navigate to home ONLY after all storage operations complete
         log('🏠 Navigating to Main Screen');
+        await Future.delayed(
+            const Duration(milliseconds: 50)); // Final safety delay
         Get.offAllNamed(AppRoutes.main);
       } else {
         errorMessage.value = result.message;

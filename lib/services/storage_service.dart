@@ -101,29 +101,38 @@ class StorageService {
     required Map<String, dynamic> customerData,
     String? refreshToken,
   }) async {
-    await _storage.write(_keyToken, token);
-    await _storage.write(_keyUserId, customerId);
-    await _storage.write(_keyUserData, jsonEncode(customerData));
-    await _storage.write(_keyIsLoggedIn, true);
+    // Write all data synchronously for atomicity
+    _storage.write(_keyToken, token);
+    _storage.write(_keyUserId, customerId);
+    _storage.write(_keyUserData, jsonEncode(customerData));
 
     // Save individual fields for easy access
     if (customerData['name'] != null) {
-      await _storage.write(_keyUserName, customerData['name']);
+      _storage.write(_keyUserName, customerData['name']);
     }
     if (customerData['emailId'] != null || customerData['email_id'] != null) {
-      await _storage.write(
+      _storage.write(
           _keyUserEmail, customerData['emailId'] ?? customerData['email_id']);
     }
     if (customerData['mobile'] != null || customerData['phone'] != null) {
-      await _storage.write(
+      _storage.write(
           _keyUserPhone, customerData['mobile'] ?? customerData['phone']);
     }
     if (customerData['role'] != null) {
-      await _storage.write(_keyUserRole, customerData['role']);
+      _storage.write(_keyUserRole, customerData['role']);
     }
     if (refreshToken != null) {
-      await _storage.write(_keyRefreshToken, refreshToken);
+      _storage.write(_keyRefreshToken, refreshToken);
     }
+
+    // CRITICAL: Set isLoggedIn flag LAST
+    _storage.write(_keyIsLoggedIn, true);
+
+    // Force GetStorage to persist to disk
+    await _storage.save();
+
+    // Ensure writes are flushed
+    await Future.delayed(const Duration(milliseconds: 50));
   }
 
   // Alternative method for compatibility with SharedPreferences-style calls
@@ -137,26 +146,35 @@ class StorageService {
     String? userRole,
     Map<String, dynamic>? fullUserData,
   }) async {
-    await _storage.write(_keyToken, token);
-    await _storage.write(_keyUserId, userId);
-    await _storage.write(_keyUserName, userName);
-    await _storage.write(_keyIsLoggedIn, true);
+    // Write all data synchronously to ensure atomicity
+    _storage.write(_keyToken, token);
+    _storage.write(_keyUserId, userId);
+    _storage.write(_keyUserName, userName);
 
     if (userEmail != null) {
-      await _storage.write(_keyUserEmail, userEmail);
+      _storage.write(_keyUserEmail, userEmail);
     }
     if (userPhone != null) {
-      await _storage.write(_keyUserPhone, userPhone);
+      _storage.write(_keyUserPhone, userPhone);
     }
     if (userRole != null) {
-      await _storage.write(_keyUserRole, userRole);
+      _storage.write(_keyUserRole, userRole);
     }
     if (refreshToken != null) {
-      await _storage.write(_keyRefreshToken, refreshToken);
+      _storage.write(_keyRefreshToken, refreshToken);
     }
     if (fullUserData != null) {
-      await _storage.write(_keyUserData, jsonEncode(fullUserData));
+      _storage.write(_keyUserData, jsonEncode(fullUserData));
     }
+
+    // CRITICAL: Set isLoggedIn flag LAST and ensure it's written
+    _storage.write(_keyIsLoggedIn, true);
+
+    // Force GetStorage to persist to disk immediately
+    await _storage.save();
+
+    // Additional safety delay to ensure filesystem writes complete
+    await Future.delayed(const Duration(milliseconds: 50));
   }
 
   String? getToken() {
@@ -268,8 +286,11 @@ class StorageService {
     print('📞 Phone: ${_storage.read<String>(_keyUserPhone)}');
     print('🎭 Role: ${_storage.read<String>(_keyUserRole)}');
     print('🔁 RefreshToken: ${_storage.read<String>(_keyRefreshToken)}');
-    print('✅ LoggedIn: ${_storage.read<bool>(_keyIsLoggedIn)}');
+    print('✅ LoggedIn Flag: ${_storage.read<bool>(_keyIsLoggedIn)}');
+    print('✅ isLoggedIn(): ${isLoggedIn()}');
     print('📍 Area ID: ${_storage.read<String>(_keySelectedAreaId)}');
     print('📍 Area Name: ${_storage.read<String>(_keySelectedAreaName)}');
+    print('🔍 Has Token: ${_storage.hasData(_keyToken)}');
+    print('🔍 Has UserId: ${_storage.hasData(_keyUserId)}');
   }
 }

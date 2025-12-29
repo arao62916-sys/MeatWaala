@@ -28,6 +28,9 @@ class SplashController extends GetxController {
 
   /// Initialize app - fetch company data first, then navigate
   Future<void> _initializeApp() async {
+    // CRITICAL: Ensure storage is fully initialized before reading
+    await Future.delayed(const Duration(milliseconds: 100));
+
     // Load company data from storage first (for instant display)
     _loadCompanyFromStorage();
 
@@ -87,13 +90,20 @@ class SplashController extends GetxController {
 
     final isLoggedIn = _storage.isLoggedIn();
     final hasSelectedArea = _storage.hasSelectedArea();
+    final token = _storage.getToken();
+    final userId = _storage.getUserId();
 
-    // Debug logging
-    log('🔍 Navigation Check:');
-    log('   - isLoggedIn: $isLoggedIn');
+    // Comprehensive debug logging
+    log('🔍 ========== NAVIGATION CHECK ==========');
+    log('   - isLoggedIn(): $isLoggedIn');
     log('   - hasSelectedArea: $hasSelectedArea');
-    log('   - token: ${_storage.getToken()}');
-    log('   - userId: ${_storage.getUserId()}');
+    log('   - token exists: ${token != null && token.isNotEmpty}');
+    log('   - token value: $token');
+    log('   - userId: $userId');
+    log('   - userName: ${_storage.getUserName()}');
+    log('   - userEmail: ${_storage.getUserEmail()}');
+    _storage.debugPrintStorage();
+    log('🔍 ====================================');
 
     if (isLoggedIn) {
       log('👤 User logged in - navigating to main');

@@ -31,6 +31,19 @@ class CustomerModel {
   });
 
   factory CustomerModel.fromJson(Map<String, dynamic> json) {
+    // Build address from multiple fields if available
+    String fullAddress = '';
+    if (json['address_line1'] != null &&
+        json['address_line1'].toString().isNotEmpty) {
+      fullAddress = json['address_line1'].toString();
+      if (json['address_line2'] != null &&
+          json['address_line2'].toString().isNotEmpty) {
+        fullAddress += ', ${json['address_line2']}';
+      }
+    } else {
+      fullAddress = json['address'] ?? '';
+    }
+
     return CustomerModel(
       customerId:
           json['customer_id']?.toString() ?? json['id']?.toString() ?? '',
@@ -39,13 +52,14 @@ class CustomerModel {
       mobile: json['mobile'] ?? json['phone'] ?? '',
       areaId: json['area_id']?.toString() ?? '',
       areaName: json['area_name'] ?? json['area'] ?? '',
-      address: json['address'] ?? '',
+      address: fullAddress,
       city: json['city'] ?? '',
       state: json['state'] ?? '',
       pin: json['pin']?.toString() ?? '',
-      profileImage: json['profile_image'] ?? json['image'] ?? '',
+      profileImage:
+          json['profile_image'] ?? json['image'] ?? json['profile_url'] ?? '',
       status: json['status']?.toString() ?? '1',
-      createdAt: json['created_at'] ?? json['createdAt'] ?? '',
+      createdAt: json['created_at'] ?? json['createdAt'] ?? json['date'] ?? '',
     );
   }
 
