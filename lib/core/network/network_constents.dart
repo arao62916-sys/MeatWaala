@@ -44,10 +44,11 @@ class NetworkConstantsUtil {
   static const String productList = 'product/list';
   static const String productInfo = 'product/info/'; //product/info/1
   // *************** Cart API *************//
-  static const String cartAdd = 'cart/add'; // cart/add
-  static const String updateCart = 'cart/add/'; // /cart/add/4/27
-
-  static const String removeCart =
-      'cart/delete/'; // /cart/delete/4/27?cart_item_id=4
-  static const String cartCount = 'cart/count/'; // /cart/count/4/27
+  static const String cartAdd = 'cart/add'; // cart/add/{customer_id}/{area_id}
+  static const String cartDelete =
+      'cart/delete'; // cart/delete/{customer_id}/{area_id}?cart_item_id={id}
+  static const String cartCount =
+      'cart/count'; // cart/count/{customer_id}/{area_id}
+  static const String cartInfo =
+      'cart/info'; // cart/info/{customer_id}/{area_id}
 }

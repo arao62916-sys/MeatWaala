@@ -13,8 +13,26 @@ class CartView extends GetView<CartController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Cart'),
+        actions: [
+          // Cart count badge
+          Obx(() => controller.cartCount.value > 0
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Center(
+                    child: Text(
+                      '${controller.cartCount.value} items',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink()),
+        ],
       ),
       body: Obx(() {
+        if (controller.isLoading.value && controller.cartItems.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
         if (controller.cartItems.isEmpty) {
           return Center(
             child: Padding(
@@ -50,135 +68,140 @@ class CartView extends GetView<CartController> {
         return Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: controller.cartItems.length,
-                itemBuilder: (context, index) {
-                  final item = controller.cartItems[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Product Image
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: CachedNetworkImage(
-                              imageUrl: item.product.imageUrl,
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                color: AppColors.border.withOpacity(0.3),
-                                child: const Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+              child: RefreshIndicator(
+                onRefresh: controller.refreshCart,
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: controller.cartItems.length,
+                  itemBuilder: (context, index) {
+                    final item = controller.cartItems[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Product Image
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: CachedNetworkImage(
+                                imageUrl: item.productImage,
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  color: AppColors.border.withOpacity(0.3),
+                                  child: const Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                color: AppColors.border.withOpacity(0.3),
-                                child: const Icon(
-                                  Icons.image_not_supported_outlined,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-
-                          // Product Details
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.product.name,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  item.selectedWeight,
-                                  style: const TextStyle(
-                                    fontSize: 12,
+                                errorWidget: (context, url, error) => Container(
+                                  color: AppColors.border.withOpacity(0.3),
+                                  child: const Icon(
+                                    Icons.image_not_supported_outlined,
                                     color: AppColors.textSecondary,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '₹${item.price}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+
+                            // Product Details
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.productName,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    item.selectedWeight,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '₹${item.price}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Quantity Controls
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        controller.updateQuantity(
+                                          item.productId,
+                                          item.quantity - 1,
+                                        );
+                                      },
+                                      icon: const Icon(
+                                          Icons.remove_circle_outline),
+                                      color: AppColors.primary,
+                                      iconSize: 20,
+                                    ),
+                                    Text(
+                                      '${item.quantity}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        controller.updateQuantity(
+                                          item.productId,
+                                          item.quantity + 1,
+                                        );
+                                      },
+                                      icon:
+                                          const Icon(Icons.add_circle_outline),
+                                      color: AppColors.primary,
+                                      iconSize: 20,
+                                    ),
+                                  ],
+                                ),
+                                TextButton(
+                                  onPressed: () =>
+                                      controller.removeItem(item.cartItemId),
+                                  child: const Text(
+                                    'Remove',
+                                    style: TextStyle(color: AppColors.error),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-
-                          // Quantity Controls
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      controller.updateQuantity(
-                                        item.id,
-                                        item.quantity - 1,
-                                      );
-                                    },
-                                    icon:
-                                        const Icon(Icons.remove_circle_outline),
-                                    color: AppColors.primary,
-                                    iconSize: 20,
-                                  ),
-                                  Text(
-                                    '${item.quantity}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      controller.updateQuantity(
-                                        item.id,
-                                        item.quantity + 1,
-                                      );
-                                    },
-                                    icon: const Icon(Icons.add_circle_outline),
-                                    color: AppColors.primary,
-                                    iconSize: 20,
-                                  ),
-                                ],
-                              ),
-                              TextButton(
-                                onPressed: () => controller.removeItem(item.id),
-                                child: const Text(
-                                  'Remove',
-                                  style: TextStyle(color: AppColors.error),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
 
@@ -202,7 +225,7 @@ class CartView extends GetView<CartController> {
                     children: [
                       const Text('Subtotal'),
                       Obx(() => Text(
-                            '₹${controller.subtotal.toStringAsFixed(2)}',
+                            '₹${controller.subtotal.value.toStringAsFixed(2)}',
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           )),
                     ],
@@ -227,7 +250,7 @@ class CartView extends GetView<CartController> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       Obx(() => Text(
-                            '₹${controller.total.toStringAsFixed(2)}',
+                            '₹${controller.total.value.toStringAsFixed(2)}',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge

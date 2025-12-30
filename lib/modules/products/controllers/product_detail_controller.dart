@@ -1,13 +1,17 @@
 import 'package:get/get.dart';
 import 'package:meatwaala_app/data/models/product_model.dart';
 import 'package:meatwaala_app/data/services/product_api_service.dart';
+import 'package:meatwaala_app/data/services/cart_api_service.dart';
+import 'package:meatwaala_app/modules/cart/controllers/cart_controller.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 
 class ProductDetailController extends GetxController {
   final ProductApiService _productService = ProductApiService();
+  final CartApiService _cartService = CartApiService();
 
   // State
   final RxBool isLoading = false.obs;
+  final RxBool isAddingToCart = false.obs;
   final RxString errorMessage = ''.obs;
 
   // Data
@@ -131,17 +135,48 @@ class ProductDetailController extends GetxController {
   Future<void> addToCart() async {
     if (productDetail.value == null) return;
 
-    // TODO: Integrate with cart service/API
-    Get.snackbar(
-      'Added to Cart',
-      '${productDetail.value!.name} x ${quantity.value}',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    try {
+      isAddingToCart.value = true;
 
-    // Navigate to cart after a short delay
-    Future.delayed(const Duration(seconds: 1), () {
-      Get.toNamed(AppRoutes.cart);
-    });
+      final result = await _cartService.addToCart(
+        productId: productId,
+        quantity: quantity.value,
+      );
+
+      if (result.success) {
+        // Update cart controller if it exists
+        if (Get.isRegistered<CartController>()) {
+          final cartController = Get.find<CartController>();
+          await cartController.refreshCart();
+        }
+
+        Get.snackbar(
+          'Success',
+          '${productDetail.value!.name} added to cart',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+
+        // Navigate to cart after a short delay
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Get.toNamed(AppRoutes.cart);
+        });
+      } else {
+        Get.snackbar(
+          'Error',
+          result.message,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to add to cart: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isAddingToCart.value = false;
+    }
   }
 
   /// Refresh product detail

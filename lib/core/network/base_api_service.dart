@@ -207,7 +207,7 @@ class BaseApiService {
 
       if (apiStatus == 1) {
         // If response has 'data' field, use it; otherwise use full decoded response
-        final dynamic rawData = hasStatus && decoded is Map
+        final dynamic rawData = hasStatus
             ? (decoded.containsKey('data') ? decoded['data'] : decoded)
             : decoded;
 
