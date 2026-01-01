@@ -36,7 +36,7 @@ class CartApiService {
 
     final endpoint = '${NetworkConstantsUtil.cartAdd}/$customerId/$areaId';
 
-    return await _apiService.post(
+    return await _apiService.postWithTokenOnly(
       endpoint,
       body: {
         'product_id': productId,
@@ -67,7 +67,7 @@ class CartApiService {
 
     final endpoint = '${NetworkConstantsUtil.cartAdd}/$customerId/$areaId';
 
-    return await _apiService.post(
+    return await _apiService.postWithTokenOnly(
       endpoint,
       body: {
         'product_id': productId,

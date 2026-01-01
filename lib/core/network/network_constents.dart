@@ -51,4 +51,27 @@ class NetworkConstantsUtil {
       'cart/count'; // cart/count/{customer_id}/{area_id}
   static const String cartInfo =
       'cart/info'; // cart/info/{customer_id}/{area_id}
+
+  // *************** Order API *************//
+  static const String orderSubmit =
+      'order/submit'; // order/submit/{customer_id}
+  static const String orderList = 'order/list'; // order/list/{customer_id}
+  static const String orderInfo =
+      'order/info'; // order/info/{customer_id}/{order_id}
+  static const String orderReview =
+      'order/review'; // order/review/{customer_id}/{order_item_id}
+
+  // *************** Support API *************//
+  static const String supportList =
+      'support/list'; // support/list/{customer_id}
+  static const String supportSubmit =
+      'support/submit'; // support/submit/{customer_id} (multipart)
+  static const String supportCreate =
+      'support/create'; // support/create/{customer_id}
+  static const String supportInfo =
+      'support/info'; // support/info/{customer_id}/{ticket_id}
+  static const String supportReply =
+      'support/reply'; // support/reply/{customer_id}/{ticket_id} (multipart)
+  static const String supportClose =
+      'support/close'; // support/close/{customer_id}/{ticket_id}
 }

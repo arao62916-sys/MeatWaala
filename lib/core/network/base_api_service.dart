@@ -108,6 +108,41 @@ class BaseApiService {
     });
   }
 
+  /// POST Request (Form URL Encoded - No JSON)
+  /// Used for cart operations and review submissions
+  /// Sends form-urlencoded data with Authorization token (NOT JSON)
+  Future<ApiResult<T>> postWithTokenOnly<T>(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    T Function(dynamic)? parser,
+  }) async {
+    return _executeWithRetry(() async {
+      final uri = Uri.parse('$baseUrl$endpoint');
+
+      log('$_logTag POST (Form Encoded): $uri');
+      log('$_logTag Body: $body');
+
+      // Convert to Map<String, String> for form-urlencoded
+      Map<String, String>? formFields;
+      if (body != null) {
+        formFields = body.map((key, value) => MapEntry(key, value.toString()));
+      }
+
+      // Send with form-urlencoded Content-Type (NOT JSON)
+      final response = await http
+          .post(
+            uri,
+            headers: _buildHeaders(additionalHeaders: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            }),
+            body: formFields,
+          )
+          .timeout(const Duration(seconds: _timeoutSeconds));
+
+      return _handleResponse(response, parser);
+    });
+  }
+
   /// POST Request (Form Data - URL Encoded)
   Future<ApiResult<T>> postFormData<T>(
     String endpoint, {

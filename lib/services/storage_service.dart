@@ -1,6 +1,30 @@
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
 
+/// Profile Validation Result
+class ProfileValidationResult {
+  final bool isComplete;
+  final List<String> missingFields;
+  final String? name;
+  final String? mobile;
+  final String? email;
+  final String? areaId;
+
+  ProfileValidationResult({
+    required this.isComplete,
+    required this.missingFields,
+    this.name,
+    this.mobile,
+    this.email,
+    this.areaId,
+  });
+
+  String get missingFieldsMessage {
+    if (missingFields.isEmpty) return '';
+    return 'Missing: ${missingFields.join(', ')}';
+  }
+}
+
 class StorageService {
   static final StorageService _instance = StorageService._internal();
   factory StorageService() => _instance;
@@ -274,6 +298,58 @@ class StorageService {
 
   Future<void> setFirstTime(bool value) async {
     await _storage.write(_keyIsFirstTime, value);
+  }
+
+  // ============ PROFILE VALIDATION (For Order Submission) ============
+
+  /// Check if profile is complete for order submission
+  ProfileValidationResult validateProfileForOrder() {
+    final missingFields = <String>[];
+
+    final name = getUserName();
+    final mobile = getUserPhone();
+    final email = getUserEmail();
+    final areaId = getSelectedAreaId();
+
+    if (name == null || name.isEmpty) {
+      missingFields.add('Name');
+    }
+    if (mobile == null || mobile.isEmpty) {
+      missingFields.add('Mobile');
+    }
+    if (email == null || email.isEmpty) {
+      missingFields.add('Email');
+    }
+    if (areaId == null || areaId.isEmpty) {
+      missingFields.add('Area');
+    }
+
+    return ProfileValidationResult(
+      isComplete: missingFields.isEmpty,
+      missingFields: missingFields,
+      name: name,
+      mobile: mobile,
+      email: email,
+      areaId: areaId,
+    );
+  }
+
+  /// Check if profile is complete (simple version)
+  bool isProfileComplete() {
+    return validateProfileForOrder().isComplete;
+  }
+
+  /// Get profile data for order submission
+  Map<String, String>? getProfileDataForOrder() {
+    final validation = validateProfileForOrder();
+    if (!validation.isComplete) return null;
+
+    return {
+      'name': validation.name!,
+      'mobile': validation.mobile!,
+      'email_id': validation.email!,
+      'area_id': validation.areaId!,
+    };
   }
 
   // ============ DEBUG ============

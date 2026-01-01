@@ -31,6 +31,13 @@ import 'package:meatwaala_app/modules/checkout/views/checkout_view.dart';
 import 'package:meatwaala_app/modules/orders/bindings/orders_binding.dart';
 import 'package:meatwaala_app/modules/orders/views/order_success_view.dart';
 import 'package:meatwaala_app/modules/orders/views/order_history_view.dart';
+import 'package:meatwaala_app/modules/orders/views/order_list_view.dart';
+import 'package:meatwaala_app/modules/orders/views/order_details_view.dart';
+import 'package:meatwaala_app/modules/orders/controllers/order_controller.dart';
+import 'package:meatwaala_app/modules/support/views/support_list_view.dart';
+import 'package:meatwaala_app/modules/support/views/create_ticket_view.dart';
+import 'package:meatwaala_app/modules/support/views/ticket_chat_view.dart';
+import 'package:meatwaala_app/modules/support/controllers/support_controller.dart';
 import 'package:meatwaala_app/modules/profile/bindings/profile_binding.dart';
 import 'package:meatwaala_app/modules/profile/views/profile_view.dart';
 import 'package:meatwaala_app/modules/static_pages/views/static_pages_views.dart';
@@ -122,6 +129,43 @@ class AppPages {
       name: AppRoutes.orderHistory,
       page: () => const OrderHistoryView(),
       binding: OrdersBinding(),
+    ),
+    // Order Management Routes
+    GetPage(
+      name: AppRoutes.orders,
+      page: () => const OrderListView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => OrderController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.orderDetails,
+      page: () => const OrderDetailsView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => OrderController());
+      }),
+    ),
+    // Support Routes
+    GetPage(
+      name: AppRoutes.support,
+      page: () => const SupportListView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => SupportController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.createTicket,
+      page: () => const CreateTicketView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => SupportController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.ticketChat,
+      page: () => const TicketChatView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => SupportController());
+      }),
     ),
     GetPage(
       name: AppRoutes.profile,

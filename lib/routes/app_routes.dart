@@ -17,6 +17,16 @@ class AppRoutes {
   static const String checkout = '/checkout';
   static const String orderSuccess = '/order-success';
   static const String orderHistory = '/order-history';
+
+  // Order Management Routes
+  static const String orders = '/orders';
+  static const String orderDetails = '/orders/details';
+
+  // Support Routes
+  static const String support = '/support';
+  static const String createTicket = '/support/create';
+  static const String ticketChat = '/support/chat';
+
   static const String profile = '/profile';
   static const String aboutUs = '/about-us';
   static const String contactUs = '/contact-us';
