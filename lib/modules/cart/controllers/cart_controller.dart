@@ -77,6 +77,7 @@ class CartController extends GetxController {
 
   /// Update item quantity
   Future<void> updateQuantity(String productId, int newQuantity) async {
+    print('Updating quantity✅✅ for productId=$productId to $newQuantity');
     if (newQuantity < 1) {
       return;
     }
@@ -98,6 +99,7 @@ class CartController extends GetxController {
       );
 
       if (result.success) {
+     
         // Refresh cart to get updated totals from server
         await loadCartInfo();
         Get.snackbar(

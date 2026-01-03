@@ -15,9 +15,6 @@ class OrderApiService {
     return customerId != null && customerId!.isNotEmpty;
   }
 
-  /// Submit Order
-  /// POST: order/submit/{customer_id}
-  /// Multipart form-data
   Future<ApiResult<Map<String, dynamic>>> submitOrder({
     required String name,
     required String mobile,

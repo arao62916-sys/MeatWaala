@@ -59,6 +59,7 @@ class CartApiService {
     required String productId,
     required int quantity,
   }) async {
+    print('Updating cart: productId=$productId, quantity=$quantity');
     if (!_validateIds()) {
       return ApiResult.error(
         'Customer ID or Area ID not found. Please login and select area.',
@@ -88,6 +89,7 @@ class CartApiService {
   Future<ApiResult<Map<String, dynamic>>> removeCartItem({
     required String cartItemId,
   }) async {
+    print("Removing cart item:==>✅✅ $cartItemId");
     if (!_validateIds()) {
       return ApiResult.error(
         'Customer ID or Area ID not found. Please login and select area.',
@@ -160,7 +162,6 @@ class CartApiService {
     );
   }
 }
-
 /// Cart Info Response Model
 class CartInfoModel {
   final List<CartItemModel> items;
@@ -169,6 +170,9 @@ class CartInfoModel {
   final double discount;
   final double total;
   final int itemCount;
+  final String? coupon;
+  final String? areaId;
+  final Map<String, dynamic>? areaInfo;
 
   CartInfoModel({
     required this.items,
@@ -177,51 +181,42 @@ class CartInfoModel {
     this.discount = 0.0,
     required this.total,
     required this.itemCount,
+    this.coupon,
+    this.areaId,
+    this.areaInfo,
   });
 
   factory CartInfoModel.fromJson(Map<String, dynamic> json) {
-    // Parse cart items from response
+    // Extract aCart object
+    final aCart = json['aCart'] as Map<String, dynamic>? ?? {};
+    
+    // Parse cart items from aItem array
     final itemsList = <CartItemModel>[];
-
-    if (json['aCart'] != null) {
-      // If aCart is a Map with numeric keys
-      if (json['aCart'] is Map) {
-        final cartMap = json['aCart'] as Map;
-        cartMap.forEach((key, value) {
-          if (value is Map<String, dynamic>) {
-            itemsList.add(CartItemModel.fromJson(value));
-          }
-        });
-      }
-      // If aCart is a List
-      else if (json['aCart'] is List) {
-        final cartList = json['aCart'] as List;
-        itemsList.addAll(
-          cartList.map((item) => CartItemModel.fromJson(item)),
-        );
-      }
+    if (aCart['aItem'] != null && aCart['aItem'] is List) {
+      final cartList = aCart['aItem'] as List;
+      itemsList.addAll(
+        cartList.map((item) => CartItemModel.fromJson(item)),
+      );
     }
 
-    // Parse totals - handle both string and numeric values
-    final subtotal = _parseDouble(json['subtotal'] ?? json['sub_total'] ?? 0);
-    final shippingCharge = _parseDouble(
-      json['shipping_charge'] ??
-          json['shippingCharge'] ??
-          json['delivery_fee'] ??
-          0,
-    );
-    final discount = _parseDouble(json['discount'] ?? 0);
-    final total = _parseDouble(json['total'] ?? json['grand_total'] ?? 0);
-    final itemCount =
-        _parseInt(json['item_count'] ?? json['count'] ?? itemsList.length);
+    // Parse totals from aCart object
+    final billAmount = _parseDouble(aCart['bill_amount'] ?? 0);
+    final shippingCharge = _parseDouble(aCart['shipping_charge'] ?? 0);
+    final discount = _parseDouble(aCart['discount'] ?? 0);
+    final discountedAmount = _parseDouble(aCart['discounted_amount'] ?? 0);
+    final total = _parseDouble(aCart['amount'] ?? 0);
+    final itemCount = _parseInt(aCart['items'] ?? aCart['qty'] ?? itemsList.length);
 
     return CartInfoModel(
       items: itemsList,
-      subtotal: subtotal,
+      subtotal: billAmount,
       shippingCharge: shippingCharge,
       discount: discount,
       total: total,
       itemCount: itemCount,
+      coupon: aCart['coupon']?.toString(),
+      areaId: aCart['area_id']?.toString(),
+      areaInfo: aCart['aArea'] as Map<String, dynamic>?,
     );
   }
 
@@ -249,6 +244,9 @@ class CartInfoModel {
       'discount': discount,
       'total': total,
       'itemCount': itemCount,
+      'coupon': coupon,
+      'areaId': areaId,
+      'areaInfo': areaInfo,
     };
   }
 }

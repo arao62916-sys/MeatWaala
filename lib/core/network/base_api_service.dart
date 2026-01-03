@@ -159,7 +159,7 @@ class BaseApiService {
           .post(
             uri,
             headers: _buildHeaders(additionalHeaders: {
-              'Content-Type': 'application/x-www-form-urlencoded'
+              // 'Content-Type': 'application/x-www-form-urlencoded'
             }),
             body: fields,
           )

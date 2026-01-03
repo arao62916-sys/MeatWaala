@@ -240,54 +240,58 @@ class ProductListView extends GetView<ProductListController> {
 
           return Container(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-                const Text(
-                  'Sort By',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Sort Options
-                if (sortOptions.isEmpty)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text('No sort options available'),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  const Text(
+                    'Sort By',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                  )
-                else
-                  ...sortOptions.entries.map((entry) {
-                    final isSelected =
-                        controller.selectedSortKey.value == entry.key;
-
-                    return RadioListTile<String>(
-                      title: Text(entry.value),
-                      value: entry.key,
-                      groupValue: controller.selectedSortKey.value,
-                      selected: isSelected,
-                      onChanged: (value) {
-                        if (value != null) {
-                          controller.applySortOrder(value, entry.value);
-                          Navigator.pop(context);
-                        }
-                      },
-                    );
-                  }),
-
-                const SizedBox(height: 8),
-              ],
+                  ),
+              
+                  const SizedBox(height: 16),
+              
+                  // Sort Options
+                  if (sortOptions.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text('No sort options available'),
+                      ),
+                    )
+                  else
+                    ...sortOptions.entries.map((entry) {
+                      final isSelected =
+                          controller.selectedSortKey.value == entry.key;
+              
+                      return RadioListTile<String>(
+                        title: Text(entry.value),
+                        value: entry.key,
+                        groupValue: controller.selectedSortKey.value,
+                        selected: isSelected,
+                        onChanged: (value) {
+                          if (value != null) {
+                            controller.applySortOrder(value, entry.value);
+                            Navigator.pop(context);
+                          }
+                        },
+                      );
+                    }),
+              
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
           );
         });
       },
     );
   }
+
+
 }

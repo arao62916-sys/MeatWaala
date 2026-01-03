@@ -230,33 +230,36 @@ class ProductDetailView extends GetView<ProductDetailController> {
                 ),
               ),
             ),
-
-            // Bottom Bar
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Total Price',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        Obx(() => Text(
+            SafeArea(
+              top: false,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Total Price',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Obx(
+                            () => Text(
                               '₹${controller.totalPrice.toStringAsFixed(2)}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
                                   .textTheme
                                   .headlineMedium
@@ -264,19 +267,22 @@ class ProductDetailView extends GetView<ProductDetailController> {
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.bold,
                                   ),
-                            )),
-                      ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: CustomButton(
-                      text: 'Add to Cart',
-                      onPressed: controller.addToCart,
-                      icon: Icons.shopping_cart,
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 150, // 🔑 fixed width prevents overflow
+                      child: CustomButton(
+                        text: 'Add to Cart',
+                        onPressed: controller.addToCart,
+                        icon: Icons.shopping_cart,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/data/models/order_model.dart';
+import 'package:meatwaala_app/data/services/order_api_service.dart';
 
 class OrderHistoryController extends GetxController {
   final orders = <OrderModel>[].obs;
@@ -18,7 +19,7 @@ class OrderHistoryController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 500));
 
     // TODO: Load orders from API
-    // Example: final result = await OrderApiService().getOrderHistory();
+    Example: final result = await OrderApiService().getOrderList();
     // if (result.success) orders.value = result.data ?? [];
 
     // For now, return empty list

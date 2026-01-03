@@ -124,7 +124,7 @@ class ProductGridCard extends StatelessWidget {
 
             // Product Details
             Expanded(
-              flex: 2,
+              flex: 4,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
