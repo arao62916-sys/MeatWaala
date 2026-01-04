@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
@@ -8,9 +10,6 @@ class CreateTicketView extends GetView<SupportController> {
 
   @override
   Widget build(BuildContext context) {
-    final subjectController = TextEditingController();
-    final messageController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Support Ticket'),
@@ -53,9 +52,10 @@ class CreateTicketView extends GetView<SupportController> {
 
             const SizedBox(height: 24),
 
-            // Subject Field
+            // ✅ Subject Field - Uses controller-owned TextEditingController
+            // NO controller created in build() - prevents "used after disposed" error
             TextField(
-              controller: subjectController,
+              controller: controller.subjectController,
               decoration: InputDecoration(
                 labelText: 'Subject *',
                 hintText: 'Brief description of your issue',
@@ -71,9 +71,10 @@ class CreateTicketView extends GetView<SupportController> {
 
             const SizedBox(height: 16),
 
-            // Message Field
+            // ✅ Message Field - Uses controller-owned TextEditingController
+            // NO controller created in build() - prevents "used after disposed" error
             TextField(
-              controller: messageController,
+              controller: controller.createMessageController,
               decoration: InputDecoration(
                 labelText: 'Message *',
                 hintText: 'Explain your issue in detail',
@@ -154,11 +155,7 @@ class CreateTicketView extends GetView<SupportController> {
             Obx(() => ElevatedButton(
                   onPressed: controller.isCreating.value
                       ? null
-                      : () => _submitTicket(
-                            context,
-                            subjectController,
-                            messageController,
-                          ),
+                      : () => _submitTicket(context),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -202,16 +199,6 @@ class CreateTicketView extends GetView<SupportController> {
   }
 
   Future<void> _pickFile(BuildContext context) async {
-    // TODO: Install file_picker package
-    // Add to pubspec.yaml: file_picker: ^6.0.0
-    Get.snackbar(
-      'Feature Unavailable',
-      'File picker package not installed. Add file_picker to pubspec.yaml',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-
-    // Uncomment below after installing file_picker package:
-    /*
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -229,37 +216,93 @@ class CreateTicketView extends GetView<SupportController> {
         snackPosition: SnackPosition.BOTTOM,
       );
     }
-    */
   }
 
-  Future<void> _submitTicket(
-    BuildContext context,
-    TextEditingController subjectController,
-    TextEditingController messageController,
-  ) async {
-    final subject = subjectController.text.trim();
-    final message = messageController.text.trim();
+  /// ✅ Submit ticket - NO manual disposal of controllers
+  /// Controllers are managed by GetX controller lifecycle
+  /// This prevents "used after being disposed" errors
+  Future<void> _submitTicket(BuildContext context) async {
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
 
-    if (subject.isEmpty || message.isEmpty) {
-      Get.snackbar(
-        'Incomplete',
-        'Please fill in all required fields',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    final success = await controller.submitTicket(
-      subject: subject,
-      message: message,
-      file: controller.selectedFile.value,
-    );
+    // ✅ Controller reads text from its own TextEditingControllers
+    // and handles validation internally
+    final success = await controller.submitTicket();
 
     if (success) {
-      // Clean up and navigate back
-      subjectController.dispose();
-      messageController.dispose();
+      // ✅ SAFE: Controllers are cleared (not disposed) by the controller
+      // Navigation doesn't cause disposal errors
       Get.back();
     }
+    // ❌ DO NOT: subjectController.dispose() - causes crashes
+    // ❌ DO NOT: messageController.dispose() - causes crashes
   }
 }
+
+// ============================================================================
+// 📝 EXPLANATION OF THE FIX
+// ============================================================================
+/*
+
+❌ ORIGINAL CODE (BROKEN):
+--------------------------
+Widget build(BuildContext context) {
+  final subjectController = TextEditingController();  // ❌ Created in build()
+  final messageController = TextEditingController();  // ❌ Created in build()
+  
+  // Problems:
+  // 1. New controllers created on every rebuild
+  // 2. Old controllers not disposed (memory leak)
+  // 3. Manual disposal after submit causes "used after disposed" error
+  
+  return TextField(controller: subjectController);  // ❌ Uses local variable
+}
+
+void _submitTicket(...) {
+  await controller.submitTicket(...);
+  subjectController.dispose();  // ❌ Disposes immediately
+  messageController.dispose();  // ❌ Disposes immediately
+  Get.back();  // ❌ Navigation after disposal - CRASH if widget rebuilds
+}
+
+
+✅ FIXED CODE (WORKING):
+------------------------
+Widget build(BuildContext context) {
+  // ✅ NO controllers created here
+  
+  return TextField(
+    controller: controller.subjectController,  // ✅ Uses controller-owned instance
+  );
+}
+
+void _submitTicket(...) {
+  await controller.submitTicket();  // ✅ Controller handles text reading
+  Get.back();  // ✅ Safe - controllers still alive, just cleared
+  // ✅ NO manual disposal - handled by GetX controller's onClose()
+}
+
+
+WHY THIS WORKS:
+--------------
+1. Controllers live in SupportController (GetX managed)
+2. Created once in onInit()
+3. Survive screen navigation and rebuilds
+4. Only disposed in onClose() when controller is truly done
+5. Navigation with Get.back() is completely safe
+
+LIFECYCLE:
+----------
+App Start → onInit() → Controllers Created
+  ↓
+User Opens Create Screen → Uses existing controllers
+  ↓
+User Submits → Controllers cleared (NOT disposed)
+  ↓
+Navigate Back → Controllers still alive
+  ↓
+User Opens Again → Same controllers, empty text
+  ↓
+App Closes / Controller Removed → onClose() → Dispose controllers
+
+*/

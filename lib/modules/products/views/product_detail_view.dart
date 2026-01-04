@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/core/widgets/custom_button.dart';
+import 'package:meatwaala_app/modules/orders/views/order_list_view.dart';
 import 'package:meatwaala_app/modules/products/controllers/product_detail_controller.dart';
 
 class ProductDetailView extends GetView<ProductDetailController> {
@@ -17,7 +18,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
             onPressed: () {
-              // Navigate to cart
+              Get.to(() => OrderListView());
             },
           ),
           const SizedBox(width: 4),

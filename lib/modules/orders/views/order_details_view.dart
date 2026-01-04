@@ -43,11 +43,11 @@ class OrderDetailsView extends GetView<OrderController> {
               _DeliveryInfo(order: order),
               const Divider(height: 1),
               _PriceSummary(order: order),
-              if (order.statusTimeline.isNotEmpty) ...[
-                const Divider(height: 1),
-                _StatusTimeline(order: order),
-              ],
-              const SizedBox(height: 16),
+              // if (order.statusTimeline.isNotEmpty) ...[
+              //   const Divider(height: 1),
+              //   _StatusTimeline(order: order),
+              // ],
+              // const SizedBox(height: 16),
             ],
           ),
         );
@@ -73,7 +73,7 @@ class _OrderHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Order #${order.orderNumber}',
+                'Order No. ${order.orderNumber}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

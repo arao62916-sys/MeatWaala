@@ -155,7 +155,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.createTicket,
-      page: () => const CreateTicketView(),
+      page: () => const CreateTicketView( ),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => SupportController());
       }),

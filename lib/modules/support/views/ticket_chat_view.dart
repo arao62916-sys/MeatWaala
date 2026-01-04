@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/data/models/ticket_message_model.dart';
+import 'package:meatwaala_app/data/models/support_ticket_model.dart';
 import 'package:meatwaala_app/modules/support/controllers/support_controller.dart';
 
 class TicketChatView extends GetView<SupportController> {
@@ -14,9 +15,11 @@ class TicketChatView extends GetView<SupportController> {
     final args = Get.arguments as Map<String, dynamic>?;
     final ticketId = args?['ticketId']?.toString() ?? '';
 
-    // Load ticket details
+    // Load ticket details AFTER build completes
     if (ticketId.isNotEmpty) {
-      controller.loadTicketDetails(ticketId);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadTicketDetails(ticketId);
+      });
     }
 
     return Scaffold(
@@ -30,7 +33,7 @@ class TicketChatView extends GetView<SupportController> {
                 ),
                 if (controller.selectedTicket.value != null)
                   Text(
-                    'Ticket #${controller.selectedTicket.value!.ticketId}',
+                    'Ticket ID: ${controller.selectedTicket.value!.ticketId}',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.normal,
@@ -102,39 +105,25 @@ class TicketChatView extends GetView<SupportController> {
 
             // Chat Messages
             Expanded(
-              child: controller.messages.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.chat_outlined,
-                            size: 64,
-                            color: AppColors.textSecondary.withOpacity(0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No conversation yet',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: controller.refreshCurrentTicket,
-                      child: ListView.builder(
-                        controller: controller.chatScrollController,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: controller.messages.length,
-                        itemBuilder: (context, index) {
-                          final message = controller.messages[index];
-                          return _MessageBubble(message: message);
-                        },
-                      ),
-                    ),
+              child: RefreshIndicator(
+                onRefresh: controller.refreshCurrentTicket,
+                child: ListView.builder(
+                  controller: controller.chatScrollController,
+                  padding: const EdgeInsets.all(16),
+                  // ✅ Show initial message + conversation messages
+                  itemCount: 1 + ticket.conversation.length,
+                  itemBuilder: (context, index) {
+                    // First item is the initial ticket message
+                    if (index == 0) {
+                      return _InitialMessageCard(ticket: ticket);
+                    }
+                    
+                    // Subsequent items are conversation messages
+                    final message = ticket.conversation[index - 1];
+                    return _MessageBubble(message: message);
+                  },
+                ),
+              ),
             ),
 
             // Reply Input
@@ -212,7 +201,7 @@ class TicketChatView extends GetView<SupportController> {
 
 // Status Banner Widget
 class _StatusBanner extends StatelessWidget {
-  final dynamic ticket;
+  final SupportTicketModel ticket;
 
   const _StatusBanner({required this.ticket});
 
@@ -253,12 +242,25 @@ class _StatusBanner extends StatelessWidget {
               ),
             ],
           ),
-          Text(
-            DateFormat('dd MMM yyyy').format(ticket.createdAt),
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                DateFormat('dd MMM yyyy').format(ticket.createdAt),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              if (ticket.messageCount > 0)
+                Text(
+                  '${ticket.messageCount} repl${ticket.messageCount > 1 ? 'ies' : 'y'}',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+            ],
           ),
         ],
       ),
@@ -266,7 +268,147 @@ class _StatusBanner extends StatelessWidget {
   }
 }
 
-// Message Bubble Widget
+// Initial Ticket Message Card (Customer's first message)
+class _InitialMessageCard extends StatelessWidget {
+  final SupportTicketModel ticket;
+
+  const _InitialMessageCard({required this.ticket});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header: "Original Request"
+          Row(
+            children: [
+              Icon(
+                Icons.local_post_office_outlined,
+                size: 18,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Original Request',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                DateFormat('MMM dd, yyyy • hh:mm a').format(ticket.createdAt),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // Message Card
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.primary.withOpacity(0.2),
+                width: 1.5,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Subject
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.subject,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        ticket.subject,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // Divider
+                Divider(
+                  color: AppColors.primary.withOpacity(0.2),
+                  height: 1,
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // Message
+                Text(
+                  ticket.message,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Conversation divider (if there are replies)
+          if (ticket.conversation.isNotEmpty)
+            Row(
+              children: [
+                Expanded(
+                  child: Divider(
+                    color: AppColors.textSecondary.withOpacity(0.3),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    'CONVERSATION',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Divider(
+                    color: AppColors.textSecondary.withOpacity(0.3),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// Message Bubble Widget (for conversation replies)
 class _MessageBubble extends StatelessWidget {
   final TicketMessageModel message;
 
@@ -486,7 +628,7 @@ class _ReplyInput extends StatelessWidget {
               // Text Input
               Expanded(
                 child: TextField(
-                  controller: controller.messageController,
+                  controller: controller.replyMessageController,
                   decoration: InputDecoration(
                     hintText: 'Type your message...',
                     border: OutlineInputBorder(

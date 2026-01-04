@@ -99,7 +99,7 @@ class _OrderCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Order #${order.orderNumber}',
+                      'Order No. ${order.orderNumber}',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -223,7 +223,10 @@ class _OrderCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton.icon(
-                    onPressed: () => controller.viewOrderDetails(order.orderId),
+                    onPressed: () {
+                      Get.to(OrderDetailsView());
+                      controller.viewOrderDetails(order.orderId);
+                    },
                     icon: const Icon(Icons.arrow_forward, size: 16),
                     label: const Text('View Details'),
                   ),

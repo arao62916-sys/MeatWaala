@@ -73,41 +73,34 @@ class SupportApiService {
   /// Submit Support Ticket (with optional file attachment)
   /// POST: support/submit/{customer_id}
   /// multipart/form-data
-  Future<ApiResult<Map<String, dynamic>>> submitSupportTicket({
-    required String subject,
-    required String message,
-    File? file,
-  }) async {
-    if (!_validateCustomerId()) {
-      return ApiResult.error('Customer ID not found. Please login.');
-    }
-
-    final endpoint = '${NetworkConstantsUtil.supportSubmit}/$customerId';
-
-    // Prepare fields
-    final fields = {
-      'subject': subject,
-      'message': message,
-    };
-
-    // Prepare files
-    Map<String, File>? files;
-    if (file != null && await file.exists()) {
-      files = {'file': file};
-    }
-
-    return await _apiService.postMultipart(
-      endpoint,
-      fields: fields,
-      files: files,
-      parser: (data) {
-        if (data is Map<String, dynamic>) {
-          return data;
-        }
-        return <String, dynamic>{};
-      },
-    );
+Future<ApiResult<Map<String, dynamic>>> submitSupportTicket({
+  required String subject,
+  required String message,
+  File? file, // will be ignored in this version
+}) async {
+  if (!_validateCustomerId()) {
+    return ApiResult.error('Customer ID not found. Please login.');
   }
+
+  final endpoint = '${NetworkConstantsUtil.supportSubmit}/$customerId';
+
+  // Prepare body
+  final body = {
+    'subject': subject,
+    'message': message,
+  };
+
+  return await _apiService.postWithTokenOnly(
+    endpoint,
+    body: body,
+    parser: (data) {
+      if (data is Map<String, dynamic>) {
+        return data;
+      }
+      return <String, dynamic>{};
+    },
+  );
+}
 
   /// Reply to Support Ticket (with optional file attachment)
   /// POST: support/reply/{customer_id}/{ticket_id}

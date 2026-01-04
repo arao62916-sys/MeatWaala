@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/core/widgets/custom_button.dart';
 import 'package:meatwaala_app/modules/orders/controllers/order_success_controller.dart';
+import 'package:meatwaala_app/modules/orders/views/order_list_view.dart';
 
 class OrderSuccessView extends GetView<OrderSuccessController> {
   const OrderSuccessView({super.key});
@@ -41,13 +42,13 @@ class OrderSuccessView extends GetView<OrderSuccessController> {
               const SizedBox(height: 16),
 
               // Order ID
-              Obx(() => Text(
-                    'Order ID: ${controller.orderId.value}',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  )),
-              const SizedBox(height: 8),
+              // Obx(() => Text(
+              //       'Order ID: ${controller.orderId.value}',
+              //       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              //             color: AppColors.textSecondary,
+              //           ),
+              //     )),
+              // const SizedBox(height: 8),
 
               Text(
                 'Your order will be delivered soon',
@@ -61,7 +62,7 @@ class OrderSuccessView extends GetView<OrderSuccessController> {
               // Buttons
               CustomButton(
                 text: 'View Orders',
-                onPressed: controller.viewOrders,
+                onPressed: () => Get.toNamed('/orders'),
                 width: double.infinity,
                 icon: Icons.receipt_long,
               ),
