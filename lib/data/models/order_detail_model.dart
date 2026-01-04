@@ -182,107 +182,56 @@ class OrderDetailModel {
     this.statusTimeline = const [],
   });
 
-  factory OrderDetailModel.fromJson(Map<String, dynamic> json) {
-    // Parse order items
-    final itemsList = <OrderItemModel>[];
-    if (json['aOrderItem'] != null) {
-      if (json['aOrderItem'] is Map) {
-        final itemsMap = json['aOrderItem'] as Map;
-        itemsMap.forEach((key, value) {
-          if (value is Map<String, dynamic>) {
-            itemsList.add(OrderItemModel.fromJson(value));
-          }
-        });
-      } else if (json['aOrderItem'] is List) {
-        final items = json['aOrderItem'] as List;
-        itemsList.addAll(
-          items.map((item) => OrderItemModel.fromJson(item)),
-        );
-      }
-    }
+factory OrderDetailModel.fromJson(Map<String, dynamic> json) {
+  // 🔑 Handle wrapped response
+  final orderJson = json['aOrder'] ?? json;
 
-    // Parse status timeline
-    final statusList = <OrderStatusModel>[];
-    if (json['aStatus'] != null) {
-      if (json['aStatus'] is Map) {
-        final statusMap = json['aStatus'] as Map;
-        statusMap.forEach((key, value) {
-          if (value is Map<String, dynamic>) {
-            statusList.add(OrderStatusModel.fromJson(value));
-          }
-        });
-      } else if (json['aStatus'] is List) {
-        final statuses = json['aStatus'] as List;
-        statusList.addAll(
-          statuses.map((status) => OrderStatusModel.fromJson(status)),
-        );
-      }
-    }
-
-    return OrderDetailModel(
-      orderId: (json['order_id'] ?? json['id'] ?? '').toString(),
-      orderNumber: json['order_number'] ?? json['order_no'] ?? '',
-      customerId: (json['customer_id'] ?? '').toString(),
-      customerName: json['name'] ?? json['customer_name'] ?? '',
-      customerMobile: json['mobile'] ?? json['customer_mobile'] ?? '',
-      customerEmail: json['email_id'] ?? json['customer_email'] ?? '',
-      items: itemsList,
-      subtotal: _parseDouble(json['subtotal'] ?? json['sub_total'] ?? 0),
-      shippingCharge: _parseDouble(
-        json['shipping_charge'] ?? json['delivery_charge'] ?? 0,
-      ),
-      discount: _parseDouble(json['discount'] ?? 0),
-      total: _parseDouble(json['total'] ?? json['grand_total'] ?? 0),
-      orderStatus: json['order_status'] ?? json['status'] ?? '',
-      paymentStatus: json['payment_status'] ?? '',
-      paymentId: json['payment_id'] ?? json['transaction_id'] ?? '',
-      paymentMethod: json['payment_method'] ?? '',
-      addressLine1: json['address_line1'] ?? json['address'] ?? '',
-      addressLine2: json['address_line2'] ?? '',
-      addressLine3: json['address_line3'],
-      areaId: (json['area_id'] ?? '').toString(),
-      areaName: json['area_name'] ?? '',
-      pincode: json['pincode'] ?? json['pin_code'],
-      remarks: json['remarks'] ?? json['notes'],
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at']) ?? DateTime.now()
-          : DateTime.now(),
-      deliveredAt: json['delivered_at'] != null
-          ? DateTime.tryParse(json['delivered_at'])
-          : null,
-      statusTimeline: statusList,
+  // Parse order items (aItem)
+  final itemsList = <OrderItemModel>[];
+  if (orderJson['aItem'] != null && orderJson['aItem'] is List) {
+    itemsList.addAll(
+      (orderJson['aItem'] as List)
+          .map((item) => OrderItemModel.fromJson(item)),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'order_id': orderId,
-      'order_number': orderNumber,
-      'customer_id': customerId,
-      'name': customerName,
-      'mobile': customerMobile,
-      'email_id': customerEmail,
-      'items': items.map((item) => item.toJson()).toList(),
-      'subtotal': subtotal,
-      'shipping_charge': shippingCharge,
-      'discount': discount,
-      'total': total,
-      'order_status': orderStatus,
-      'payment_status': paymentStatus,
-      'payment_id': paymentId,
-      'payment_method': paymentMethod,
-      'address_line1': addressLine1,
-      'address_line2': addressLine2,
-      'address_line3': addressLine3,
-      'area_id': areaId,
-      'area_name': areaName,
-      'pincode': pincode,
-      'remarks': remarks,
-      'created_at': createdAt.toIso8601String(),
-      'delivered_at': deliveredAt?.toIso8601String(),
-      'status_timeline': statusTimeline.map((s) => s.toJson()).toList(),
-    };
+  // Parse status timeline (aStatus is outside aOrder)
+  final statusList = <OrderStatusModel>[];
+  if (json['aStatus'] != null && json['aStatus'] is List) {
+    statusList.addAll(
+      (json['aStatus'] as List)
+          .map((status) => OrderStatusModel.fromJson(status)),
+    );
   }
+
+  return OrderDetailModel(
+    orderId: (orderJson['order_id'] ?? '').toString(),
+    orderNumber: orderJson['no'] ?? '',
+    customerId: (orderJson['customer_id'] ?? '').toString(),
+    customerName: orderJson['name'] ?? '',
+    customerMobile: orderJson['mobile'] ?? '',
+    customerEmail: orderJson['email_id'] ?? '',
+    items: itemsList,
+    subtotal: _parseDouble(
+      orderJson['discounted_amount'] ?? orderJson['amount'] ?? 0,
+    ),
+    shippingCharge: _parseDouble(orderJson['shipping_charge'] ?? 0),
+    discount: _parseDouble(orderJson['discount'] ?? 0),
+    total: _parseDouble(orderJson['bill_amount'] ?? 0),
+    orderStatus: orderJson['order_status'] ?? '',
+    paymentStatus: orderJson['payment_status'] ?? '',
+    paymentId: orderJson['payment_id'] ?? '',
+    paymentMethod: orderJson['mode'] ?? '',
+    addressLine1: orderJson['address_line1'] ?? '',
+    addressLine2: orderJson['address_line2'] ?? '',
+    areaId: (orderJson['area_id'] ?? '').toString(),
+    areaName: orderJson['area'] ?? '',
+    remarks: orderJson['remarks'],
+    createdAt: DateTime.tryParse(orderJson['date'] ?? '') ?? DateTime.now(),
+    deliveredAt: null, // not provided in response
+    statusTimeline: statusList,
+  );
+}
 
   static double _parseDouble(dynamic value) {
     if (value is double) return value;
@@ -304,6 +253,11 @@ class OrderSummaryModel {
   final String paymentStatus;
   final DateTime createdAt;
   final int itemCount;
+  final String customerName;
+  final String mobile;
+  final String addressLine1;
+  final String addressLine2;
+  final String area;
 
   OrderSummaryModel({
     required this.orderId,
@@ -313,20 +267,47 @@ class OrderSummaryModel {
     required this.paymentStatus,
     required this.createdAt,
     this.itemCount = 0,
+    required this.customerName,
+    required this.mobile,
+    required this.addressLine1,
+    required this.addressLine2,
+    required this.area,
   });
 
   factory OrderSummaryModel.fromJson(Map<String, dynamic> json) {
     return OrderSummaryModel(
-      orderId: (json['order_id'] ?? json['id'] ?? '').toString(),
-      orderNumber: json['order_number'] ?? json['order_no'] ?? '',
-      total: _parseDouble(json['total'] ?? json['grand_total'] ?? 0),
-      orderStatus: json['order_status'] ?? json['status'] ?? '',
+      orderId: (json['order_id'] ?? '').toString(),
+      orderNumber: json['no'] ?? '',
+      total: _parseDouble(json['bill_amount'] ?? 0),
+      orderStatus: json['order_status'] ?? '',
       paymentStatus: json['payment_status'] ?? '',
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at']) ?? DateTime.now()
+      createdAt: json['date'] != null
+          ? DateTime.tryParse(json['date']) ?? DateTime.now()
           : DateTime.now(),
-      itemCount: _parseInt(json['item_count'] ?? json['total_items'] ?? 0),
+      itemCount: _parseInt(json['item_count'] ?? 0),
+      customerName: json['name'] ?? '',
+      mobile: json['mobile'] ?? '',
+      addressLine1: json['address_line1'] ?? '',
+      addressLine2: json['address_line2'] ?? '',
+      area: json['area'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'order_id': orderId,
+      'no': orderNumber,
+      'bill_amount': total,
+      'order_status': orderStatus,
+      'payment_status': paymentStatus,
+      'date': createdAt.toIso8601String(),
+      'item_count': itemCount,
+      'name': customerName,
+      'mobile': mobile,
+      'address_line1': addressLine1,
+      'address_line2': addressLine2,
+      'area': area,
+    };
   }
 
   static double _parseDouble(dynamic value) {

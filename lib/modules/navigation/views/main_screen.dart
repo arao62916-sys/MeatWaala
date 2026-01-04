@@ -5,6 +5,7 @@ import 'package:meatwaala_app/modules/navigation/widgets/custom_bottom_nav_bar.d
 import 'package:meatwaala_app/modules/home/views/home_view.dart';
 import 'package:meatwaala_app/modules/categories/views/categories_view.dart';
 import 'package:meatwaala_app/modules/orders/views/order_history_view.dart';
+import 'package:meatwaala_app/modules/orders/views/order_list_view.dart';
 import 'package:meatwaala_app/modules/profile/views/profile_view.dart';
 
 import 'package:meatwaala_app/core/widgets/drawer/app_drawer.dart';
@@ -18,7 +19,7 @@ class MainScreen extends GetView<BottomNavController> {
     final List<Widget> screens = [
       const HomeView(),
       const CategoriesView(),
-      const OrderHistoryView(),
+      const OrderListView(),
       const ProfileView(),
     ];
 

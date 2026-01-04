@@ -50,16 +50,24 @@ class BaseApiService {
   BaseApiService({this.baseUrl = NetworkConstantsUtil.baseUrl});
 
   /// Build headers for API requests
-  Map<String, String> _buildHeaders({Map<String, String>? additionalHeaders}) {
-    final headers = {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer ${NetworkConstantsUtil.bearerToken}',
-    };
-    if (additionalHeaders != null) {
-      headers.addAll(additionalHeaders);
-    }
-    return headers;
+Map<String, String> _buildHeaders({
+
+  Map<String, String>? additionalHeaders,
+}) {
+  print("Building headers for API request✅✅✅");
+  final headers = <String, String>{};
+
+  final token = NetworkConstantsUtil.bearerToken;
+  if (token != null && token.isNotEmpty) {
+    headers['Authorization'] = 'Bearer $token';
   }
+
+  if (additionalHeaders != null) {
+    headers.addAll(additionalHeaders);
+  }
+
+  return headers;
+}
 
   /// GET Request
   Future<ApiResult<T>> get<T>(
@@ -84,64 +92,75 @@ class BaseApiService {
   }
 
   /// POST Request (JSON body)
-  Future<ApiResult<T>> post<T>(
-    String endpoint, {
-    Map<String, dynamic>? body,
-    T Function(dynamic)? parser,
-  }) async {
-    return _executeWithRetry(() async {
-      final uri = Uri.parse('$baseUrl$endpoint');
+Future<ApiResult<T>> post<T>(
+  String endpoint, {
+  Map<String, dynamic>? body,
+  T Function(dynamic)? parser,
+}) async {
+  return _executeWithRetry(() async {
+    final uri = Uri.parse('$baseUrl$endpoint');
 
-      log('$_logTag POST: $uri');
-      log('$_logTag Body: $body');
+    log('$_logTag POST: $uri');
+    log('$_logTag Body: $body');
 
-      final response = await http
-          .post(
-            uri,
-            headers: _buildHeaders(
-                additionalHeaders: {'Content-Type': 'application/json'}),
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(const Duration(seconds: _timeoutSeconds));
+    final response = await http
+        .post(
+          uri,
+          // Only Authorization token is sent in headers.
+          // Content-Type is intentionally NOT added here
+          // (useful when backend handles it automatically or for multipart/form-data APIs)
+          headers: _buildHeaders(),
+          body: body != null ? jsonEncode(body) : null,
+        )
+        .timeout(const Duration(seconds: _timeoutSeconds));
 
-      return _handleResponse(response, parser);
-    });
-  }
+    return _handleResponse(response, parser);
+  });
+}
 
   /// POST Request (Form URL Encoded - No JSON)
   /// Used for cart operations and review submissions
   /// Sends form-urlencoded data with Authorization token (NOT JSON)
-  Future<ApiResult<T>> postWithTokenOnly<T>(
-    String endpoint, {
-    Map<String, dynamic>? body,
-    T Function(dynamic)? parser,
-  }) async {
-    return _executeWithRetry(() async {
-      final uri = Uri.parse('$baseUrl$endpoint');
+Future<ApiResult<T>> postWithTokenOnly<T>(
+  String endpoint, {
+  Map<String, dynamic>? body,
+  T Function(dynamic)? parser,
+}) async {
+  return _executeWithRetry(() async {
+    final uri = Uri.parse('$baseUrl$endpoint');
 
-      log('$_logTag POST (Form Encoded): $uri');
-      log('$_logTag Body: $body');
+    log('$_logTag POST (Token Only): $uri');
+    log('$_logTag Body: $body');
 
-      // Convert to Map<String, String> for form-urlencoded
-      Map<String, String>? formFields;
-      if (body != null) {
-        formFields = body.map((key, value) => MapEntry(key, value.toString()));
-      }
+    // Convert request body to Map<String, String>
+    // This allows the http package to automatically decide
+    // the appropriate encoding without forcing a Content-Type
+    Map<String, String>? formFields;
+    if (body != null) {
+      formFields = body.map(
+        (key, value) => MapEntry(key, value.toString()),
+      );
+    }
 
-      // Send with form-urlencoded Content-Type (NOT JSON)
-      final response = await http
-          .post(
-            uri,
-            headers: _buildHeaders(additionalHeaders: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            }),
-            body: formFields,
-          )
-          .timeout(const Duration(seconds: _timeoutSeconds));
+    // Send request with:
+    // - ONLY Authorization token (from _buildHeaders)
+    // - NO Content-Type header
+    //
+    // This is intentional for APIs that:
+    // - Reject explicit Content-Type headers
+    // - Infer content type on the server side
+    // - Expect raw or flexible request formats
+    final response = await http
+        .post(
+          uri,
+          headers: _buildHeaders(), // token-only headers
+          body: formFields,
+        )
+        .timeout(const Duration(seconds: _timeoutSeconds));
 
-      return _handleResponse(response, parser);
-    });
-  }
+    return _handleResponse(response, parser);
+  });
+}
 
   /// POST Request (Form Data - URL Encoded)
   Future<ApiResult<T>> postFormData<T>(

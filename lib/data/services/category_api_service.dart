@@ -108,8 +108,8 @@ class CategoryApiService {
       final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          // 'Content-Type': 'application/json',
+          // 'Accept': 'application/json',
           'Authorization': 'Bearer ${NetworkConstantsUtil.bearerToken}',
         },
       );

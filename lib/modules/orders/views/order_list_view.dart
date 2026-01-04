@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/orders/controllers/order_controller.dart';
+import 'package:meatwaala_app/modules/orders/views/order_details_view.dart';
 
 class OrderListView extends GetView<OrderController> {
   const OrderListView({super.key});
@@ -82,7 +83,10 @@ class _OrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: () => controller.viewOrderDetails(order.orderId),
+        onTap: () {
+          Get.to(OrderDetailsView());
+          controller.viewOrderDetails(order.orderId);
+        },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -111,9 +115,34 @@ class _OrderCard extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
+
+              // Delivery Address
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      '${order.addressLine1}, ${order.addressLine2}, ${order.area}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 12),
 
-              // Order Status
+              // Order Status & Payment Status
               Row(
                 children: [
                   Container(
@@ -137,7 +166,7 @@ class _OrderCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -163,13 +192,13 @@ class _OrderCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Items Count & Total
+              // Total Amount
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '${order.itemCount} item${order.itemCount > 1 ? 's' : ''}',
-                    style: const TextStyle(
+                  const Text(
+                    'Total Amount',
+                    style: TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -217,6 +246,8 @@ class _OrderCard extends StatelessWidget {
       case 'shipped':
       case 'out for delivery':
         return Colors.orange;
+      case 'pending':
+        return Colors.amber;
       case 'cancelled':
       case 'failed':
         return Colors.red;
