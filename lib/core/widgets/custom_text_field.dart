@@ -15,7 +15,9 @@ class CustomTextField extends StatelessWidget {
   final bool enabled;
   final VoidCallback? onTap;
   final bool readOnly;
-  
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
+
   const CustomTextField({
     super.key,
     required this.controller,
@@ -31,6 +33,8 @@ class CustomTextField extends StatelessWidget {
     this.enabled = true,
     this.onTap,
     this.readOnly = false,
+    this.errorText,
+    this.onChanged,
   });
 
   @override
@@ -44,9 +48,11 @@ class CustomTextField extends StatelessWidget {
       enabled: enabled,
       onTap: onTap,
       readOnly: readOnly,
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
         labelText: labelText,
+        errorText: errorText,
         prefixIcon: prefixIcon != null
             ? Icon(prefixIcon, color: AppColors.textSecondary)
             : null,

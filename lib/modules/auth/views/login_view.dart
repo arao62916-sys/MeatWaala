@@ -26,7 +26,6 @@ class LoginView extends GetView<AuthController> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                     
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(12), // optional
                       boxShadow: [
@@ -88,14 +87,17 @@ class LoginView extends GetView<AuthController> {
                   child: Column(
                     children: [
                       // Email Input
-                      CustomTextField(
-                        controller: controller.emailController,
-                        hintText: 'Enter your email',
-                        labelText: 'Email',
-                        prefixIcon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: controller.validateEmail,
-                      ),
+                      Obx(() => CustomTextField(
+                            controller: controller.emailController,
+                            hintText: 'Enter your email',
+                            labelText: 'Email',
+                            prefixIcon: Icons.email_outlined,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: controller.validateEmail,
+                            errorText: controller.getFieldError('email'),
+                            onChanged: (_) =>
+                                controller.onFieldChanged('email'),
+                          )),
 
                       const SizedBox(height: 20),
 
@@ -112,6 +114,9 @@ class LoginView extends GetView<AuthController> {
                             onSuffixIconTap:
                                 controller.togglePasswordVisibility,
                             validator: controller.validatePassword,
+                            errorText: controller.getFieldError('password'),
+                            onChanged: (_) =>
+                                controller.onFieldChanged('password'),
                           )),
 
                       const SizedBox(height: 8),

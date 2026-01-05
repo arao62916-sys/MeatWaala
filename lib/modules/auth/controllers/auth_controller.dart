@@ -26,6 +26,7 @@ class AuthController extends GetxController {
   final isLoading = false.obs;
   final obscurePassword = true.obs;
   final RxString errorMessage = ''.obs;
+  final RxMap<String, String> fieldErrors = <String, String>{}.obs;
   // Track login method: true for phone, false for email
   final RxBool isPhoneLogin = true.obs;
 
@@ -72,6 +73,97 @@ class AuthController extends GetxController {
   // Clear error message
   void clearError() {
     errorMessage.value = '';
+  }
+
+  void clearFieldError(String key) {
+    fieldErrors.remove(key);
+  }
+
+  void clearAllFieldErrors() {
+    fieldErrors.clear();
+  }
+
+  String? getFieldError(String key) {
+    return fieldErrors[key];
+  }
+
+  void onFieldChanged(String key) {
+    clearFieldError(key);
+    clearError();
+  }
+
+  bool _containsHtmlParagraph(String message) {
+    return RegExp(r'<\s*p[^>]*>', caseSensitive: false).hasMatch(message);
+  }
+
+  String _stripHtml(String input) {
+    return input
+        .replaceAll(RegExp(r'<[^>]+>'), '')
+        .replaceAll('&nbsp;', ' ')
+        .trim();
+  }
+
+  String _mapErrorKeyToField(String key) {
+    switch (key.toLowerCase()) {
+      case 'email_id':
+        return 'email';
+      case 'mobile':
+        return 'mobile';
+      case 'password':
+        return 'password';
+      case 'name':
+        return 'name';
+      default:
+        return key;
+    }
+  }
+
+  void _handleApiError(ApiResult result) {
+    clearAllFieldErrors();
+    clearError();
+
+    final message = result.message.isNotEmpty
+        ? result.message
+        : 'Something went wrong. Please try again.';
+
+    if (_containsHtmlParagraph(message)) {
+      final raw = result.raw;
+      final dynamic errorObject =
+          raw is Map<String, dynamic> ? raw['aError'] : null;
+
+      if (errorObject is Map) {
+        errorObject.forEach((key, value) {
+          final fieldKey = _mapErrorKeyToField(key.toString());
+          final cleaned = _stripHtml(value?.toString() ?? '');
+          if (cleaned.isNotEmpty) {
+            fieldErrors[fieldKey] = cleaned;
+          }
+        });
+      }
+
+      if (fieldErrors.isEmpty) {
+        final fallback = _stripHtml(message);
+        if (fallback.isNotEmpty) {
+          _showErrorSnackbar(fallback);
+        }
+      }
+    } else {
+      final generalMessage = _stripHtml(message);
+      if (generalMessage.isNotEmpty) {
+        _showErrorSnackbar(generalMessage);
+      }
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    Get.snackbar(
+      'Oops!',
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+    );
   }
 
   // Validators
@@ -130,6 +222,7 @@ class AuthController extends GetxController {
     }
 
     isLoading.value = true;
+    clearAllFieldErrors();
     clearError();
 
     try {
@@ -165,25 +258,11 @@ class AuthController extends GetxController {
         // Navigate to login
         Get.offAllNamed(AppRoutes.login);
       } else {
-        errorMessage.value = result.message;
-        Get.snackbar(
-          'Signup Failed',
-          result.message,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        _handleApiError(result);
       }
     } catch (e) {
       log('❌ Signup error: $e');
-      errorMessage.value = 'Signup failed. Please try again.';
-      Get.snackbar(
-        'Error',
-        'Something went wrong. Please try again.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      _showErrorSnackbar('Signup failed. Please try again.');
     } finally {
       isLoading.value = false;
     }
@@ -193,12 +272,15 @@ class AuthController extends GetxController {
     nameController.clear();
     phoneController.clear();
     // Don't clear email as it's used for login prefill
+    clearAllFieldErrors();
+    clearError();
   }
 
   // ============ LOGIN ============
   Future<void> login() async {
     if (!loginFormKey.currentState!.validate()) return;
 
+    clearAllFieldErrors();
     isLoading.value = true;
     clearError();
 
@@ -277,15 +359,7 @@ class AuthController extends GetxController {
 
         if (!storedIsLoggedIn || storedToken == null || storedToken.isEmpty) {
           log('❌ CRITICAL: Storage verification failed!');
-          errorMessage.value =
-              'Failed to save login session. Please try again.';
-          Get.snackbar(
-            'Error',
-            'Failed to save login session. Please try again.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
+          _showErrorSnackbar('Failed to save login session. Please try again.');
           return;
         }
 
@@ -317,27 +391,13 @@ class AuthController extends GetxController {
             const Duration(milliseconds: 50)); // Final safety delay
         Get.offAllNamed(AppRoutes.main);
       } else {
-        errorMessage.value = result.message;
         log('❌ Login failed: ${result.message}');
-        Get.snackbar(
-          'Login Failed ❌',
-          result.message,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        _handleApiError(result);
       }
     } catch (e) {
       log('🔥 Login error occurred');
       log('❌ Error: $e');
-      errorMessage.value = 'Login failed. Please try again.';
-      Get.snackbar(
-        'Error ⚠️',
-        'Something went wrong. Please try again.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      _showErrorSnackbar('Login failed. Please try again.');
     } finally {
       isLoading.value = false;
       log('⏳ Loading stopped');
@@ -347,6 +407,8 @@ class AuthController extends GetxController {
   void _clearLoginForm() {
     emailController.clear();
     passwordController.clear();
+    clearAllFieldErrors();
+    clearError();
   }
 
 // Forgot Password
@@ -357,6 +419,7 @@ class AuthController extends GetxController {
       return;
     }
 
+    clearAllFieldErrors();
     isLoading.value = true;
     clearError();
 
@@ -393,35 +456,20 @@ class AuthController extends GetxController {
         // Clear fields
         phoneController.clear();
         passwordController.clear();
+        clearAllFieldErrors();
+        clearError();
 
         // Navigate back to login
-        Get.offAllNamed(AppRoutes.main);
+        Get.offAllNamed(AppRoutes.login);
       } else {
-        errorMessage.value = result.message;
-
         log('❌ Forgot Password Failed: ${result.message}');
-
-        Get.snackbar(
-          'Failed ❌',
-          result.message,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        _handleApiError(result);
       }
     } catch (e) {
       log('🔥 Forgot Password Error');
       log('❌ Error: $e');
 
-      errorMessage.value = 'Forgot password failed. Please try again.';
-
-      Get.snackbar(
-        'Error ⚠️',
-        'Something went wrong. Please try again.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      _showErrorSnackbar('Forgot password failed. Please try again.');
     } finally {
       isLoading.value = false;
       log('⏳ Forgot Password loading stopped');

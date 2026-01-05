@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
@@ -5,6 +6,7 @@ import 'package:meatwaala_app/services/storage_service.dart';
 class OnboardingController extends GetxController {
   final StorageService _storage = StorageService();
   final currentPage = 0.obs;
+  late PageController pageController;
 
   final List<OnboardingPage> pages = [
     OnboardingPage(
@@ -27,6 +29,18 @@ class OnboardingController extends GetxController {
     ),
   ];
 
+  @override
+  void onInit() {
+    super.onInit();
+    pageController = PageController();
+  }
+
+  @override
+  void onClose() {
+    pageController.dispose();
+    super.onClose();
+  }
+
   void onPageChanged(int index) {
     currentPage.value = index;
   }
@@ -37,7 +51,11 @@ class OnboardingController extends GetxController {
 
   void next() {
     if (currentPage.value < pages.length - 1) {
-      currentPage.value++;
+      pageController.animateToPage(
+        currentPage.value + 1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     } else {
       _completeOnboarding();
     }

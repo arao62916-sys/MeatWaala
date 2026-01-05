@@ -11,8 +11,6 @@ class OnboardingView extends GetView<OnboardingController> {
 
   @override
   Widget build(BuildContext context) {
-    final pageController = PageController();
-
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -32,7 +30,7 @@ class OnboardingView extends GetView<OnboardingController> {
             // Page View
             Expanded(
               child: PageView.builder(
-                controller: pageController,
+                controller: controller.pageController,
                 onPageChanged: controller.onPageChanged,
                 itemCount: controller.pages.length,
                 itemBuilder: (context, index) {
@@ -52,7 +50,6 @@ class OnboardingView extends GetView<OnboardingController> {
                           Lottie.asset(
                             page.lottieAsset!,
                             height: 250,
-                           
                             fit: BoxFit.contain,
                           ),
                         const SizedBox(height: 48),
@@ -83,7 +80,7 @@ class OnboardingView extends GetView<OnboardingController> {
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: SmoothPageIndicator(
-                controller: pageController,
+                controller: controller.pageController,
                 count: controller.pages.length,
                 effect: const WormEffect(
                   dotColor: AppColors.border,

@@ -45,72 +45,48 @@ class SignupView extends GetView<AuthController> {
                 const SizedBox(height: 32),
 
                 // Name Input
-                CustomTextField(
-                  controller: controller.nameController,
-                  hintText: 'Enter your name',
-                  labelText: 'Full Name',
-                  prefixIcon: Icons.person,
-                  validator: controller.validateName,
-                ),
+                Obx(() => CustomTextField(
+                      controller: controller.nameController,
+                      hintText: 'Enter your name',
+                      labelText: 'Full Name',
+                      prefixIcon: Icons.person,
+                      validator: controller.validateName,
+                      errorText: controller.getFieldError('name'),
+                      onChanged: (_) => controller.onFieldChanged('name'),
+                    )),
 
                 const SizedBox(height: 16),
 
                 // Email Input
-                CustomTextField(
-                  controller: controller.emailController,
-                  hintText: 'Enter your email',
-                  labelText: 'Email',
-                  prefixIcon: Icons.email,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: controller.validateEmail,
-                ),
+                Obx(() => CustomTextField(
+                      controller: controller.emailController,
+                      hintText: 'Enter your email',
+                      labelText: 'Email',
+                      prefixIcon: Icons.email,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: controller.validateEmail,
+                      errorText: controller.getFieldError('email'),
+                      onChanged: (_) => controller.onFieldChanged('email'),
+                    )),
 
                 const SizedBox(height: 16),
 
                 // Phone Input
-                CustomTextField(
-                  controller: controller.phoneController,
-                  hintText: 'Enter phone number',
-                  labelText: 'Phone Number',
-                  prefixIcon: Icons.phone,
-                  keyboardType: TextInputType.phone,
-                  validator: controller.validatePhone,
-                ),
+                Obx(() => CustomTextField(
+                      controller: controller.phoneController,
+                      hintText: 'Enter phone number',
+                      labelText: 'Phone Number',
+                      prefixIcon: Icons.phone,
+                      keyboardType: TextInputType.phone,
+                      validator: controller.validatePhone,
+                      errorText: controller.getFieldError('mobile'),
+                      onChanged: (_) => controller.onFieldChanged('mobile'),
+                    )),
 
                 const SizedBox(height: 16),
 
                 // Area Selection
                 _buildAreaSelector(areaController),
-
-                const SizedBox(height: 8),
-
-                // Info text about password
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: AppColors.primary,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Your password will be sent to your email address',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
 
                 const SizedBox(height: 24),
 

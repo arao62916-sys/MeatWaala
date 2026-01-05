@@ -44,26 +44,30 @@ class ForgotPasswordView extends GetView<AuthController> {
                 const SizedBox(height: 40),
 
                 // Email Field
-                CustomTextField(
-                  controller: controller.emailController,
-                  hintText: 'Enter your email',
-                  labelText: 'Email',
-                  prefixIcon: Icons.email,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: controller.validateEmail,
-                ),
+                Obx(() => CustomTextField(
+                      controller: controller.emailController,
+                      hintText: 'Enter your email',
+                      labelText: 'Email',
+                      prefixIcon: Icons.email,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: controller.validateEmail,
+                      errorText: controller.getFieldError('email'),
+                      onChanged: (_) => controller.onFieldChanged('email'),
+                    )),
 
                 const SizedBox(height: 16),
 
                 // Mobile Field
-                CustomTextField(
-                  controller: controller.phoneController,
-                  hintText: 'Enter your mobile number',
-                  labelText: 'Mobile Number',
-                  prefixIcon: Icons.phone,
-                  keyboardType: TextInputType.phone,
-                  validator: controller.validatePhone,
-                ),
+                Obx(() => CustomTextField(
+                      controller: controller.phoneController,
+                      hintText: 'Enter your mobile number',
+                      labelText: 'Mobile Number',
+                      prefixIcon: Icons.phone,
+                      keyboardType: TextInputType.phone,
+                      validator: controller.validatePhone,
+                      errorText: controller.getFieldError('mobile'),
+                      onChanged: (_) => controller.onFieldChanged('mobile'),
+                    )),
 
                 const SizedBox(height: 24),
 
@@ -111,8 +115,8 @@ class ForgotPasswordView extends GetView<AuthController> {
                   children: [
                     const Text('Remember your password? '),
                     TextButton(
-                      onPressed: () => Get.offAllNamed(AppRoutes.main),
-                      // onPressed: controller.navigateToLogin,
+                      // onPressed: () => Get.offAllNamed(AppRoutes.main),
+                      onPressed: controller.navigateToLogin,
                       child: const Text('Login'),
                     ),
                   ],
