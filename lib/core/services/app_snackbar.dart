@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 /// Global Snackbar Service for consistent snackbar usage across the app
-/// 
+///
 /// Usage:
 /// - AppSnackbar.success('Operation successful!');
 /// - AppSnackbar.error('Something went wrong');
@@ -21,7 +21,7 @@ class AppSnackbar {
   /// Show success snackbar (green)
   static void success(String message, {String? title}) {
     if (message.isEmpty) return;
-    
+
     Get.snackbar(
       title ?? 'Success',
       message,
@@ -41,7 +41,7 @@ class AppSnackbar {
   /// Show error snackbar (red)
   static void error(String message, {String? title}) {
     if (message.isEmpty) return;
-    
+
     Get.snackbar(
       title ?? 'Error',
       message,
@@ -61,7 +61,7 @@ class AppSnackbar {
   /// Show warning snackbar (orange/amber)
   static void warning(String message, {String? title}) {
     if (message.isEmpty) return;
-    
+
     Get.snackbar(
       title ?? 'Warning',
       message,
@@ -81,7 +81,7 @@ class AppSnackbar {
   /// Show info snackbar (blue)
   static void info(String message, {String? title}) {
     if (message.isEmpty) return;
-    
+
     Get.snackbar(
       title ?? 'Info',
       message,
@@ -108,7 +108,7 @@ class AppSnackbar {
     Duration? duration,
   }) {
     if (message.isEmpty) return;
-    
+
     Get.snackbar(
       title,
       message,

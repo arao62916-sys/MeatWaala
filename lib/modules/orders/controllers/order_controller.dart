@@ -137,12 +137,14 @@ class OrderController extends GetxController {
   }) async {
     try {
       if (rating < 1 || rating > 5) {
-        AppSnackbar.warning('Please select a rating between 1 and 5', title: 'Invalid Rating');
+        AppSnackbar.warning('Please select a rating between 1 and 5',
+            title: 'Invalid Rating');
         return false;
       }
 
       if (reviewTitle.trim().isEmpty || review.trim().isEmpty) {
-        AppSnackbar.warning('Please fill in both title and review', title: 'Incomplete Review');
+        AppSnackbar.warning('Please fill in both title and review',
+            title: 'Incomplete Review');
         return false;
       }
 
