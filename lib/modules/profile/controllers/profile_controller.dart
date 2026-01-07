@@ -325,7 +325,7 @@ class ProfileController extends GetxController {
   }
 
   void navigateToOrders() {
-    Get.toNamed(AppRoutes.orderHistory);
+    Get.toNamed(AppRoutes.orders);
   }
 
   void navigateToAboutUs() {

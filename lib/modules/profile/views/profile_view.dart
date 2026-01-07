@@ -9,6 +9,7 @@ class ProfileView extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
@@ -22,16 +23,14 @@ class ProfileView extends GetView<ProfileController> {
 
         return CustomScrollView(
           slivers: [
-            _buildAppBar(context),
+            _buildColorfulAppBar(context),
             SliverToBoxAdapter(
               child: Column(
                 children: [
                   _buildProfileHeader(context),
                   const SizedBox(height: 16),
-                  _buildQuickActions(context),
+                  _buildMenuList(context),
                   const SizedBox(height: 24),
-                  _buildMenuSection(context),
-                  const SizedBox(height: 80),
                 ],
               ),
             ),
@@ -48,310 +47,30 @@ class ProfileView extends GetView<ProfileController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
-              size: 80,
+              size: 64,
               color: AppColors.error,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
-              'Failed to Load Profile',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+              'Unable to load profile',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              controller.errorMessage.value,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: controller.fetchProfile,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      expandedHeight: 120,
-      pinned: true,
-      backgroundColor: AppColors.primary,
-      flexibleSpace: FlexibleSpaceBar(
-        title: const Text(
-          'My Profile',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.primary,
-                AppColors.primary.withOpacity(0.8),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary.withOpacity(0.1),
-            AppColors.primary.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.primary.withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Avatar
-          Hero(
-            tag: 'profile_avatar',
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.primary,
-                    AppColors.primary.withOpacity(0.7),
-                  ],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: controller.profileImage.isNotEmpty
-                    ? ClipOval(
-                        child: Image.network(
-                          controller.profileImage,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildInitialsAvatar();
-                          },
-                        ),
-                      )
-                    : _buildInitialsAvatar(),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Name
-          Text(
-            controller.userName,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-
-          // Email
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.email_outlined,
-                size: 16,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  controller.userEmail,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-
-          // Phone
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.phone_outlined,
-                size: 16,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                controller.userPhone,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-              ),
-            ],
-          ),
-
-          if (controller.userShortAddress.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 16,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    controller.userShortAddress,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInitialsAvatar() {
-    return Text(
-      controller.userInitials,
-      style: const TextStyle(
-        fontSize: 36,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildActionCard(
-              icon: Icons.edit_outlined,
-              title: 'Edit Profile',
-              onTap: controller.navigateToEditProfile,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withOpacity(0.8),
-                  AppColors.primary,
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildActionCard(
-              icon: Icons.lock_outline,
-              title: 'Change Password',
-              onTap: controller.navigateToChangePassword,
-              gradient: LinearGradient(
-                colors: [
-                  Colors.orange.shade400,
-                  Colors.orange.shade600,
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionCard({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    required Gradient gradient,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: gradient.colors.first.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 32,
             ),
             const SizedBox(height: 8),
             Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
+              controller.errorMessage.value,
               textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: controller.fetchProfile,
+              child: const Text('Try Again'),
             ),
           ],
         ),
@@ -359,124 +78,341 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  Widget _buildMenuSection(BuildContext context) {
+  Widget _buildColorfulAppBar(BuildContext context) {
+    return SliverAppBar(
+      pinned: true,
+      backgroundColor: AppColors.primary,
+      title: const Text(
+        'My Profile',
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
+      centerTitle: true,
+      elevation: 0,
+    );
+  }
+
+ Widget _buildProfileHeader(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         children: [
-          _buildMenuItem(
-            icon: Icons.receipt_long_outlined,
-            title: 'My Orders',
-            subtitle: 'View order history',
-            onTap: controller.navigateToOrders,
+          // Simple Circle Avatar
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primary,
+            ),
+            child: controller.profileImage.isNotEmpty
+                ? ClipOval(
+                    child: Image.network(
+                      controller.profileImage,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildInitialsAvatar();
+                      },
+                    ),
+                  )
+                : _buildInitialsAvatar(),
           ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.info_outline,
-            title: 'About Us',
-            subtitle: 'Learn more about us',
-            onTap: controller.navigateToAboutUs,
+          const SizedBox(width: 10),
+
+          // Name, Email, Phone in column
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  controller.userName,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                        fontSize: 17,
+                      ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  controller.userEmail,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  controller.userPhone,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                ),
+              ],
+            ),
           ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.contact_support_outlined,
-            title: 'Contact Us',
-            subtitle: 'Get in touch',
-            onTap: controller.navigateToContactUs,
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.privacy_tip_outlined,
-            title: 'Privacy Policy',
-            subtitle: 'Read our privacy policy',
-            onTap: controller.navigateToPrivacyPolicy,
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.description_outlined,
-            title: 'Terms & Conditions',
-            subtitle: 'View terms',
-            onTap: controller.navigateToTerms,
-          ),
-          _buildDivider(),
-          _buildMenuItem(
-            icon: Icons.logout,
-            title: 'Logout',
-            subtitle: 'Sign out of your account',
-            onTap: controller.logout,
-            textColor: AppColors.error,
-            isLast: true,
+
+          // Edit button
+          IconButton(
+            onPressed: controller.navigateToEditProfile,
+            icon: Icon(
+              Icons.edit_outlined,
+              color: AppColors.primary,
+              size: 22,
+            ),
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.primary.withOpacity(0.1),
+              padding: const EdgeInsets.all(12),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMenuItem({
+
+  Widget _buildInitialsAvatar() {
+    return Center(
+      child: Text(
+        controller.userInitials,
+        style: const TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuList(BuildContext context) {
+    return Column(
+      children: [
+        // Account Section
+        _buildSectionTitle('Account'),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildColorfulMenuItem(
+                icon: Icons.person_outline,
+                title: 'Edit Profile',
+                onTap: controller.navigateToEditProfile,
+                color: AppColors.primary,
+              ),
+              _buildSimpleDivider(),
+              _buildColorfulMenuItem(
+                icon: Icons.lock_outline,
+                title: 'Change Password',
+                onTap: controller.navigateToChangePassword,
+                color: AppColors.primary,
+              ),
+              _buildSimpleDivider(),
+              _buildColorfulMenuItem(
+                icon: Icons.receipt_long_outlined,
+                title: 'My Orders',
+                onTap: controller.navigateToOrders,
+                color: AppColors.primary,
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Support Section
+        _buildSectionTitle('Support'),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildColorfulMenuItem(
+                icon: Icons.info_outline,
+                title: 'About Us',
+                onTap: controller.navigateToAboutUs,
+                color: AppColors.primary,
+              ),
+              _buildSimpleDivider(),
+              _buildColorfulMenuItem(
+                icon: Icons.contact_support_outlined,
+                title: 'Contact Us',
+                onTap: controller.navigateToContactUs,
+                color: AppColors.primary,
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Legal Section
+        _buildSectionTitle('Legal'),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.indigo.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildColorfulMenuItem(
+                icon: Icons.privacy_tip_outlined,
+                title: 'Privacy Policy',
+                onTap: controller.navigateToPrivacyPolicy,
+                color: AppColors.primary,
+              ),
+              _buildSimpleDivider(),
+              _buildColorfulMenuItem(
+                icon: Icons.description_outlined,
+                title: 'Terms & Conditions',
+                onTap: controller.navigateToTerms,
+                color: AppColors.primary,
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Logout
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.error.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: _buildColorfulMenuItem(
+            icon: Icons.logout,
+            title: 'Logout',
+            onTap: controller.logout,
+            color: AppColors.error,
+            showArrow: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          title.toUpperCase(),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary.withOpacity(0.7),
+            letterSpacing: 1,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorfulMenuItem({
     required IconData icon,
     required String title,
-    required String subtitle,
     required VoidCallback onTap,
-    Color? textColor,
-    bool isLast = false,
+    required Color color,
+    bool showArrow = true,
   }) {
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 8,
+        horizontal: 16,
+        vertical: 4,
       ),
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: (textColor ?? AppColors.primary).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
-          color: textColor ?? AppColors.primary,
-          size: 24,
+          color: color,
+          size: 22,
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: textColor ?? AppColors.textPrimary,
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
+          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w500,
+          fontSize: 15,
         ),
       ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 13,
-        ),
-      ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: textColor ?? AppColors.textSecondary,
-      ),
+      trailing: showArrow
+          ? Icon(
+              Icons.chevron_right,
+              color: color.withOpacity(0.5),
+              size: 20,
+            )
+          : null,
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildSimpleDivider() {
     return Divider(
       height: 1,
       thickness: 1,
-      indent: 72,
-      endIndent: 20,
+      indent: 68,
+      endIndent: 16,
       color: Colors.grey.shade200,
     );
   }

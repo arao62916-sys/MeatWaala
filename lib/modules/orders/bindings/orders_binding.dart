@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:meatwaala_app/modules/orders/controllers/order_controller.dart';
 import 'package:meatwaala_app/modules/orders/controllers/order_success_controller.dart';
 import 'package:meatwaala_app/modules/orders/controllers/order_history_controller.dart';
 
@@ -7,5 +8,6 @@ class OrdersBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<OrderSuccessController>(() => OrderSuccessController());
     Get.lazyPut<OrderHistoryController>(() => OrderHistoryController());
+    Get.lazyPut<OrderController>(() => OrderController()); // OrderController
   }
 }
