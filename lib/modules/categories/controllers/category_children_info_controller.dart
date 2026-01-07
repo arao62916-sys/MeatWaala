@@ -29,72 +29,69 @@ class CategoryChildrenInfoController extends GetxController {
     if (categoryId.isNotEmpty) {
       loadCategoryDetail();
     }
-   
   }
 
   /// Load category detail with child categories using Category Info API
   /// API: product/category-info/{id}/1
-Future<void> loadCategoryDetail() async {
-  try {
-    isLoading.value = true;
-    errorMessage.value = '';
+  Future<void> loadCategoryDetail() async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
 
-    print('📌 [Category] Loading category info for ID => $categoryId');
+      print('📌 [Category] Loading category info for ID => $categoryId');
 
-    final result =
-        await _categoryService.getCategoryInfoWithChildren(categoryId);
+      final result =
+          await _categoryService.getCategoryInfoWithChildren(categoryId);
 
-    print('📦 [Category] API Result => success: ${result.success}');
-    print('📦 [Category] API Message => ${result.message}');
-    print('📦 [Category] Raw Data => ${result.data}');
+      print('📦 [Category] API Result => success: ${result.success}');
+      print('📦 [Category] API Message => ${result.message}');
+      print('📦 [Category] Raw Data => ${result.data}');
 
-    if (result.success && result.data != null) {
-      // Set main category info
-      categoryDetail.value = result.data;
+      if (result.success && result.data != null) {
+        // Set main category info
+        categoryDetail.value = result.data;
 
-      print('✅ [Category] Category ID => ${result.data!.categoryId}');
-      print('✅ [Category] Category Name => ${result.data!.name}');
-      print(
-          '📂 [Category] aChild RAW => ${result.data!.aChild}');
-      print(
-          '📂 [Category] aChild COUNT => ${result.data!.aChild.length}');
+        print('✅ [Category] Category ID => ${result.data!.categoryId}');
+        print('✅ [Category] Category Name => ${result.data!.name}');
+        print('📂 [Category] aChild RAW => ${result.data!.aChild}');
+        print('📂 [Category] aChild COUNT => ${result.data!.aChild.length}');
 
-      // Extract child categories
-      subCategories.value = result.data!.aChild;
+        // Extract child categories
+        subCategories.value = result.data!.aChild;
 
-      // Log each subcategory
-      for (var child in subCategories) {
-        print(
-            '➡️ [SubCategory] ID: ${child.categoryId}, Name: ${child.name}');
+        // Log each subcategory
+        for (var child in subCategories) {
+          print(
+              '➡️ [SubCategory] ID: ${child.categoryId}, Name: ${child.name}');
+        }
+
+        // Update category name if available and not already set
+        if (categoryName.value.isEmpty) {
+          categoryName.value = result.data!.name;
+        }
+      } else {
+        print('❌ [Category] API failed or data is null');
+
+        errorMessage.value = result.message.isNotEmpty
+            ? result.message
+            : 'Failed to load category details';
       }
+    } catch (e, stackTrace) {
+      print('🔥 [Category] Exception => $e');
+      print('🧵 [Category] StackTrace => $stackTrace');
 
-      // Update category name if available and not already set
-      if (categoryName.value.isEmpty) {
-        categoryName.value = result.data!.name;
-      }
-    } else {
-      print('❌ [Category] API failed or data is null');
+      errorMessage.value = 'Error loading category: $e';
 
-      errorMessage.value = result.message.isNotEmpty
-          ? result.message
-          : 'Failed to load category details';
+      Get.snackbar(
+        'Error',
+        'Failed to load category details',
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoading.value = false;
+      print('⏹️ [Category] Loading finished');
     }
-  } catch (e, stackTrace) {
-    print('🔥 [Category] Exception => $e');
-    print('🧵 [Category] StackTrace => $stackTrace');
-
-    errorMessage.value = 'Error loading category: $e';
-
-    Get.snackbar(
-      'Error',
-      'Failed to load category details',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  } finally {
-    isLoading.value = false;
-    print('⏹️ [Category] Loading finished');
   }
-}
 
   /// Navigate to product list with selected category
   void navigateToProductList(CategoryModel category) {

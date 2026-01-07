@@ -116,7 +116,7 @@ class AreaController extends GetxController {
       Get.snackbar(
         'Error',
         'Please select an area',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return false;
     }

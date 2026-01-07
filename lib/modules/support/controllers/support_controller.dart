@@ -18,38 +18,38 @@ class SupportController extends GetxController {
   final RxBool isClosing = false.obs;
   final RxString errorMessage = ''.obs;
   final RxBool hasLoadedTicket = false.obs;
-  
+
   // Chat-related state
   final Rxn<File> selectedFile = Rxn<File>();
   final RxString selectedFileName = ''.obs;
 
   // ✅ ALL TextEditingControllers managed by controller - NOT in widget build()
   // This prevents "used after being disposed" errors
-  
+
   // For Create Ticket Form
   late final TextEditingController subjectController;
   late final TextEditingController createMessageController;
-  
+
   // For Chat Reply
   late final TextEditingController replyMessageController;
-  
+
   // Scroll controller for chat
   late final ScrollController chatScrollController;
 
   @override
   void onInit() {
     super.onInit();
-    
+
     // ✅ Initialize all controllers in onInit() - called once per controller lifecycle
     subjectController = TextEditingController();
     createMessageController = TextEditingController();
     replyMessageController = TextEditingController();
     chatScrollController = ScrollController();
-    
+
     // Check if we're in chat view by looking at arguments
     final args = Get.arguments as Map<String, dynamic>?;
     final ticketId = args?['ticketId']?.toString();
-    
+
     // Only load tickets list if we're NOT in a chat view (no ticketId provided)
     if (ticketId == null || ticketId.isEmpty) {
       loadTickets();
@@ -83,7 +83,7 @@ class SupportController extends GetxController {
           Get.snackbar(
             'Error',
             result.message,
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
           );
         }
       }
@@ -92,7 +92,7 @@ class SupportController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load support tickets: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -119,7 +119,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
@@ -127,7 +127,7 @@ class SupportController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load ticket details: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -149,7 +149,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Incomplete',
           'Please fill in both subject and message',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -166,13 +166,13 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Success',
           'Support ticket submitted successfully!',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 2),
         );
 
         // ✅ Clear form - safe because controllers are owned by GetX controller
         clearCreateForm();
-        
+
         // Refresh ticket list
         await loadTickets();
 
@@ -181,7 +181,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Failed',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -189,7 +189,7 @@ class SupportController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to submit ticket: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return false;
     } finally {
@@ -211,7 +211,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Empty Message',
           'Please enter a message',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -221,7 +221,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Ticket Closed',
           'Cannot reply to a closed ticket',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -242,7 +242,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Success',
           'Reply sent successfully!',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 1),
         );
 
@@ -254,7 +254,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Failed',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -262,7 +262,7 @@ class SupportController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to send reply: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return false;
     } finally {
@@ -281,7 +281,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Success',
           'Ticket closed successfully',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 2),
         );
 
@@ -301,7 +301,7 @@ class SupportController extends GetxController {
         Get.snackbar(
           'Failed',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -309,7 +309,7 @@ class SupportController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to close ticket: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return false;
     } finally {

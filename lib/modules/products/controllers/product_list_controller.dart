@@ -72,7 +72,7 @@ class ProductListController extends GetxController {
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
@@ -80,7 +80,7 @@ class ProductListController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load products: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;

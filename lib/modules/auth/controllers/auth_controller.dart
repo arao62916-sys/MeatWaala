@@ -212,9 +212,9 @@ class AuthController extends GetxController {
     final areaController = Get.find<AreaController>();
     if (!areaController.hasSelectedArea) {
       Get.snackbar(
-        'Error',
+        'Oops!',
         'Please select your delivery area',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -247,7 +247,7 @@ class AuthController extends GetxController {
           result.data!.message.isNotEmpty
               ? result.data!.message
               : 'Password sent to your email',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
@@ -300,7 +300,7 @@ class AuthController extends GetxController {
           Get.snackbar(
             'Account Disabled',
             'Your account is disabled. Please contact support.',
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.red,
             colorText: Colors.white,
           );
@@ -376,7 +376,7 @@ class AuthController extends GetxController {
           loginData.message.isNotEmpty
               ? loginData.message
               : 'Logged in successfully',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
@@ -447,7 +447,7 @@ class AuthController extends GetxController {
           data.message.isNotEmpty
               ? data.message
               : 'New password sent to your email',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
           duration: const Duration(seconds: 3),
@@ -529,7 +529,7 @@ class AuthController extends GetxController {
           result.message.isNotEmpty
               ? result.message
               : 'You have been logged out successfully',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
           duration: const Duration(seconds: 2),

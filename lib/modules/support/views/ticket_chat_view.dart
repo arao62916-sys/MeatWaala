@@ -117,7 +117,7 @@ class TicketChatView extends GetView<SupportController> {
                     if (index == 0) {
                       return _InitialMessageCard(ticket: ticket);
                     }
-                    
+
                     // Subsequent items are conversation messages
                     final message = ticket.conversation[index - 1];
                     return _MessageBubble(message: message);
@@ -309,9 +309,9 @@ class _InitialMessageCard extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Message Card
           Container(
             padding: const EdgeInsets.all(16),
@@ -348,17 +348,17 @@ class _InitialMessageCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Divider
                 Divider(
                   color: AppColors.primary.withOpacity(0.2),
                   height: 1,
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Message
                 Text(
                   ticket.message,
@@ -371,9 +371,9 @@ class _InitialMessageCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Conversation divider (if there are replies)
           if (ticket.conversation.isNotEmpty)
             Row(
@@ -530,7 +530,7 @@ class _MessageBubble extends StatelessWidget {
     Get.snackbar(
       'Feature Unavailable',
       'URL launcher not installed. Add url_launcher to pubspec.yaml',
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       duration: const Duration(seconds: 2),
     );
 
@@ -544,7 +544,7 @@ class _MessageBubble extends StatelessWidget {
         Get.snackbar(
           'Error',
           'Cannot open attachment',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     }
@@ -680,7 +680,7 @@ class _ReplyInput extends StatelessWidget {
     Get.snackbar(
       'Feature Unavailable',
       'File picker not installed. Add file_picker to pubspec.yaml',
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
     );
 
     // Uncomment below after installing file_picker package:
@@ -699,7 +699,7 @@ class _ReplyInput extends StatelessWidget {
       Get.snackbar(
         'Error',
         'Failed to pick file: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     }
     */

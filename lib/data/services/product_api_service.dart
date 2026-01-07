@@ -80,17 +80,38 @@ Future<ApiResult<Map<String, String>>> getSortOptions() async {
 
   /// Get product info by ID
   /// GET: product/info/{id}
-  Future<ApiResult<ProductDetailModel>> getProductInfo(String productId) async {
-    return await _apiService.get(
+Future<ApiResult<ProductDetailModel>> getProductInfo(String productId) async {
+  try {
+    // Make the API call WITHOUT using a parser
+    // This way we get the full response including status, message, data, aImage, aReview
+    final response = await _apiService.get(
       '${NetworkConstantsUtil.productInfo}$productId',
-      parser: (data) {
-        if (data is Map<String, dynamic>) {
-          return ProductDetailModel.fromJson(data);
-        }
-        throw Exception('Invalid product data');
-      },
     );
+
+    if (response.success) {
+      // The raw response contains the full JSON structure
+      final fullJson = response.raw as Map<String, dynamic>;
+      
+      // Now parse it with ProductDetailModel which expects the full structure
+      final productDetail = ProductDetailModel.fromJson(fullJson);
+      
+      return ApiResult.success(
+        productDetail,
+        message: response.message,
+        status: response.status,
+        raw: response.raw,
+      );
+    } else {
+      return ApiResult.error(
+        response.message,
+        status: response.status,
+        raw: response.raw,
+      );
+    }
+  } catch (e) {
+    return ApiResult.error('Failed to load product details: $e');
   }
+}
 
   /// Search products
   /// GET: product/list?q={searchQuery}

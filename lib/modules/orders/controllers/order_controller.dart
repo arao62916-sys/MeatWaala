@@ -38,7 +38,7 @@ class OrderController extends GetxController {
           Get.snackbar(
             'Error',
             result.message,
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
           );
         }
       }
@@ -47,7 +47,7 @@ class OrderController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load orders: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -69,7 +69,7 @@ class OrderController extends GetxController {
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
@@ -77,7 +77,7 @@ class OrderController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load order details: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -100,7 +100,7 @@ class OrderController extends GetxController {
         Get.snackbar(
           'Incomplete Profile',
           'Please complete your profile first.\n${validation.missingFieldsMessage}',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 3),
         );
 
@@ -130,7 +130,7 @@ class OrderController extends GetxController {
         Get.snackbar(
           'Success',
           'Order placed successfully!',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 2),
         );
 
@@ -142,7 +142,7 @@ class OrderController extends GetxController {
         Get.snackbar(
           'Order Failed',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -150,7 +150,7 @@ class OrderController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to submit order: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return false;
     } finally {
@@ -170,7 +170,7 @@ class OrderController extends GetxController {
         Get.snackbar(
           'Invalid Rating',
           'Please select a rating between 1 and 5',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -179,7 +179,7 @@ class OrderController extends GetxController {
         Get.snackbar(
           'Incomplete Review',
           'Please fill in both title and review',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -197,7 +197,7 @@ class OrderController extends GetxController {
         Get.snackbar(
           'Success',
           'Review submitted successfully!',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 2),
         );
 
@@ -211,7 +211,7 @@ class OrderController extends GetxController {
         Get.snackbar(
           'Review Failed',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         return false;
       }
@@ -219,7 +219,7 @@ class OrderController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to submit review: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return false;
     } finally {

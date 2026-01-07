@@ -373,7 +373,7 @@ class ProfileController extends GetxController {
     Get.snackbar(
       'Success',
       message,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.green.shade400,
       colorText: Colors.white,
       margin: const EdgeInsets.all(16),
@@ -387,7 +387,7 @@ class ProfileController extends GetxController {
     Get.snackbar(
       'Error',
       message,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.red.shade400,
       colorText: Colors.white,
       margin: const EdgeInsets.all(16),

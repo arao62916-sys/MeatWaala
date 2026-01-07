@@ -84,14 +84,14 @@ class CategoriesController extends GetxController
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
       Get.snackbar(
         'Error',
         'Failed to load menu categories: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isMenuLoading.value = false;
@@ -114,7 +114,7 @@ class CategoriesController extends GetxController
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
@@ -122,7 +122,7 @@ class CategoriesController extends GetxController
       Get.snackbar(
         'Error',
         'Failed to load categories: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -155,7 +155,7 @@ class CategoriesController extends GetxController
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
@@ -164,7 +164,7 @@ class CategoriesController extends GetxController
       Get.snackbar(
         'Error',
         'Failed to load category details: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;

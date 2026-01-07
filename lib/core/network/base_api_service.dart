@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:meatwaala_app/core/network/network_constents.dart';
+import 'package:meatwaala_app/core/widgets/api_failure_screen.dart';
 
 /// Standardized API Response wrapper
 class ApiResult<T> {
@@ -51,7 +54,21 @@ class BaseApiService {
 
   final String baseUrl;
 
+  // Prevent duplicate navigation to error screen
+  static bool _isErrorScreenShown = false;
+  static DateTime? _lastErrorTime;
+
   BaseApiService({this.baseUrl = NetworkConstantsUtil.baseUrl});
+
+  /// Check internet connectivity before making requests
+  Future<bool> _isConnected() async {
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      return connectivityResult != ConnectivityResult.none;
+    } catch (e) {
+      return false;
+    }
+  }
 
   /// Build headers for API requests
   Map<String, String> _buildHeaders({
@@ -61,7 +78,7 @@ class BaseApiService {
     final headers = <String, String>{};
 
     final token = NetworkConstantsUtil.bearerToken;
-    if (token != null && token.isNotEmpty) {
+    if (token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     }
 
@@ -289,39 +306,104 @@ class BaseApiService {
     }
   }
 
-  /// Execute request with retry logic
+  /// Centralized error handler - navigates to ApiFailureScreen on critical errors
+  static void _handleCriticalError(String message,
+      {String errorType = 'error'}) {
+    // Prevent duplicate navigation within 3 seconds
+    final now = DateTime.now();
+    if (_isErrorScreenShown &&
+        _lastErrorTime != null &&
+        now.difference(_lastErrorTime!).inSeconds < 3) {
+      log('$_logTag ⚠️ Error screen already shown, skipping duplicate navigation');
+      return;
+    }
+
+    _isErrorScreenShown = true;
+    _lastErrorTime = now;
+
+    log('$_logTag 🚨 Critical Error: $message (Type: $errorType)');
+
+    // Use GetX navigation - safe without context
+    Get.to(
+      () => ApiFailureScreen(
+        message: message,
+        errorType: errorType,
+      ),
+      preventDuplicates: true,
+    )?.then((_) {
+      // Reset flag when user returns from error screen
+      _isErrorScreenShown = false;
+    });
+  }
+
+  /// Global key for showing snackbar (must be set in your app)
+  static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
+  /// Execute request with retry logic and centralized error handling
   Future<ApiResult<T>> _executeWithRetry<T>(
     Future<ApiResult<T>> Function() request,
   ) async {
+    // Check connectivity before making request
+    final isConnected = await _isConnected();
+    if (!isConnected) {
+      const errorMsg =
+          'No internet connection. Please check your network and try again.';
+      _handleCriticalError(errorMsg, errorType: 'offline');
+      return ApiResult.error(errorMsg, status: -1);
+    }
+
     int attempts = 0;
 
     while (attempts < _maxRetries) {
       try {
         attempts++;
-        return await request();
+        final result = await request();
+
+        // Handle API-level failures (status != 1)
+        if (!result.success && attempts >= _maxRetries) {
+          _handleCriticalError(
+            result.message.isNotEmpty
+                ? result.message
+                : 'Request failed. Please try again.',
+            errorType: 'server',
+          );
+        }
+
+        return result;
       } on SocketException {
         if (attempts >= _maxRetries) {
-          return ApiResult.error(
-              'No internet connection. Please check your network.');
+          const errorMsg = 'No internet connection. Please check your network.';
+          _handleCriticalError(errorMsg, errorType: 'offline');
+          return ApiResult.error(errorMsg, status: -1);
         }
         await Future.delayed(Duration(seconds: attempts * 2));
       } on TimeoutException {
         if (attempts >= _maxRetries) {
-          return ApiResult.error('Request timed out. Please try again.');
+          const errorMsg =
+              'Request timed out. Please check your connection and try again.';
+          _handleCriticalError(errorMsg, errorType: 'timeout');
+          return ApiResult.error(errorMsg, status: -1);
         }
         await Future.delayed(Duration(seconds: attempts * 2));
       } on FormatException catch (e) {
         log('$_logTag ❌ Format error: $e');
-        return ApiResult.error('Invalid response format');
+        const errorMsg = 'Invalid server response. Please try again later.';
+        _handleCriticalError(errorMsg, errorType: 'server');
+        return ApiResult.error(errorMsg, status: -1);
       } catch (e) {
         log('$_logTag ❌ Error: $e');
         if (attempts >= _maxRetries) {
-          return ApiResult.error('Something went wrong. Please try again.');
+          const errorMsg = 'Something went wrong. Please try again.';
+          _handleCriticalError(errorMsg, errorType: 'error');
+          return ApiResult.error(errorMsg, status: -1);
         }
         await Future.delayed(Duration(seconds: attempts * 2));
       }
     }
 
-    return ApiResult.error('Max retry attempts exceeded');
+    const errorMsg = 'Max retry attempts exceeded. Please try again later.';
+    _handleCriticalError(errorMsg, errorType: 'error');
+    return ApiResult.error(errorMsg, status: -1);
   }
 }

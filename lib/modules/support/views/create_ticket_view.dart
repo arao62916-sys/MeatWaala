@@ -213,7 +213,7 @@ class CreateTicketView extends GetView<SupportController> {
       Get.snackbar(
         'Error',
         'Failed to pick file: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }

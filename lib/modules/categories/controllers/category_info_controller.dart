@@ -46,7 +46,7 @@ class CategoryInfoController extends GetxController {
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
@@ -54,7 +54,7 @@ class CategoryInfoController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load category info: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;

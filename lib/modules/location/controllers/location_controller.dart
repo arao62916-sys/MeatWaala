@@ -16,7 +16,7 @@ class LocationController extends GetxController {
       Get.snackbar(
         'Success',
         'Location set to ${areaController.selectedAreaName}',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
 
       // Navigate to signup for new users

@@ -53,7 +53,7 @@ class HomeController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load home data',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -111,14 +111,14 @@ class HomeController extends GetxController {
       Get.snackbar(
         'Sorted',
         'Products sorted by: $sortLabel',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 2),
       );
     } catch (e) {
       Get.snackbar(
         'Error',
         'Failed to apply sorting',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isSortLoading.value = false;
@@ -140,14 +140,14 @@ class HomeController extends GetxController {
       Get.snackbar(
         'Reset',
         'Showing products in default order',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 2),
       );
     } catch (e) {
       Get.snackbar(
         'Error',
         'Failed to reset sorting',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isSortLoading.value = false;

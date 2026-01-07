@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/data/models/cart_item_model.dart';
 import 'package:meatwaala_app/data/services/cart_api_service.dart';
@@ -44,9 +45,10 @@ class CartController extends GetxController {
         // Don't show error for empty cart
         if (!result.message.toLowerCase().contains('empty')) {
           Get.snackbar(
-            'Error',
+            'Oops!',
             result.message,
-            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            snackPosition: SnackPosition.TOP,
           );
         }
       }
@@ -55,7 +57,7 @@ class CartController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load cart: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -99,13 +101,12 @@ class CartController extends GetxController {
       );
 
       if (result.success) {
-     
         // Refresh cart to get updated totals from server
         await loadCartInfo();
         Get.snackbar(
           'Updated',
           'Cart updated successfully',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 1),
         );
       } else {
@@ -116,7 +117,7 @@ class CartController extends GetxController {
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
@@ -124,7 +125,7 @@ class CartController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to update cart: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -145,24 +146,26 @@ class CartController extends GetxController {
         Get.snackbar(
           'Removed',
           'Item removed from cart',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           duration: const Duration(seconds: 1),
         );
       } else {
         // Revert if API fails
         await loadCartInfo();
         Get.snackbar(
-          'Error',
+          'Oops!',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
       await loadCartInfo(); // Reload to get correct state
       Get.snackbar(
-        'Error',
+        'Oops!',
         'Failed to remove item: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -187,7 +190,8 @@ class CartController extends GetxController {
       Get.snackbar(
         'Empty Cart',
         'Please add items to cart',
-        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        snackPosition: SnackPosition.TOP,
       );
       return;
     }

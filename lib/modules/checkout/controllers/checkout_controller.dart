@@ -14,7 +14,7 @@ class CheckoutController extends GetxController {
   final selectedPaymentMethod = 'razorpay'.obs;
   final isLoading = false.obs;
   final remarksController = TextEditingController();
-  
+
   // Price breakdown (Replace with actual cart data)
   final subtotal = 780.0.obs;
   final deliveryFee = 40.0.obs;
@@ -23,7 +23,11 @@ class CheckoutController extends GetxController {
 
   final paymentMethods = [
     {'title': 'Credit/Debit Card', 'icon': 'credit_card', 'value': 'razorpay'},
-    {'title': 'UPI (Google Pay, PhonePe, Paytm)', 'icon': 'account_balance_wallet', 'value': 'upi'},
+    {
+      'title': 'UPI (Google Pay, PhonePe, Paytm)',
+      'icon': 'account_balance_wallet',
+      'value': 'upi'
+    },
     {'title': 'Cash on Delivery', 'icon': 'money', 'value': 'cod'},
   ];
 
@@ -31,7 +35,7 @@ class CheckoutController extends GetxController {
   final ProfileService _profileService = ProfileService();
   final OrderService _orderService = OrderService();
   final StorageService _storage = StorageService();
-  
+
   // Razorpay
   late Razorpay _razorpay;
   String? _paymentId;
@@ -66,7 +70,7 @@ class CheckoutController extends GetxController {
       'Payment successful!',
       backgroundColor: Colors.green,
       colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
     );
     // Submit order after payment success
     submitOrder();
@@ -80,7 +84,7 @@ class CheckoutController extends GetxController {
       response.message ?? 'Payment was unsuccessful',
       backgroundColor: Colors.red,
       colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
     );
   }
 
@@ -89,7 +93,7 @@ class CheckoutController extends GetxController {
     Get.snackbar(
       'External Wallet',
       'Selected wallet: ${response.walletName}',
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
     );
   }
 
@@ -132,7 +136,8 @@ class CheckoutController extends GetxController {
 
   /// Navigate to add address (profile edit with focus on address)
   void addAddress() {
-    Get.toNamed(AppRoutes.editProfile, arguments: {'focus': 'address'})?.then((value) {
+    Get.toNamed(AppRoutes.editProfile, arguments: {'focus': 'address'})
+        ?.then((value) {
       if (value != null) {
         loadUserProfile();
       }
@@ -176,7 +181,7 @@ class CheckoutController extends GetxController {
         'Please complete your profile information',
         backgroundColor: Colors.red,
         colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
       return;
     }
@@ -189,7 +194,7 @@ class CheckoutController extends GetxController {
         'Please complete: ${missingFields.join(", ")}',
         backgroundColor: Colors.orange,
         colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 4),
       );
       return;
@@ -211,63 +216,63 @@ class CheckoutController extends GetxController {
     }
   }
 
-void _openRazorpayCheckout({String? method}) {
-  print('🚀 Starting Razorpay Checkout');
+  void _openRazorpayCheckout({String? method}) {
+    print('🚀 Starting Razorpay Checkout');
 
-  final profile = selectedProfile.value!;
-  print('👤 User Profile Loaded');
-  print('📱 Mobile: ${profile.mobile}');
-  print('📧 Email: ${profile.emailId}');
+    final profile = selectedProfile.value!;
+    print('👤 User Profile Loaded');
+    print('📱 Mobile: ${profile.mobile}');
+    print('📧 Email: ${profile.emailId}');
 
-  final int amountInPaise = (totalAmount.value * 100).toInt();
-  print('💰 Total Amount: ₹${totalAmount.value}');
-  print('💰 Amount in Paise: $amountInPaise');
+    final int amountInPaise = (totalAmount.value * 100).toInt();
+    print('💰 Total Amount: ₹${totalAmount.value}');
+    print('💰 Amount in Paise: $amountInPaise');
 
-  var options = {
-    'key': 'rzp_test_qa2h4SJvzwEbhw', // Replace with your actual Razorpay key
-    'amount': amountInPaise,
-    'name': 'Meat Waala',
-    'description': 'Order Payment',
-    'prefill': {
-      'contact': profile.mobile,
-      'email': profile.emailId,
-    },
-    'theme': {
-      'color': '#D32F2F',
-    },
-  };
+    var options = {
+      'key': 'rzp_test_qa2h4SJvzwEbhw', // Replace with your actual Razorpay key
+      'amount': amountInPaise,
+      'name': 'Meat Waala',
+      'description': 'Order Payment',
+      'prefill': {
+        'contact': profile.mobile,
+        'email': profile.emailId,
+      },
+      'theme': {
+        'color': '#D32F2F',
+      },
+    };
 
-  print('⚙️ Razorpay Base Options Initialized');
+    print('⚙️ Razorpay Base Options Initialized');
 
-  // Add method preference for UPI
-  if (method == 'upi') {
-    options['method'] = 'upi';
-    print('📲 Payment Method Selected: UPI');
-  } else {
-    print('💳 Payment Method Selected: Default');
+    // Add method preference for UPI
+    if (method == 'upi') {
+      options['method'] = 'upi';
+      print('📲 Payment Method Selected: UPI');
+    } else {
+      print('💳 Payment Method Selected: Default');
+    }
+
+    print('🧾 Final Razorpay Options: $options');
+
+    try {
+      print('🟢 Opening Razorpay Payment Gateway...');
+      _razorpay.open(options);
+      print('✅ Razorpay Opened Successfully');
+    } catch (e) {
+      log('❌ Razorpay Error: $e');
+      print('🔥 Exception While Opening Razorpay');
+
+      isLoading.value = false;
+
+      Get.snackbar(
+        'Error',
+        'Failed to open payment gateway',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    }
   }
-
-  print('🧾 Final Razorpay Options: $options');
-
-  try {
-    print('🟢 Opening Razorpay Payment Gateway...');
-    _razorpay.open(options);
-    print('✅ Razorpay Opened Successfully');
-  } catch (e) {
-    log('❌ Razorpay Error: $e');
-    print('🔥 Exception While Opening Razorpay');
-
-    isLoading.value = false;
-
-    Get.snackbar(
-      'Error',
-      'Failed to open payment gateway',
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  }
-}
 
   /// Submit order to API using CustomerProfileModel data
   Future<void> submitOrder() async {
@@ -278,7 +283,7 @@ void _openRazorpayCheckout({String? method}) {
       }
 
       final profile = selectedProfile.value!;
-      
+
       // Prepare order data with all mandatory fields from CustomerProfileModel
       final orderData = {
         // Mandatory fields
@@ -290,14 +295,14 @@ void _openRazorpayCheckout({String? method}) {
         'area_id': profile.areaId,
         'payment_id': _paymentId ?? '',
         'remarks': remarksController.text.trim(),
-        
+
         // Additional fields from profile
         'landmark': profile.landmark,
         'city': profile.city,
         'state': profile.state,
         'pincode': profile.pincode,
         'country': profile.country,
-        
+
         // Order details
         'payment_method': selectedPaymentMethod.value,
         'subtotal': subtotal.value.toString(),
@@ -320,7 +325,7 @@ void _openRazorpayCheckout({String? method}) {
 
       // Clear remarks after successful order
       remarksController.clear();
-      
+
       log('✅ Order placed successfully: $orderId');
     } catch (e) {
       log('❌ Error submitting order: $e');
@@ -330,7 +335,7 @@ void _openRazorpayCheckout({String? method}) {
         'Failed to place order: ${e.toString()}',
         backgroundColor: Colors.red,
         colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 4),
       );
     }

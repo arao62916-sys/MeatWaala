@@ -48,7 +48,7 @@ class ProductDetailController extends GetxController {
         Get.snackbar(
           'Error',
           result.message,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
@@ -56,7 +56,7 @@ class ProductDetailController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to load product details: $e',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -132,61 +132,61 @@ class ProductDetailController extends GetxController {
   }
 
   /// Add to cart
-Future<void> addToCart() async {
-  // Prevent multiple taps
-  if (isAddingToCart.value) return;
+  Future<void> addToCart() async {
+    // Prevent multiple taps
+    if (isAddingToCart.value) return;
 
-  // Product safety check
-  if (productDetail.value == null) {
-    Get.snackbar(
-      'Error',
-      'Product details not loaded',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-    return;
-  }
-
-  try {
-    isAddingToCart.value = true;
-
-    final result = await _cartService.addToCart(
-      productId: productId,
-      quantity: quantity.value,
-    );
-
-    if (result.success) {
-      // Refresh cart if controller exists
-      if (Get.isRegistered<CartController>()) {
-        await Get.find<CartController>().refreshCart();
-      }
-
-      Get.snackbar(
-        'Success',
-        '${productDetail.value!.name} added to cart',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-      );
-
-      // Navigate after snackbar visibility
-      await Future.delayed(const Duration(seconds: 2));
-      Get.offNamed(AppRoutes.cart);
-    } else {
+    // Product safety check
+    if (productDetail.value == null) {
       Get.snackbar(
         'Error',
-        result.message,
-        snackPosition: SnackPosition.BOTTOM,
+        'Product details not loaded',
+        snackPosition: SnackPosition.TOP,
       );
+      return;
     }
-  } catch (e) {
-    Get.snackbar(
-      'Error',
-      'Failed to add to cart. Please try again.',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-  } finally {
-    isAddingToCart.value = false;
+
+    try {
+      isAddingToCart.value = true;
+
+      final result = await _cartService.addToCart(
+        productId: productId,
+        quantity: quantity.value,
+      );
+
+      if (result.success) {
+        // Refresh cart if controller exists
+        if (Get.isRegistered<CartController>()) {
+          await Get.find<CartController>().refreshCart();
+        }
+
+        Get.snackbar(
+          'Success',
+          '${productDetail.value!.name} added to cart',
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 2),
+        );
+
+        // Navigate after snackbar visibility
+        await Future.delayed(const Duration(seconds: 2));
+        Get.offNamed(AppRoutes.cart);
+      } else {
+        Get.snackbar(
+          'Error',
+          result.message,
+          snackPosition: SnackPosition.TOP,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to add to cart. Please try again.',
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isAddingToCart.value = false;
+    }
   }
-}
 
   /// Refresh product detail
   Future<void> refreshProduct() async {

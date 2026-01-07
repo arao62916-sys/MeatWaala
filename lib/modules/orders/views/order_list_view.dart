@@ -11,8 +11,13 @@ class OrderListView extends GetView<OrderController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: const Text('My Orders'),
+        centerTitle: true,
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.orders.isEmpty) {
@@ -76,11 +81,18 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<OrderController>();
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: InkWell(
         onTap: () {
@@ -89,146 +101,129 @@ class _OrderCard extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(14.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Order Number & Date
+              // Order Number, Date & Status in one row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      'Order No. ${order.orderNumber}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Order #${order.orderNumber}',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          DateFormat('dd MMM yyyy').format(order.createdAt),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    DateFormat('dd MMM yyyy').format(order.createdAt),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(order.orderStatus).withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      order.orderStatus,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _getStatusColor(order.orderStatus),
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
 
-              // Delivery Address
+              // Delivery Address - compact
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.location_on_outlined,
-                    size: 16,
-                    color: AppColors.textSecondary,
+                  Icon(
+                    Icons.location_on,
+                    size: 14,
+                    color: AppColors.textSecondary.withOpacity(0.7),
                   ),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      '${order.addressLine1}, ${order.addressLine2}, ${order.area}',
+                      '${order.area}',
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         color: AppColors.textSecondary,
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
-              // Order Status & Payment Status
+              // Bottom row: Payment Status, Amount, Arrow
               Row(
                 children: [
+                  // Payment status
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color:
-                          _getStatusColor(order.orderStatus).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: _getStatusColor(order.orderStatus),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      order.orderStatus,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: _getStatusColor(order.orderStatus),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _getPaymentStatusColor(order.paymentStatus)
-                          .withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: _getPaymentStatusColor(order.paymentStatus),
-                        width: 1,
-                      ),
+                          .withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(
-                      order.paymentStatus,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: _getPaymentStatusColor(order.paymentStatus),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Total Amount
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Total Amount',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _getPaymentIcon(order.paymentStatus),
+                          size: 12,
+                          color: _getPaymentStatusColor(order.paymentStatus),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          order.paymentStatus,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: _getPaymentStatusColor(order.paymentStatus),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  const Spacer(),
+                  
+                  // Total amount
                   Text(
-                    '₹${order.total.toStringAsFixed(2)}',
+                    '₹${order.total.toStringAsFixed(0)}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-              const Divider(height: 1),
-              const SizedBox(height: 8),
-
-              // View Details Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      Get.to(OrderDetailsView());
-                      controller.viewOrderDetails(order.orderId);
-                    },
-                    icon: const Icon(Icons.arrow_forward, size: 16),
-                    label: const Text('View Details'),
+                  const SizedBox(width: 8),
+                  
+                  // Arrow icon
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: AppColors.textSecondary.withOpacity(0.5),
                   ),
                 ],
               ),
@@ -237,6 +232,20 @@ class _OrderCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _getPaymentIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+      case 'success':
+        return Icons.check_circle;
+      case 'pending':
+        return Icons.schedule;
+      case 'failed':
+        return Icons.cancel;
+      default:
+        return Icons.info;
+    }
   }
 
   Color _getStatusColor(String status) {
@@ -250,7 +259,7 @@ class _OrderCard extends StatelessWidget {
       case 'out for delivery':
         return Colors.orange;
       case 'pending':
-        return Colors.amber;
+        return Colors.amber.shade700;
       case 'cancelled':
       case 'failed':
         return Colors.red;
