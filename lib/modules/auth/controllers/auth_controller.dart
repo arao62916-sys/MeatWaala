@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:meatwaala_app/core/constants/app_constants.dart';
 import 'package:meatwaala_app/core/network/base_api_service.dart';
 import 'package:meatwaala_app/core/network/network_constents.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
 import 'package:meatwaala_app/data/models/customer_model.dart';
 import 'package:meatwaala_app/data/services/auth_api_service.dart';
@@ -156,14 +157,7 @@ class AuthController extends GetxController {
   }
 
   void _showErrorSnackbar(String message) {
-    Get.snackbar(
-      'Oops!',
-      message,
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-      margin: const EdgeInsets.all(12),
-    );
+    AppSnackbar.error(message, title: 'Oops!');
   }
 
   // Validators
@@ -211,13 +205,7 @@ class AuthController extends GetxController {
     // Get selected area from AreaController
     final areaController = Get.find<AreaController>();
     if (!areaController.hasSelectedArea) {
-      Get.snackbar(
-        'Oops!',
-        'Please select your delivery area',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      AppSnackbar.error('Please select your delivery area', title: 'Oops!');
       return;
     }
 
@@ -242,14 +230,10 @@ class AuthController extends GetxController {
         // Confirm area selection
         await areaController.confirmSelection();
 
-        Get.snackbar(
-          'Success',
+        AppSnackbar.success(
           result.data!.message.isNotEmpty
               ? result.data!.message
               : 'Password sent to your email',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
         );
 
         // Clear form
@@ -297,12 +281,9 @@ class AuthController extends GetxController {
         if (loginData.customer != null && !loginData.customer!.isActive) {
           errorMessage.value =
               'Your account is disabled. Please contact support.';
-          Get.snackbar(
-            'Account Disabled',
+          AppSnackbar.error(
             'Your account is disabled. Please contact support.',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
+            title: 'Account Disabled',
           );
           isLoading.value = false;
           return;
@@ -371,14 +352,11 @@ class AuthController extends GetxController {
         currentCustomer.value = loginData.customer;
         log('🔄 Current customer updated');
 
-        Get.snackbar(
-          'Welcome 🎉',
+        AppSnackbar.success(
           loginData.message.isNotEmpty
               ? loginData.message
               : 'Logged in successfully',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+          title: 'Welcome 🎉',
         );
 
         // 🧽 Clear form
@@ -442,15 +420,11 @@ class AuthController extends GetxController {
         // Save email for login prefill
         await _storage.saveTempEmail(emailController.text.trim());
 
-        Get.snackbar(
-          'Success 🔐',
+        AppSnackbar.success(
           data.message.isNotEmpty
               ? data.message
               : 'New password sent to your email',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 3),
+          title: 'Success 🔐',
         );
 
         // Clear fields
@@ -524,15 +498,11 @@ class AuthController extends GetxController {
         await _storage.logout();
 
         // Show success message
-        Get.snackbar(
-          'Logged Out',
+        AppSnackbar.success(
           result.message.isNotEmpty
               ? result.message
               : 'You have been logged out successfully',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 2),
+          title: 'Logged Out',
         );
 
         // Navigate to login screen

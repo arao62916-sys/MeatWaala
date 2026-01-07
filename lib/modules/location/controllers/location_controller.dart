@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/modules/location/controllers/area_controller.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 
@@ -13,11 +14,7 @@ class LocationController extends GetxController {
     final success = await areaController.confirmSelection();
 
     if (success) {
-      Get.snackbar(
-        'Success',
-        'Location set to ${areaController.selectedAreaName}',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.success('Location set to ${areaController.selectedAreaName}');
 
       // Navigate to signup for new users
       Get.offAllNamed(AppRoutes.signup);

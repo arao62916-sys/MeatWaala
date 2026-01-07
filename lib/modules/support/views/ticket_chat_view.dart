@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/data/models/ticket_message_model.dart';
 import 'package:meatwaala_app/data/models/support_ticket_model.dart';
@@ -527,11 +528,9 @@ class _MessageBubble extends StatelessWidget {
   Future<void> _openAttachment(String url) async {
     // TODO: Install url_launcher package
     // Add to pubspec.yaml: url_launcher: ^6.2.0
-    Get.snackbar(
-      'Feature Unavailable',
+    AppSnackbar.info(
       'URL launcher not installed. Add url_launcher to pubspec.yaml',
-      snackPosition: SnackPosition.TOP,
-      duration: const Duration(seconds: 2),
+      title: 'Feature Unavailable',
     );
 
     // Uncomment below after installing url_launcher package:
@@ -541,11 +540,7 @@ class _MessageBubble extends StatelessWidget {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        Get.snackbar(
-          'Error',
-          'Cannot open attachment',
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error('Cannot open attachment');
       }
     }
     */
@@ -677,10 +672,9 @@ class _ReplyInput extends StatelessWidget {
   Future<void> _pickFile(BuildContext context) async {
     // TODO: Install file_picker package
     // Add to pubspec.yaml: file_picker: ^6.0.0
-    Get.snackbar(
-      'Feature Unavailable',
+    AppSnackbar.info(
       'File picker not installed. Add file_picker to pubspec.yaml',
-      snackPosition: SnackPosition.TOP,
+      title: 'Feature Unavailable',
     );
 
     // Uncomment below after installing file_picker package:
@@ -696,11 +690,7 @@ class _ReplyInput extends StatelessWidget {
         controller.selectFile(file);
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to pick file: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to pick file: $e');
     }
     */
   }

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/order_detail_model.dart';
 import 'package:meatwaala_app/data/services/order_api_service.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
@@ -35,20 +36,12 @@ class OrderController extends GetxController {
       } else {
         errorMessage.value = result.message;
         if (!result.message.toLowerCase().contains('empty')) {
-          Get.snackbar(
-            'Error',
-            result.message,
-            snackPosition: SnackPosition.TOP,
-          );
+          AppSnackbar.error(result.message);
         }
       }
     } catch (e) {
       errorMessage.value = 'Failed to load orders';
-      Get.snackbar(
-        'Error',
-        'Failed to load orders: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load orders: $e');
     } finally {
       isLoading.value = false;
     }
@@ -66,19 +59,11 @@ class OrderController extends GetxController {
         selectedOrder.value = result.data;
       } else {
         errorMessage.value = result.message;
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
       errorMessage.value = 'Failed to load order details';
-      Get.snackbar(
-        'Error',
-        'Failed to load order details: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load order details: $e');
     } finally {
       isLoading.value = false;
     }
@@ -97,11 +82,9 @@ class OrderController extends GetxController {
       // Validate profile first
       final validation = _storage.validateProfileForOrder();
       if (!validation.isComplete) {
-        Get.snackbar(
-          'Incomplete Profile',
+        AppSnackbar.warning(
           'Please complete your profile first.\n${validation.missingFieldsMessage}',
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 3),
+          title: 'Incomplete Profile',
         );
 
         // Redirect to profile edit screen
@@ -127,31 +110,18 @@ class OrderController extends GetxController {
       );
 
       if (result.success) {
-        Get.snackbar(
-          'Success',
-          'Order placed successfully!',
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 2),
-        );
+        AppSnackbar.success('Order placed successfully!');
 
         // Refresh order list
         await loadOrders();
 
         return true;
       } else {
-        Get.snackbar(
-          'Order Failed',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message, title: 'Order Failed');
         return false;
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to submit order: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to submit order: $e');
       return false;
     } finally {
       isSubmitting.value = false;
@@ -167,20 +137,12 @@ class OrderController extends GetxController {
   }) async {
     try {
       if (rating < 1 || rating > 5) {
-        Get.snackbar(
-          'Invalid Rating',
-          'Please select a rating between 1 and 5',
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.warning('Please select a rating between 1 and 5', title: 'Invalid Rating');
         return false;
       }
 
       if (reviewTitle.trim().isEmpty || review.trim().isEmpty) {
-        Get.snackbar(
-          'Incomplete Review',
-          'Please fill in both title and review',
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.warning('Please fill in both title and review', title: 'Incomplete Review');
         return false;
       }
 
@@ -194,12 +156,7 @@ class OrderController extends GetxController {
       );
 
       if (result.success) {
-        Get.snackbar(
-          'Success',
-          'Review submitted successfully!',
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 2),
-        );
+        AppSnackbar.success('Review submitted successfully!');
 
         // Refresh order details to show updated review status
         if (selectedOrder.value != null) {
@@ -208,19 +165,11 @@ class OrderController extends GetxController {
 
         return true;
       } else {
-        Get.snackbar(
-          'Review Failed',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message, title: 'Review Failed');
         return false;
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to submit review: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to submit review: $e');
       return false;
     } finally {
       isReviewSubmitting.value = false;

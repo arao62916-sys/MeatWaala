@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/support_ticket_model.dart';
 import 'package:meatwaala_app/data/models/ticket_message_model.dart';
 import 'package:meatwaala_app/data/services/support_api_service.dart';
@@ -80,20 +81,12 @@ class SupportController extends GetxController {
       } else {
         errorMessage.value = result.message;
         if (!result.message.toLowerCase().contains('empty')) {
-          Get.snackbar(
-            'Error',
-            result.message,
-            snackPosition: SnackPosition.TOP,
-          );
+          AppSnackbar.error(result.message);
         }
       }
     } catch (e) {
       errorMessage.value = 'Failed to load support tickets';
-      Get.snackbar(
-        'Error',
-        'Failed to load support tickets: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load support tickets: $e');
     } finally {
       isLoading.value = false;
     }
@@ -116,19 +109,11 @@ class SupportController extends GetxController {
         });
       } else {
         errorMessage.value = result.message;
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
       errorMessage.value = 'Failed to load ticket details';
-      Get.snackbar(
-        'Error',
-        'Failed to load ticket details: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load ticket details: $e');
     } finally {
       isLoading.value = false;
     }
@@ -146,11 +131,8 @@ class SupportController extends GetxController {
       final ticketMessage = message ?? createMessageController.text.trim();
 
       if (ticketSubject.isEmpty || ticketMessage.isEmpty) {
-        Get.snackbar(
-          'Incomplete',
-          'Please fill in both subject and message',
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.warning('Please fill in both subject and message',
+            title: 'Incomplete');
         return false;
       }
 
@@ -163,12 +145,7 @@ class SupportController extends GetxController {
       );
 
       if (result.success) {
-        Get.snackbar(
-          'Success',
-          'Support ticket submitted successfully!',
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 2),
-        );
+        AppSnackbar.success('Support ticket submitted successfully!');
 
         // ✅ Clear form - safe because controllers are owned by GetX controller
         clearCreateForm();
@@ -178,19 +155,11 @@ class SupportController extends GetxController {
 
         return true;
       } else {
-        Get.snackbar(
-          'Failed',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message, title: 'Failed');
         return false;
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to submit ticket: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to submit ticket: $e');
       return false;
     } finally {
       isCreating.value = false;
@@ -208,21 +177,14 @@ class SupportController extends GetxController {
       final message = messageText ?? replyMessageController.text.trim();
 
       if (message.isEmpty) {
-        Get.snackbar(
-          'Empty Message',
-          'Please enter a message',
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.warning('Please enter a message', title: 'Empty Message');
         return false;
       }
 
       // Check if ticket is closed
       if (selectedTicket.value != null && !selectedTicket.value!.isOpen) {
-        Get.snackbar(
-          'Ticket Closed',
-          'Cannot reply to a closed ticket',
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.warning('Cannot reply to a closed ticket',
+            title: 'Ticket Closed');
         return false;
       }
 
@@ -239,31 +201,18 @@ class SupportController extends GetxController {
         replyMessageController.clear();
         clearSelectedFile();
 
-        Get.snackbar(
-          'Success',
-          'Reply sent successfully!',
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 1),
-        );
+        AppSnackbar.success('Reply sent successfully!');
 
         // Reload ticket details to get updated conversation
         await loadTicketDetails(ticketId);
 
         return true;
       } else {
-        Get.snackbar(
-          'Failed',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message, title: 'Failed');
         return false;
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to send reply: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to send reply: $e');
       return false;
     } finally {
       isReplying.value = false;
@@ -278,12 +227,7 @@ class SupportController extends GetxController {
       final result = await _supportService.closeTicket(ticketId);
 
       if (result.success) {
-        Get.snackbar(
-          'Success',
-          'Ticket closed successfully',
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 2),
-        );
+        AppSnackbar.success('Ticket closed successfully');
 
         // Update selected ticket status
         if (selectedTicket.value != null) {
@@ -298,19 +242,11 @@ class SupportController extends GetxController {
 
         return true;
       } else {
-        Get.snackbar(
-          'Failed',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message, title: 'Failed');
         return false;
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to close ticket: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to close ticket: $e');
       return false;
     } finally {
       isClosing.value = false;

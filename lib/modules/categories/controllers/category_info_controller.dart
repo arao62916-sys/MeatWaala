@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/category_model.dart';
 import 'package:meatwaala_app/data/services/category_api_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
@@ -43,19 +44,11 @@ class CategoryInfoController extends GetxController {
         subCategories.value = categoryInfo.value?.aChild ?? [];
       } else {
         errorMessage.value = result.message;
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
       errorMessage.value = 'Failed to load category info';
-      Get.snackbar(
-        'Error',
-        'Failed to load category info: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load category info: $e');
     } finally {
       isLoading.value = false;
     }

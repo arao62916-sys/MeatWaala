@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/product_model.dart';
 import 'package:meatwaala_app/data/services/product_api_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
@@ -69,19 +70,11 @@ class ProductListController extends GetxController {
         filteredProducts.value = result.data!;
       } else {
         errorMessage.value = result.message;
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
       errorMessage.value = 'Failed to load products';
-      Get.snackbar(
-        'Error',
-        'Failed to load products: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load products: $e');
     } finally {
       isLoading.value = false;
     }

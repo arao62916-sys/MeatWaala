@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/product_model.dart';
 import 'package:meatwaala_app/data/services/product_api_service.dart';
 import 'package:meatwaala_app/data/services/cart_api_service.dart';
@@ -45,19 +46,11 @@ class ProductDetailController extends GetxController {
         productDetail.value = result.data;
       } else {
         errorMessage.value = result.message;
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
       errorMessage.value = 'Failed to load product details';
-      Get.snackbar(
-        'Error',
-        'Failed to load product details: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load product details: $e');
     } finally {
       isLoading.value = false;
     }
@@ -138,11 +131,7 @@ class ProductDetailController extends GetxController {
 
     // Product safety check
     if (productDetail.value == null) {
-      Get.snackbar(
-        'Error',
-        'Product details not loaded',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Product details not loaded');
       return;
     }
 
@@ -160,29 +149,16 @@ class ProductDetailController extends GetxController {
           await Get.find<CartController>().refreshCart();
         }
 
-        Get.snackbar(
-          'Success',
-          '${productDetail.value!.name} added to cart',
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 2),
-        );
+        AppSnackbar.success('${productDetail.value!.name} added to cart');
 
         // Navigate after snackbar visibility
         await Future.delayed(const Duration(seconds: 2));
         Get.offNamed(AppRoutes.cart);
       } else {
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to add to cart. Please try again.',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to add to cart. Please try again.');
     } finally {
       isAddingToCart.value = false;
     }

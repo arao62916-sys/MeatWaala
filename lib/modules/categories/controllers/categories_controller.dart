@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/category_model.dart';
 import 'package:meatwaala_app/data/services/category_api_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
@@ -81,18 +82,10 @@ class CategoriesController extends GetxController
           });
         }
       } else {
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load menu categories: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load menu categories: $e');
     } finally {
       isMenuLoading.value = false;
     }
@@ -111,19 +104,11 @@ class CategoriesController extends GetxController
         categories.value = result.data!;
       } else {
         errorMessage.value = result.message;
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
       errorMessage.value = 'Failed to load categories';
-      Get.snackbar(
-        'Error',
-        'Failed to load categories: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load categories: $e');
     } finally {
       isLoading.value = false;
     }
@@ -152,20 +137,12 @@ class CategoriesController extends GetxController
       } else {
         errorMessage.value = result.message;
         categories.value = [];
-        Get.snackbar(
-          'Error',
-          result.message,
-          snackPosition: SnackPosition.TOP,
-        );
+        AppSnackbar.error(result.message);
       }
     } catch (e) {
       errorMessage.value = 'Failed to load category details';
       categories.value = [];
-      Get.snackbar(
-        'Error',
-        'Failed to load category details: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load category details: $e');
     } finally {
       isLoading.value = false;
     }

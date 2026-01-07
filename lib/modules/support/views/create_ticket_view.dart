@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/support/controllers/support_controller.dart';
 
@@ -210,11 +211,7 @@ class CreateTicketView extends GetView<SupportController> {
         controller.selectFile(file);
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to pick file: $e',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to pick file: $e');
     }
   }
 

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/category_model.dart';
 import 'package:meatwaala_app/data/services/category_api_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
@@ -82,11 +83,7 @@ class CategoryChildrenInfoController extends GetxController {
 
       errorMessage.value = 'Error loading category: $e';
 
-      Get.snackbar(
-        'Error',
-        'Failed to load category details',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load category details');
     } finally {
       isLoading.value = false;
       print('⏹️ [Category] Loading finished');

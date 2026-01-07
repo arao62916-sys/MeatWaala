@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/area_model.dart';
 import 'package:meatwaala_app/data/services/area_api_service.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
@@ -113,11 +114,7 @@ class AreaController extends GetxController {
   /// Confirm area selection and save to storage
   Future<bool> confirmSelection() async {
     if (selectedArea.value == null) {
-      Get.snackbar(
-        'Error',
-        'Please select an area',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Please select an area');
       return false;
     }
 

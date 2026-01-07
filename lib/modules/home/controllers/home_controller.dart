@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/category_model.dart';
 import 'package:meatwaala_app/data/models/product_model.dart';
 import 'package:meatwaala_app/data/services/category_api_service.dart';
@@ -50,11 +51,7 @@ class HomeController extends GetxController {
       // For now, banners will be empty unless provided by backend
     } catch (e) {
       errorMessage.value = 'Failed to load data: $e';
-      Get.snackbar(
-        'Error',
-        'Failed to load home data',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to load home data');
     } finally {
       isLoading.value = false;
     }
@@ -108,18 +105,9 @@ class HomeController extends GetxController {
       await _loadProducts();
       Get.back(); // Close bottom sheet
 
-      Get.snackbar(
-        'Sorted',
-        'Products sorted by: $sortLabel',
-        snackPosition: SnackPosition.TOP,
-        duration: const Duration(seconds: 2),
-      );
+      AppSnackbar.success('Products sorted by: $sortLabel', title: 'Sorted');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to apply sorting',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to apply sorting');
     } finally {
       isSortLoading.value = false;
     }
@@ -137,18 +125,9 @@ class HomeController extends GetxController {
       await _loadProducts();
       Get.back(); // Close bottom sheet
 
-      Get.snackbar(
-        'Reset',
-        'Showing products in default order',
-        snackPosition: SnackPosition.TOP,
-        duration: const Duration(seconds: 2),
-      );
+      AppSnackbar.info('Showing products in default order', title: 'Reset');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to reset sorting',
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to reset sorting');
     } finally {
       isSortLoading.value = false;
     }

@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:meatwaala_app/modules/profile/model/user_model.dart';
@@ -65,13 +66,7 @@ class CheckoutController extends GetxController {
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     log('✅ Payment Success: ${response.paymentId}');
     _paymentId = response.paymentId;
-    Get.snackbar(
-      'Success',
-      'Payment successful!',
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-    );
+    AppSnackbar.success('Payment successful!');
     // Submit order after payment success
     submitOrder();
   }
@@ -79,22 +74,16 @@ class CheckoutController extends GetxController {
   void _handlePaymentError(PaymentFailureResponse response) {
     log('❌ Payment Error: ${response.code} - ${response.message}');
     isLoading.value = false;
-    Get.snackbar(
-      'Payment Failed',
+    AppSnackbar.error(
       response.message ?? 'Payment was unsuccessful',
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
+      title: 'Payment Failed',
     );
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     log('💳 External Wallet: ${response.walletName}');
-    Get.snackbar(
-      'External Wallet',
-      'Selected wallet: ${response.walletName}',
-      snackPosition: SnackPosition.TOP,
-    );
+    AppSnackbar.info('Selected wallet: ${response.walletName}',
+        title: 'External Wallet');
   }
 
   /// Load user profile from API using CustomerProfileModel
@@ -176,26 +165,16 @@ class CheckoutController extends GetxController {
   Future<void> placeOrder() async {
     // Validate profile exists
     if (selectedProfile.value == null) {
-      Get.snackbar(
-        'Error',
-        'Please complete your profile information',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Please complete your profile information');
       return;
     }
 
     // Validate all required fields are filled
     if (!isProfileComplete()) {
       final missingFields = getMissingFields();
-      Get.snackbar(
-        'Incomplete Profile',
+      AppSnackbar.warning(
         'Please complete: ${missingFields.join(", ")}',
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        duration: const Duration(seconds: 4),
+        title: 'Incomplete Profile',
       );
       return;
     }
@@ -264,13 +243,7 @@ class CheckoutController extends GetxController {
 
       isLoading.value = false;
 
-      Get.snackbar(
-        'Error',
-        'Failed to open payment gateway',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-      );
+      AppSnackbar.error('Failed to open payment gateway');
     }
   }
 
@@ -330,14 +303,7 @@ class CheckoutController extends GetxController {
     } catch (e) {
       log('❌ Error submitting order: $e');
       isLoading.value = false;
-      Get.snackbar(
-        'Error',
-        'Failed to place order: ${e.toString()}',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.TOP,
-        duration: const Duration(seconds: 4),
-      );
+      AppSnackbar.error('Failed to place order: ${e.toString()}');
     }
   }
 }

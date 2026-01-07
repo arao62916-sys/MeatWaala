@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
 import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
 import 'package:meatwaala_app/modules/profile/model/user_model.dart';
@@ -111,7 +112,7 @@ class ProfileController extends GetxController {
       errorMessage.value = e.toString().replaceAll('Exception: ', '');
       log('❌ ProfileController: $e');
 
-      _showErrorSnackbar(errorMessage.value);
+      AppSnackbar.error(errorMessage.value);
     } finally {
       isLoading.value = false;
     }
@@ -145,7 +146,7 @@ class ProfileController extends GetxController {
 
       if (customerId == null || customerId.isEmpty) {
         log('❌ ProfileController: No customer ID found for update');
-        _showErrorSnackbar('User not logged in');
+        AppSnackbar.error('User not logged in');
         return;
       }
 
@@ -181,12 +182,12 @@ class ProfileController extends GetxController {
       }
 
       Get.back(); // Close edit screen
-      _showSuccessSnackbar(message);
+      AppSnackbar.success(message);
 
       await fetchProfile(); // Refresh profile
     } catch (e) {
       log('❌ ProfileController: Update failed: $e');
-      _showErrorSnackbar(e.toString().replaceAll('Exception: ', ''));
+      AppSnackbar.error(e.toString().replaceAll('Exception: ', ''));
     } finally {
       isUpdating.value = false;
     }
@@ -199,7 +200,7 @@ class ProfileController extends GetxController {
 
     // Validate password match
     if (newPasswordController.text != confirmPasswordController.text) {
-      _showErrorSnackbar('New password and confirm password do not match');
+      AppSnackbar.error('New password and confirm password do not match');
       return;
     }
 
@@ -208,7 +209,7 @@ class ProfileController extends GetxController {
 
       if (customerId == null || customerId.isEmpty) {
         log('❌ ProfileController: No customer ID found for password change');
-        _showErrorSnackbar('User not logged in');
+        AppSnackbar.error('User not logged in');
         return;
       }
 
@@ -224,7 +225,7 @@ class ProfileController extends GetxController {
           await _profileService.changePassword(customerId, passwordData);
 
       Get.back(); // Close change password screen
-      _showSuccessSnackbar(message);
+      AppSnackbar.success(message);
 
       // Clear password fields
       oldPasswordController.clear();
@@ -232,7 +233,7 @@ class ProfileController extends GetxController {
       confirmPasswordController.clear();
     } catch (e) {
       log('❌ ProfileController: Password change failed: $e');
-      _showErrorSnackbar(e.toString().replaceAll('Exception: ', ''));
+      AppSnackbar.error(e.toString().replaceAll('Exception: ', ''));
     } finally {
       isUpdating.value = false;
     }
@@ -365,35 +366,6 @@ class ProfileController extends GetxController {
         final authController = Get.find<AuthController>();
         await authController.logout();
       },
-    );
-  }
-
-  // ========== HELPER METHODS ==========
-  void _showSuccessSnackbar(String message) {
-    Get.snackbar(
-      'Success',
-      message,
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green.shade400,
-      colorText: Colors.white,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 8,
-      icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-      duration: const Duration(seconds: 3),
-    );
-  }
-
-  void _showErrorSnackbar(String message) {
-    Get.snackbar(
-      'Error',
-      message,
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.red.shade400,
-      colorText: Colors.white,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 8,
-      icon: const Icon(Icons.error_outline, color: Colors.white),
-      duration: const Duration(seconds: 3),
     );
   }
 }
