@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:meatwaala_app/data/models/user_model.dart';
 import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
+import 'package:meatwaala_app/modules/navigation/controllers/bottom_nav_controller.dart';
 
 /// Controller for managing drawer state and user data
 class AppDrawerController extends GetxController {
@@ -21,16 +22,32 @@ class AppDrawerController extends GetxController {
 
   /// Load user data from storage or API
   void _loadUserData() {
-    // TODO: Load from GetStorage or API
-    // For now, using mock data
-    currentUser.value = UserModel(
-      id: '1',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      phone: '+91 98765 43210',
-      profileImage: null, // Can be a URL
-      createdAt: DateTime.now(),
-    );
+    final storage = StorageService();
+
+    // Load user data from storage
+    final userId = storage.getUserId();
+    final userName = storage.getUserName();
+    final userEmail = storage.getUserEmail();
+    final userPhone = storage.getUserPhone();
+
+    // Only set user if logged in
+    if (userId != null && userId.isNotEmpty) {
+      currentUser.value = UserModel(
+        id: userId,
+        name: userName ?? 'User',
+        email: userEmail ?? '',
+        phone: userPhone ?? '',
+        profileImage: null, // Can be loaded from profile API
+        createdAt: DateTime.now(),
+      );
+    } else {
+      currentUser.value = null;
+    }
+  }
+
+  /// Refresh user data (call after profile updates)
+  void refreshUserData() {
+    _loadUserData();
   }
 
   /// Track current route for highlighting active menu
@@ -85,6 +102,29 @@ class AppDrawerController extends GetxController {
   /// Navigate to profile screen
   void navigateToProfile() {
     Get.back(); // Close drawer
-    Get.toNamed('/profile');
+
+    // Check if we're already on MainScreen
+    if (Get.currentRoute == '/main') {
+      // Just switch to profile tab (index 3)
+      try {
+        final navController = Get.find<BottomNavController>();
+        navController.changeTab(3);
+      } catch (e) {
+        // If controller not found, navigate to main
+        Get.offAllNamed('/main');
+      }
+    } else {
+      // Navigate to MainScreen and switch to profile tab
+      Get.offAllNamed('/main');
+      // Wait for navigation to complete, then switch tab
+      Future.delayed(const Duration(milliseconds: 100), () {
+        try {
+          final navController = Get.find<BottomNavController>();
+          navController.changeTab(3);
+        } catch (e) {
+          // Controller not ready yet, ignore
+        }
+      });
+    }
   }
 }

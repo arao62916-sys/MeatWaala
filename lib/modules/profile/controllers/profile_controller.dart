@@ -6,6 +6,7 @@ import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
 import 'package:meatwaala_app/modules/profile/model/user_model.dart';
 import 'package:meatwaala_app/modules/profile/profile_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
+import 'package:meatwaala_app/core/widgets/drawer/app_drawer_controller.dart';
 
 /// Controller for managing profile-related operations
 class ProfileController extends GetxController {
@@ -165,6 +166,19 @@ class ProfileController extends GetxController {
       };
 
       final message = await _profileService.updateProfile(customerId, formData);
+
+      // Update storage with new user data
+      await _storage.saveUserName(formData['name']!);
+      await _storage.saveUserEmail(formData['email_id']!);
+      await _storage.saveUserPhone(formData['mobile']!);
+
+      // Refresh drawer if controller exists
+      try {
+        final drawerController = Get.find<AppDrawerController>();
+        drawerController.refreshUserData();
+      } catch (e) {
+        log('⚠️ Drawer controller not found, skipping refresh');
+      }
 
       Get.back(); // Close edit screen
       _showSuccessSnackbar(message);

@@ -17,8 +17,8 @@ void main() async {
   // Register AuthController globally before any other controller
   Get.put(AuthController());
   Get.put(AreaController());
-  Get.lazyPut(() => OrderController());
-  Get.lazyPut(() => ProfileController());
+  Get.put(ProfileController());
+  Get.put(OrderController());
   runApp(const MeatWaalaApp());
 }
 

@@ -13,37 +13,33 @@ import 'package:meatwaala_app/core/widgets/drawer/app_drawer.dart';
 class MainScreen extends GetView<BottomNavController> {
   const MainScreen({super.key});
 
+  static final List<Widget> _screens = [
+    HomeView(),
+    CategoriesView(),
+    OrderListView(),
+    ProfileView(),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    // List of screens for each tab
-    final List<Widget> screens = [
-      const HomeView(),
-      const CategoriesView(),
-      const OrderListView(),
-      const ProfileView(),
-    ];
-
     return Scaffold(
       key: controller.scaffoldKey,
       drawer: const AppDrawer(),
-
-      /// Body with PageView for smooth transitions
-      body: PageView(
-        controller: controller.pageController,
-        physics: const NeverScrollableScrollPhysics(), // Disable swipe
-        onPageChanged: controller.onPageChanged,
-        children: screens,
-      ),
-
-      /// Extended body to allow content behind the notch
       extendBody: true,
 
-      /// Animated Bottom Navigation Bar
-      bottomNavigationBar: Obx(
-        () => CustomBottomNavBar(
+      body: PageView(
+        controller: controller.pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: controller.onPageChanged,
+        children: _screens,
+      ),
+
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: CustomBottomNavBar(
           controller: controller.notchBottomBarController,
-          selectedIndex: controller.selectedIndex.value,
           onTap: controller.changeTab,
+          selectedIndex: controller.selectedIndex.value,
         ),
       ),
     );

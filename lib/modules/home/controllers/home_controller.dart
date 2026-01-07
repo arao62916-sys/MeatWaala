@@ -173,7 +173,7 @@ class HomeController extends GetxController {
   }
 
   void navigateToCart() {
-    Get.toNamed(AppRoutes.cart);
+    Get.toNamed(AppRoutes.orders);
   }
 
   void navigateToProfile() {

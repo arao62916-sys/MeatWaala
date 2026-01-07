@@ -256,6 +256,22 @@ class StorageService {
     return isLoggedIn && token != null && token.isNotEmpty;
   }
 
+  // Update individual user fields
+  Future<void> saveUserName(String name) async {
+    _storage.write(_keyUserName, name);
+    await _storage.save();
+  }
+
+  Future<void> saveUserEmail(String email) async {
+    _storage.write(_keyUserEmail, email);
+    await _storage.save();
+  }
+
+  Future<void> saveUserPhone(String phone) async {
+    _storage.write(_keyUserPhone, phone);
+    await _storage.save();
+  }
+
   Future<void> clearUserData() async {
     await _storage.remove(_keyToken);
     await _storage.remove(_keyRefreshToken);
