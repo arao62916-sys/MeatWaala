@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/core/network/base_api_service.dart';
+import 'package:meatwaala_app/core/state/app_state.dart';
+import 'package:meatwaala_app/routes/app_routes.dart';
 
 class ApiFailureScreen extends StatelessWidget {
   final String? message;
@@ -68,13 +70,33 @@ class ApiFailureScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => Get.back(),
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                ),
-                child: const Text('Go Back'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Reset critical error state
+                      AppState.instance.resetCriticalError();
+                      // Restart app from splash
+                      Get.offAllNamed(AppRoutes.splash);
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  OutlinedButton(
+                    onPressed: () => Get.back(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 12),
+                    ),
+                    child: const Text('Go Back'),
+                  ),
+                ],
               ),
             ],
           ),

@@ -155,64 +155,8 @@ class EditProfileView extends GetView<ProfileController> {
                       icon: Icons.home_work_outlined,
                       textInputAction: TextInputAction.next,
                     ),
+
                     const SizedBox(height: 16),
-
-                    _buildTextField(
-                      controller: controller.landmarkController,
-                      label: 'Landmark',
-                      icon: Icons.flag_outlined,
-                      textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(height: 16),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildTextField(
-                            controller: controller.pincodeController,
-                            label: 'Pincode',
-                            icon: Icons.pin_drop_outlined,
-                            keyboardType: TextInputType.number,
-                            validator: controller.validatePincode,
-                            textInputAction: TextInputAction.next,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildTextField(
-                            controller: controller.cityController,
-                            label: 'City',
-                            icon: Icons.location_city,
-                            textInputAction: TextInputAction.next,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildTextField(
-                            controller: controller.stateController,
-                            label: 'State',
-                            icon: Icons.map_outlined,
-                            textInputAction: TextInputAction.next,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildTextField(
-                            controller: controller.countryController,
-                            label: 'Country',
-                            icon: Icons.public_outlined,
-                            textInputAction: TextInputAction.done,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-
                     // Update Button
                     SizedBox(
                       width: double.infinity,

@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:meatwaala_app/core/constants/app_constants.dart';
+import 'package:meatwaala_app/core/state/app_state.dart';
 import 'package:meatwaala_app/data/models/company_model.dart';
 import 'package:meatwaala_app/data/services/company_api_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
@@ -55,11 +56,23 @@ class SplashController extends GetxController {
 
   /// Fetch company data from API
   Future<void> _fetchCompanyData() async {
+    // CRITICAL: Stop if critical error already occurred
+    if (AppState.instance.hasCriticalError) {
+      log('⛔ Critical error detected - skipping company API call');
+      return;
+    }
+
     isLoadingCompany.value = true;
     hasCompanyError.value = false;
 
     try {
       final result = await _companyApiService.getCompanyDetails();
+
+      // Check again after async operation
+      if (AppState.instance.hasCriticalError) {
+        log('⛔ Critical error occurred during API call - stopping');
+        return;
+      }
 
       if (result.success && result.data != null) {
         company.value = result.data;
@@ -80,6 +93,12 @@ class SplashController extends GetxController {
 
   /// Navigate to next screen based on app state
   void _navigateToNext() {
+    // CRITICAL: Stop navigation if critical error occurred
+    if (AppState.instance.hasCriticalError) {
+      log('⛔ Critical error detected - preventing navigation to main screens');
+      return;
+    }
+
     final isFirstTime = _storage.isFirstTime();
 
     if (isFirstTime) {

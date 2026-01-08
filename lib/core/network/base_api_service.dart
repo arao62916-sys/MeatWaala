@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:meatwaala_app/core/network/network_constents.dart';
+import 'package:meatwaala_app/core/state/app_state.dart';
 import 'package:meatwaala_app/core/widgets/api_failure_screen.dart';
 
 /// Standardized API Response wrapper
@@ -53,10 +54,6 @@ class BaseApiService {
   static const int _maxRetries = 3;
 
   final String baseUrl;
-
-  // Prevent duplicate navigation to error screen
-  static bool _isErrorScreenShown = false;
-  static DateTime? _lastErrorTime;
 
   BaseApiService({this.baseUrl = NetworkConstantsUtil.baseUrl});
 
@@ -309,17 +306,13 @@ class BaseApiService {
   /// Centralized error handler - navigates to ApiFailureScreen on critical errors
   static void _handleCriticalError(String message,
       {String errorType = 'error'}) {
-    // Prevent duplicate navigation within 3 seconds
-    final now = DateTime.now();
-    if (_isErrorScreenShown &&
-        _lastErrorTime != null &&
-        now.difference(_lastErrorTime!).inSeconds < 3) {
-      log('$_logTag ⚠️ Error screen already shown, skipping duplicate navigation');
+    // Use global AppState to prevent duplicate error handling
+    final isFirstError = AppState.instance.setCriticalError();
+
+    if (!isFirstError) {
+      log('$_logTag ⚠️ Critical error already handled, skipping duplicate');
       return;
     }
-
-    _isErrorScreenShown = true;
-    _lastErrorTime = now;
 
     log('$_logTag 🚨 Critical Error: $message (Type: $errorType)');
 
@@ -330,10 +323,7 @@ class BaseApiService {
         errorType: errorType,
       ),
       preventDuplicates: true,
-    )?.then((_) {
-      // Reset flag when user returns from error screen
-      _isErrorScreenShown = false;
-    });
+    );
   }
 
   /// Global key for showing snackbar (must be set in your app)
@@ -344,6 +334,15 @@ class BaseApiService {
   Future<ApiResult<T>> _executeWithRetry<T>(
     Future<ApiResult<T>> Function() request,
   ) async {
+    // CRITICAL: Stop all API calls if critical error already occurred
+    if (AppState.instance.hasCriticalError) {
+      log('$_logTag ⛔ Critical error state - preventing API call');
+      return ApiResult.error(
+        'App is in error state. Please retry.',
+        status: -1,
+      );
+    }
+
     // Check connectivity before making request
     final isConnected = await _isConnected();
     if (!isConnected) {

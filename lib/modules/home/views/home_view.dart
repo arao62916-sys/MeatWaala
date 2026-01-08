@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/home/controllers/home_controller.dart';
 import 'package:meatwaala_app/modules/home/views/widgets/sort_bottom_sheet.dart';
-
 import 'package:meatwaala_app/modules/navigation/controllers/bottom_nav_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -186,7 +185,7 @@ class HomeView extends GetView<HomeController> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.68,
+          childAspectRatio: 0.75, // Optimized ratio
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
@@ -202,11 +201,17 @@ class HomeView extends GetView<HomeController> {
   Widget _buildProductCard(BuildContext context, dynamic product) {
     return GestureDetector(
       onTap: () => controller.navigateToProductDetail(product.id),
-      child: Card(
-        elevation: 3,
-        shadowColor: AppColors.textPrimary.withOpacity(0.1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.textPrimary.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,14 +221,14 @@ class HomeView extends GetView<HomeController> {
               flex: 3,
               child: ClipRRect(
                 borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+                    const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Stack(
                   children: [
                     CachedNetworkImage(
                       imageUrl: product.imageUrl,
                       width: double.infinity,
                       height: double.infinity,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       placeholder: (context, url) => Container(
                         color: AppColors.border.withOpacity(0.3),
                         child: const Center(
@@ -273,9 +278,9 @@ class HomeView extends GetView<HomeController> {
             ),
             // Product Details
             Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
+              flex: 1,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -293,14 +298,13 @@ class HomeView extends GetView<HomeController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(height: 4),
                     // Price
                     Text(
                       '₹${product.basePrice}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
-                            fontSize: 16,
+                            fontSize: 15,
                           ),
                     ),
                   ],
@@ -361,7 +365,7 @@ class HomeView extends GetView<HomeController> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.68,
+          childAspectRatio: 0.75, // Optimized ratio
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),

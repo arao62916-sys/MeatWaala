@@ -10,6 +10,13 @@ class OrderListView extends GetView<OrderController> {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure data is loaded when screen is shown
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.orders.isEmpty && !controller.isLoading.value) {
+        controller.loadOrders();
+      }
+    });
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -132,9 +139,11 @@ class _OrderCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(order.orderStatus).withOpacity(0.12),
+                      color:
+                          _getStatusColor(order.orderStatus).withOpacity(0.12),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -180,7 +189,8 @@ class _OrderCard extends StatelessWidget {
                 children: [
                   // Payment status
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _getPaymentStatusColor(order.paymentStatus)
                           .withOpacity(0.12),
@@ -207,7 +217,7 @@ class _OrderCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  
+
                   // Total amount
                   Text(
                     '₹${order.total.toStringAsFixed(0)}',
@@ -218,7 +228,7 @@ class _OrderCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  
+
                   // Arrow icon
                   Icon(
                     Icons.arrow_forward_ios,

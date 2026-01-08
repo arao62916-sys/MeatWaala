@@ -20,21 +20,37 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.meatwaala.meatwaala_app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+
+        // Keep Flutter defaults
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
+
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    // 🔑 TEMPORARY SIGNING FIX (NO KEYSTORE REQUIRED)
+    signingConfigs {
+        getByName("debug") {
+            enableV1Signing = true
+            enableV2Signing = true
+        }
+    }
+
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        getByName("release") {
+            // 👇 SIGN RELEASE WITH DEBUG KEY
             signingConfig = signingConfigs.getByName("debug")
+
+            // Disable shrinking to avoid runtime/install issues
+            isMinifyEnabled = false
+            isShrinkResources = false
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

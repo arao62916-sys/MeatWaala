@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/state/app_state.dart';
 import 'package:meatwaala_app/data/models/company_model.dart';
 import 'package:meatwaala_app/data/services/company_api_service.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
@@ -43,12 +44,24 @@ class CompanyController extends GetxController {
   /// Fetch company details from API
   /// This should be called on app launch
   Future<bool> fetchCompanyDetails() async {
+    // CRITICAL: Stop if critical error already occurred
+    if (AppState.instance.hasCriticalError) {
+      log('⛔ Critical error detected - skipping company API call');
+      return false;
+    }
+
     isLoading.value = true;
     hasError.value = false;
     errorMessage.value = '';
 
     try {
       final result = await _apiService.getCompanyDetails();
+
+      // Check again after async operation
+      if (AppState.instance.hasCriticalError) {
+        log('⛔ Critical error occurred during API call - stopping');
+        return false;
+      }
 
       if (result.success && result.data != null) {
         company.value = result.data;

@@ -203,7 +203,7 @@ class LocationView extends GetView<LocationController> {
             ),
           ),
           subtitle: Text(
-            'PIN: ${area.pin} • Delivery: ₹${area.charge}',
+            'PIN: ${area.pin}',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 12,

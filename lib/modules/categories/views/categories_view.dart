@@ -145,12 +145,12 @@ class CategoriesView extends GetView<CategoriesController> {
       return RefreshIndicator(
         onRefresh: controller.refreshCategories,
         child: GridView.builder(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.85,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+            childAspectRatio: 0.75, // Adjusted for better proportions
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
           ),
           itemCount: controller.categories.length,
           itemBuilder: (context, index) {
@@ -168,25 +168,32 @@ class CategoriesView extends GetView<CategoriesController> {
         category.categoryId,
         category.name,
       ),
-      borderRadius: BorderRadius.circular(16),
-      child: Card(
-        elevation: 3,
-        shadowColor: AppColors.textPrimary.withOpacity(0.1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.textPrimary.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Category Image
+            // Category Image - Takes more space
             Expanded(
+              flex: 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
+                  top: Radius.circular(12),
                 ),
                 child: CachedNetworkImage(
                   imageUrl: category.imageUrl,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                   placeholder: (context, url) => Container(
                     color: AppColors.border.withOpacity(0.3),
                     child: const Center(
@@ -205,35 +212,41 @@ class CategoriesView extends GetView<CategoriesController> {
               ),
             ),
 
-            // Category Info
+            // Category Info - Compact text section
             Expanded(
               flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      category.name,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    Center(
+                      child: Text(
+                        category.name,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     if (category.shortDescription != null &&
-                        category.shortDescription!.isNotEmpty)
+                        category.shortDescription!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
                       Text(
                         category.shortDescription!,
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 10,
                           color: Colors.grey[600],
+                          height: 1.2,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                    ],
                   ],
                 ),
               ),

@@ -20,6 +20,13 @@ class OrderController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Don't load here - wait for screen to be ready
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    // Load orders when screen is fully ready and visible
     loadOrders();
   }
 
