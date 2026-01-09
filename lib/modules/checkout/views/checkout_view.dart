@@ -24,28 +24,28 @@ class CheckoutView extends GetView<CheckoutController> {
                 children: [
                   // Delivery Address Card
                   _buildDeliveryAddressSection(context),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Order Summary Card
                   _buildOrderSummarySection(context),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Payment Method Card
                   _buildPaymentMethodSection(context),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Order Notes Card
                   _buildOrderNotesSection(context),
-                  
+
                   const SizedBox(height: 100),
                 ],
               ),
             ),
           ),
-          
+
           // Bottom Payment Bar
           _buildBottomPaymentBar(context),
         ],
@@ -98,20 +98,36 @@ class CheckoutView extends GetView<CheckoutController> {
               ],
             ),
           ),
-          
+
           const Divider(height: 1),
-          
+
           // Address Content
           Obx(() {
+            if (controller.isProfileLoading.value) {
+              return Padding(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: SizedBox(
+                    height: 36,
+                    width: 36,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                      strokeWidth: 3,
+                    ),
+                  ),
+                ),
+              );
+            }
+
             final profile = controller.selectedProfile.value;
-            
+
             if (profile == null) {
               return _buildNoAddressCard(context);
             }
-            
+
             final missingFields = controller.getMissingFields();
             final isComplete = missingFields.isEmpty;
-            
+
             return Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -122,17 +138,22 @@ class CheckoutView extends GetView<CheckoutController> {
                     children: [
                       Expanded(
                         child: Text(
-                          profile.name.isEmpty ? 'Name not provided' : profile.name,
+                          profile.name.isEmpty
+                              ? 'Name not provided'
+                              : profile.name,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: profile.name.isEmpty ? Colors.grey : Colors.black87,
+                            color: profile.name.isEmpty
+                                ? Colors.grey
+                                : Colors.black87,
                           ),
                         ),
                       ),
                       if (profile.mobile.isNotEmpty)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(6),
@@ -148,7 +169,7 @@ class CheckoutView extends GetView<CheckoutController> {
                         ),
                     ],
                   ),
-                  
+
                   if (profile.fullAddress.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Text(
@@ -160,12 +181,13 @@ class CheckoutView extends GetView<CheckoutController> {
                       ),
                     ),
                   ],
-                  
+
                   if (profile.emailId.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.email_outlined, size: 14, color: Colors.grey.shade600),
+                        Icon(Icons.email_outlined,
+                            size: 14, color: Colors.grey.shade600),
                         const SizedBox(width: 6),
                         Text(
                           profile.emailId,
@@ -177,7 +199,7 @@ class CheckoutView extends GetView<CheckoutController> {
                       ],
                     ),
                   ],
-                  
+
                   // Warning for missing fields
                   if (!isComplete) ...[
                     const SizedBox(height: 12),
@@ -190,8 +212,8 @@ class CheckoutView extends GetView<CheckoutController> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.warning_amber_rounded, 
-                            color: Colors.orange.shade700, size: 18),
+                          Icon(Icons.warning_amber_rounded,
+                              color: Colors.orange.shade700, size: 18),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -206,9 +228,9 @@ class CheckoutView extends GetView<CheckoutController> {
                       ),
                     ),
                   ],
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Edit Button
                   SizedBox(
                     width: double.infinity,
@@ -221,7 +243,8 @@ class CheckoutView extends GetView<CheckoutController> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      icon: Icon(Icons.edit_outlined, size: 18, color: AppColors.primary),
+                      icon: Icon(Icons.edit_outlined,
+                          size: 18, color: AppColors.primary),
                       label: Text(
                         isComplete ? 'Edit Address' : 'Complete Address',
                         style: TextStyle(
@@ -340,62 +363,64 @@ class CheckoutView extends GetView<CheckoutController> {
               ],
             ),
           ),
-          
+
           const Divider(height: 1),
-          
+
           // Price Breakdown
           Obx(() => Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _buildPriceRow('Subtotal', controller.subtotal.value),
-                const SizedBox(height: 12),
-                _buildPriceRow('Delivery Fee', controller.deliveryFee.value),
-                if (controller.discount.value > 0) ...[
-                  const SizedBox(height: 12),
-                  _buildPriceRow(
-                    'Discount',
-                    -controller.discount.value,
-                    isDiscount: true,
-                  ),
-                ],
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Total Amount',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '₹${controller.totalAmount.value.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildPriceRow('Subtotal', controller.subtotal.value),
+                    const SizedBox(height: 12),
+                    _buildPriceRow(
+                        'Delivery Fee', controller.deliveryFee.value),
+                    if (controller.discount.value > 0) ...[
+                      const SizedBox(height: 12),
+                      _buildPriceRow(
+                        'Discount',
+                        -controller.discount.value,
+                        isDiscount: true,
                       ),
                     ],
-                  ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Total Amount',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '₹${controller.totalAmount.value.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )),
+              )),
         ],
       ),
     );
   }
 
-  Widget _buildPriceRow(String label, double amount, {bool isDiscount = false}) {
+  Widget _buildPriceRow(String label, double amount,
+      {bool isDiscount = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -463,9 +488,9 @@ class CheckoutView extends GetView<CheckoutController> {
               ],
             ),
           ),
-          
+
           const Divider(height: 1),
-          
+
           // Payment Options
           Padding(
             padding: const EdgeInsets.all(16),
@@ -479,14 +504,14 @@ class CheckoutView extends GetView<CheckoutController> {
                   subtitle: 'Secure payment via Razorpay',
                   recommended: true,
                 ),
-                const SizedBox(height: 12),
-                _buildPaymentOption(
-                  context,
-                  'Cash on Delivery',
-                  Icons.money,
-                  'cod',
-                  subtitle: 'Pay when you receive',
-                ),
+                // const SizedBox(height: 12),
+                // _buildPaymentOption(
+                //   context,
+                //   'Cash on Delivery',
+                //   Icons.money,
+                //   'cod',
+                //   subtitle: 'Pay when you receive',
+                // ),
               ],
             ),
           ),
@@ -495,140 +520,135 @@ class CheckoutView extends GetView<CheckoutController> {
     );
   }
 
-Widget _buildPaymentOption(
-  BuildContext context,
-  String title,
-  IconData icon,
-  String value, {
-  String? subtitle,
-  bool recommended = false,
-}) {
-  final scale = MediaQuery.of(context).textScaleFactor;
+  Widget _buildPaymentOption(
+    BuildContext context,
+    String title,
+    IconData icon,
+    String value, {
+    String? subtitle,
+    bool recommended = false,
+  }) {
+    final scale = MediaQuery.of(context).textScaleFactor;
 
-  return Obx(() {
-    final isSelected = controller.selectedPaymentMethod.value == value;
+    return Obx(() {
+      final isSelected = controller.selectedPaymentMethod.value == value;
 
-    return InkWell(
-      onTap: () => controller.selectPaymentMethod(value),
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary.withOpacity(0.06)
-              : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey.shade300,
-            width: isSelected ? 1.6 : 1,
+      return InkWell(
+        onTap: () => controller.selectPaymentMethod(value),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 14,
           ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            /// Icon Box
-            Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primary
-                    : Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                size: 20 * scale,
-                color: isSelected ? Colors.white : Colors.grey.shade700,
-              ),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primary.withOpacity(0.06)
+                : Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? AppColors.primary : Colors.grey.shade300,
+              width: isSelected ? 1.6 : 1,
             ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              /// Icon Box
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.primary : Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20 * scale,
+                  color: isSelected ? Colors.white : Colors.grey.shade700,
+                ),
+              ),
 
-            const SizedBox(width: 14),
+              const SizedBox(width: 5),
 
-            /// Title & Subtitle
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14.5 * scale,
-                            fontWeight: FontWeight.w600,
-                            color: isSelected
-                                ? AppColors.primary
-                                : Colors.black87,
+              /// Title & Subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14.2 * scale,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : Colors.black87,
+                            ),
                           ),
                         ),
-                      ),
 
-                      /// Recommended Badge
-                      // if (recommended)
-                      //   Container(
-                      //     margin: const EdgeInsets.only(left: 6),
-                      //     padding: const EdgeInsets.symmetric(
-                      //       horizontal: 7,
-                      //       vertical: 2.5,
-                      //     ),
-                      //     decoration: BoxDecoration(
-                      //       color: Colors.green.shade100,
-                      //       borderRadius: BorderRadius.circular(6),
-                      //     ),
-                      //     child: Text(
-                      //       'RECOMMENDED',
-                      //       style: TextStyle(
-                      //         fontSize: 9 * scale,
-                      //         fontWeight: FontWeight.w600,
-                      //         color: Colors.green.shade700,
-                      //       ),
-                      //     ),
-                      //   ),
-                   
-                    ],
-                  ),
-
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        color: Colors.grey.shade600,
-                        height: 1.3,
-                      ),
+                        /// Recommended Badge
+                        // if (recommended)
+                        //   Container(
+                        //     margin: const EdgeInsets.only(left: 6),
+                        //     padding: const EdgeInsets.symmetric(
+                        //       horizontal: 7,
+                        //       vertical: 2.5,
+                        //     ),
+                        //     decoration: BoxDecoration(
+                        //       color: Colors.green.shade100,
+                        //       borderRadius: BorderRadius.circular(6),
+                        //     ),
+                        //     child: Text(
+                        //       'RECOMMENDED',
+                        //       style: TextStyle(
+                        //         fontSize: 9 * scale,
+                        //         fontWeight: FontWeight.w600,
+                        //         color: Colors.green.shade700,
+                        //       ),
+                        //     ),
+                        //   ),
+                      ],
                     ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          color: Colors.grey.shade600,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
 
-            const SizedBox(width: 10),
+              // const SizedBox(width: 10),
 
-            /// Selection Icon
-            Icon(
-              isSelected
-                  ? Icons.check_circle_rounded
-                  : Icons.radio_button_unchecked_rounded,
-              size: 22 * scale,
-              color:
-                  isSelected ? AppColors.primary : Colors.grey.shade400,
-            ),
-          ],
+              // /// Selection Icon
+              // Icon(
+              //   isSelected
+              //       ? Icons.check_circle_rounded
+              //       : Icons.radio_button_unchecked_rounded,
+              //   size: 22 * scale,
+              //   color: isSelected ? AppColors.primary : Colors.grey.shade400,
+              // ),
+            ],
+          ),
         ),
-      ),
-    );
-  });
-}
+      );
+    });
+  }
 
   Widget _buildOrderNotesSection(BuildContext context) {
     return Container(
@@ -675,9 +695,9 @@ Widget _buildPaymentOption(
               ],
             ),
           ),
-          
+
           const Divider(height: 1),
-          
+
           // Notes Input
           Padding(
             padding: const EdgeInsets.all(16),
@@ -685,7 +705,8 @@ Widget _buildPaymentOption(
               controller: controller.remarksController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Any special instructions? (e.g., delivery time, cooking preferences)',
+                hintText:
+                    'Any special instructions? (e.g., delivery time, cooking preferences)',
                 hintStyle: TextStyle(
                   color: Colors.grey.shade400,
                   fontSize: 13,
@@ -732,7 +753,7 @@ Widget _buildPaymentOption(
           final isLoading = controller.isLoading.value;
           final total = controller.totalAmount.value;
           final paymentMethod = controller.selectedPaymentMethod.value;
-          
+
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -758,7 +779,7 @@ Widget _buildPaymentOption(
                 ],
               ),
               const SizedBox(height: 12),
-              
+
               // Pay Button
               SizedBox(
                 width: double.infinity,
@@ -786,15 +807,15 @@ Widget _buildPaymentOption(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              paymentMethod == 'cod' 
-                                  ? Icons.check_circle_outline 
+                              paymentMethod == 'cod'
+                                  ? Icons.check_circle_outline
                                   : Icons.lock_outline,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              paymentMethod == 'cod' 
-                                  ? 'Place Order' 
+                              paymentMethod == 'cod'
+                                  ? 'Place Order'
                                   : 'Proceed to Pay',
                               style: const TextStyle(
                                 fontSize: 16,
@@ -805,14 +826,15 @@ Widget _buildPaymentOption(
                         ),
                 ),
               ),
-              
+
               // Security Badge
               if (paymentMethod != 'cod') ...[
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.verified_user, size: 14, color: Colors.grey.shade600),
+                    Icon(Icons.verified_user,
+                        size: 14, color: Colors.grey.shade600),
                     const SizedBox(width: 4),
                     Text(
                       'Secured by Razorpay',

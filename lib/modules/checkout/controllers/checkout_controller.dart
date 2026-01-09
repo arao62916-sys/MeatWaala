@@ -14,6 +14,7 @@ class CheckoutController extends GetxController {
   final selectedProfile = Rxn<CustomerProfileModel>();
   final selectedPaymentMethod = 'razorpay'.obs;
   final isLoading = false.obs;
+  final isProfileLoading = true.obs;
   final remarksController = TextEditingController();
 
   // Price breakdown (Replace with actual cart data)
@@ -89,9 +90,12 @@ class CheckoutController extends GetxController {
   /// Load user profile from API using CustomerProfileModel
   Future<void> loadUserProfile() async {
     try {
+      isProfileLoading.value = true;
+
       final customerId = _storage.getUserId();
       if (customerId == null || customerId.isEmpty) {
         log('❌ No customer ID found');
+        isProfileLoading.value = false;
         return;
       }
 
@@ -102,6 +106,8 @@ class CheckoutController extends GetxController {
       }
     } catch (e) {
       log('❌ Error loading user profile: $e');
+    } finally {
+      isProfileLoading.value = false;
     }
   }
 

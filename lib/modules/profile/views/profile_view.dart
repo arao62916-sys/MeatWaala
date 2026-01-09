@@ -17,21 +17,38 @@ class ProfileView extends GetView<ProfileController> {
           );
         }
 
-        if (controller.errorMessage.value.isNotEmpty && !controller.hasProfile) {
+        if (controller.errorMessage.value.isNotEmpty &&
+            !controller.hasProfile) {
           return _buildErrorState(context);
         }
 
         return CustomScrollView(
           slivers: [
             _buildColorfulAppBar(context),
+
+            // Pinned profile header that stays visible while content scrolls
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _ProfileHeaderDelegate(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: _buildProfileHeader(context),
+                ),
+              ),
+            ),
+
+            // Remaining content (menu list) scrolls under the pinned header
             SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  _buildProfileHeader(context),
-                  const SizedBox(height: 16),
-                  _buildMenuList(context),
-                  const SizedBox(height: 24),
-                ],
+              child: Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom + 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    _buildMenuList(context),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
           ],
@@ -94,7 +111,7 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
- Widget _buildProfileHeader(BuildContext context) {
+  Widget _buildProfileHeader(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.all(20),
@@ -187,7 +204,6 @@ class ProfileView extends GetView<ProfileController> {
       ),
     );
   }
-
 
   Widget _buildInitialsAvatar() {
     return Center(
@@ -415,5 +431,43 @@ class ProfileView extends GetView<ProfileController> {
       endIndent: 16,
       color: Colors.grey.shade200,
     );
+  }
+}
+
+// Move _ProfileHeaderDelegate outside of ProfileView
+class _ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double minExtentHeight;
+  final double maxExtentHeight;
+
+  // Use equal min/max extents so the header doesn't shrink below the
+  // content's intrinsic height and cause RenderFlex overflow.
+  _ProfileHeaderDelegate(
+      {required this.child,
+      this.minExtentHeight = 140,
+      this.maxExtentHeight = 140});
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(
+      child: Material(
+        color: Colors.transparent,
+        child: child,
+      ),
+    );
+  }
+
+  @override
+  double get minExtent => minExtentHeight;
+
+  @override
+  double get maxExtent => maxExtentHeight;
+
+  @override
+  bool shouldRebuild(covariant _ProfileHeaderDelegate oldDelegate) {
+    return oldDelegate.child != child ||
+        oldDelegate.minExtentHeight != minExtentHeight ||
+        oldDelegate.maxExtentHeight != maxExtentHeight;
   }
 }

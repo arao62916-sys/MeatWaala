@@ -12,7 +12,7 @@ class OrderSuccessController extends GetxController {
   }
 
   void continueShopping() {
-    Get.offAllNamed(AppRoutes.home);
+    Get.offAllNamed(AppRoutes.main);
   }
 
   void viewOrders() {

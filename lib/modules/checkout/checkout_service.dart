@@ -18,55 +18,47 @@ class OrderService {
   /// - area_id: Area ID (Mandatory)
   /// - payment_id: Transaction ID from payment gateway (Mandatory)
   /// - remarks: Order remarks (Optional)
-Future<String> submitOrder(
-  String customerId,
-  Map<String, String> orderData,
-) async {
-  log('📦 OrderService: Preparing to submit order for customer: $customerId');
+  Future<String> submitOrder(
+    String customerId,
+    Map<String, String> orderData,
+  ) async {
+    print('📦 OrderService: Preparing to submit order for customer: $customerId');
+    try {
+      final endpoint = '${NetworkConstantsUtil.orderSubmit}/$customerId';
+      
+      log('📦 OrderService: Submitting order for customer: $customerId');
+      log('📦 OrderService: Order data: $orderData');
 
-  try {
-    final endpoint = '${NetworkConstantsUtil.orderSubmit}/$customerId';
+      // Validate mandatory fields
+      _validateOrderData(orderData);
 
-    log('📦 OrderService: Submitting order for customer: $customerId');
-    log('📦 OrderService: Order data: $orderData');
-
-    // Validate mandatory fields
-    _validateOrderData(orderData);
-
-    final result = await _apiService.postWithTokenOnly<Map<String, dynamic>>(
-      endpoint,
-      body: orderData, // Map<String, String> is OK (auto converted)
-      parser: (data) => data as Map<String, dynamic>,
-    );
-
-    if (result.success && result.data != null) {
-      log('✅ OrderService: Order submitted successfully');
-      log('✅ OrderService: Response data: ${result.data}');
-
-      final response = result.data!;
-
-      // Extract order ID safely
-      final orderId =
-          response['order_id']?.toString() ??
-          response['orderId']?.toString() ??
-          response['id']?.toString() ??
-          'ORD${DateTime.now().millisecondsSinceEpoch}';
-
-      return orderId;
-    } else {
-      log('❌ OrderService: Order submission failed: ${result.message}');
-      throw Exception(
-        result.message.isNotEmpty
-            ? result.message
-            : 'Failed to submit order',
+      final result = await _apiService.postFormData<Map<String, dynamic>>(
+        endpoint,
+        fields: orderData,
       );
+
+      if (result.success && result.data != null) {
+        log('✅ OrderService: Order submitted successfully');
+        log('✅ OrderService: Response data: ${result.data}');
+        
+        // Extract order ID from response
+        final orderId = result.data?['order_id']?.toString() ?? 
+                       result.data?['orderId']?.toString() ?? 
+                       result.data?['id']?.toString() ??
+                       'ORD${DateTime.now().millisecondsSinceEpoch}';
+        
+        return orderId;
+      } else {
+        log('❌ OrderService: Order submission failed: ${result.message}');
+        throw Exception(result.message.isNotEmpty 
+            ? result.message 
+            : 'Failed to submit order');
+      }
+    } catch (e) {
+      log('❌ OrderService: Error submitting order: $e');
+      rethrow;
     }
-  } catch (e, stack) {
-    log('❌ OrderService: Error submitting order: $e');
-    log('📍 StackTrace: $stack');
-    rethrow;
   }
-}
 
   /// Validate required order data fields
   void _validateOrderData(Map<String, String> orderData) {
