@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meatwaala_app/core/network/network_constents.dart';
 import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -244,7 +245,8 @@ class CheckoutController extends GetxController {
     print('💰 Amount in Paise: $amountInPaise');
 
     var options = {
-      'key': 'rzp_test_qa2h4SJvzwEbhw', // Replace with your actual Razorpay key
+      'key':
+          NetworkConstantsUtil.razorpay_key_Id,
       'amount': amountInPaise,
       'name': 'Meat Waala',
       'description': 'Order Payment',

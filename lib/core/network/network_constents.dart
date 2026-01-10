@@ -5,7 +5,11 @@ class NetworkConstantsUtil {
   static const String baseUrl = "https://www.meatwaala.com/api/";
   static const String bearerToken =
       "a105e726d4fb80c6216de0c941fb0749"; // for Authorization header
-
+  // Razorpay Key
+  // static const String razorpay_secret_Key = "yMPhS0tFLLDxNmLnckwDLgmY";
+  static const String razorpay_key_Id = "rzp_live_S1gruqMz5n8NBa";
+// $config['keyId'] = "rzp_live_S1gruqMz5n8NBa"; 
+// $config['keySecret'] = "yMPhS0tFLLDxNmLnckwDLgmY";
   // *************** Company API *************//
   static const String company = 'company';
 
