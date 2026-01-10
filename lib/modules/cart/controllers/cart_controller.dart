@@ -154,7 +154,12 @@ class CartController extends GetxController {
       AppSnackbar.error('Please add items to cart', title: 'Empty Cart');
       return;
     }
-    Get.toNamed(AppRoutes.checkout);
+    Get.toNamed(AppRoutes.checkout, arguments: {
+      'subtotal': subtotal.value,
+      'deliveryFee': shippingCharge.value,
+      'discount': discount.value,
+      'total': total.value,
+    });
   }
 
   /// Get delivery fee (backward compatibility)

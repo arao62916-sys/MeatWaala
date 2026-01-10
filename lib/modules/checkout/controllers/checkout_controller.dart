@@ -17,11 +17,11 @@ class CheckoutController extends GetxController {
   final isProfileLoading = true.obs;
   final remarksController = TextEditingController();
 
-  // Price breakdown (Replace with actual cart data)
-  final subtotal = 780.0.obs;
-  final deliveryFee = 40.0.obs;
-  final discount = 50.0.obs;
-  final totalAmount = 770.0.obs;
+  // Price breakdown (from cart)
+  final subtotal = 0.0.obs;
+  final deliveryFee = 0.0.obs;
+  final discount = 0.0.obs;
+  final totalAmount = 0.0.obs;
 
   final paymentMethods = [
     {'title': 'Credit/Debit Card', 'icon': 'credit_card', 'value': 'razorpay'},
@@ -48,7 +48,22 @@ class CheckoutController extends GetxController {
     super.onInit();
     _initializeRazorpay();
     loadUserProfile();
-    calculateTotal();
+    _loadCartData();
+  }
+
+  /// Load cart data from navigation arguments
+  void _loadCartData() {
+    final args = Get.arguments;
+    if (args != null && args is Map<String, dynamic>) {
+      subtotal.value = args['subtotal'] ?? 0.0;
+      deliveryFee.value = args['deliveryFee'] ?? 0.0;
+      discount.value = args['discount'] ?? 0.0;
+      totalAmount.value = args['total'] ?? 0.0;
+      log('✅ Cart data loaded: Subtotal=₹${subtotal.value}, Delivery=₹${deliveryFee.value}, Total=₹${totalAmount.value}');
+    } else {
+      log('⚠️ No cart data received, using default values');
+      calculateTotal();
+    }
   }
 
   @override

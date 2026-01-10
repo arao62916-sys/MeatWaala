@@ -8,17 +8,23 @@ import 'package:meatwaala_app/modules/profile/model/user_model.dart';
 import 'package:meatwaala_app/modules/profile/profile_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 import 'package:meatwaala_app/core/widgets/drawer/app_drawer_controller.dart';
+import 'package:meatwaala_app/data/services/area_api_service.dart';
+import 'package:meatwaala_app/data/models/area_model.dart';
 
 /// Controller for managing profile-related operations
 class ProfileController extends GetxController {
   final ProfileService _profileService = ProfileService();
   final StorageService _storage = StorageService();
+  final AreaApiService _areaService = AreaApiService();
 
   // ========== Observable States ==========
   final isLoading = false.obs;
   final isUpdating = false.obs;
   final Rx<CustomerProfileModel?> profileData = Rx<CustomerProfileModel?>(null);
   final RxString errorMessage = ''.obs;
+  final RxList<AreaModel> areas = <AreaModel>[].obs;
+  final Rx<AreaModel?> selectedArea = Rx<AreaModel?>(null);
+  final isLoadingAreas = false.obs;
 
   // ========== Form Controllers ==========
   // Profile Form
@@ -64,6 +70,7 @@ class ProfileController extends GetxController {
   void onInit() {
     super.onInit();
     fetchProfile();
+    fetchAreas();
   }
 
   @override
@@ -133,6 +140,51 @@ class ProfileController extends GetxController {
       cityController.text = profile.city;
       stateController.text = profile.state;
       countryController.text = profile.country;
+
+      // Set selected area if areas are loaded
+      if (areas.isNotEmpty && profile.areaId.isNotEmpty) {
+        selectedArea.value = areas.firstWhereOrNull(
+          (area) => area.areaId == profile.areaId,
+        );
+      }
+    }
+  }
+
+  // ========== FETCH AREAS ==========
+  /// Fetch available delivery areas
+  Future<void> fetchAreas() async {
+    try {
+      isLoadingAreas.value = true;
+
+      final result = await _areaService.getAreas();
+
+      if (result.success && result.data != null) {
+        areas.value = result.data!;
+        log('✅ ProfileController: ${areas.length} areas loaded');
+
+        // Set selected area if profile is already loaded
+        if (profileData.value != null && profileData.value!.areaId.isNotEmpty) {
+          selectedArea.value = areas.firstWhereOrNull(
+            (area) => area.areaId == profileData.value!.areaId,
+          );
+        }
+      } else {
+        log('❌ ProfileController: Failed to load areas: ${result.message}');
+      }
+    } catch (e) {
+      log('❌ ProfileController: Error fetching areas: $e');
+    } finally {
+      isLoadingAreas.value = false;
+    }
+  }
+
+  /// Select an area and update the areaId controller
+  void selectArea(AreaModel? area) {
+    selectedArea.value = area;
+    if (area != null) {
+      areaIdController.text = area.areaId;
+    } else {
+      areaIdController.clear();
     }
   }
 

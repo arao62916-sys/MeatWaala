@@ -10,8 +10,53 @@ class EditProfileView extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
         title: const Text('Edit Profile'),
-        actions: const [SizedBox(width: 4)],
+        actions: [
+          Obx(() {
+            final selectedArea = controller.selectedArea.value;
+            if (selectedArea != null) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.delivery_dining,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '₹${selectedArea.charge}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+            return const SizedBox(width: 4);
+          }),
+        ],
       ),
       body: Obx(() {
         return Stack(
@@ -131,13 +176,7 @@ class EditProfileView extends GetView<ProfileController> {
                     _buildSectionTitle('Address Information'),
                     const SizedBox(height: 16),
 
-                    _buildTextField(
-                      controller: controller.areaIdController,
-                      label: 'Area ID',
-                      icon: Icons.location_city_outlined,
-                      validator: controller.validateAreaId,
-                      textInputAction: TextInputAction.next,
-                    ),
+                    _buildAreaDropdown(context),
                     const SizedBox(height: 16),
 
                     _buildTextField(
@@ -285,5 +324,130 @@ class EditProfileView extends GetView<ProfileController> {
         ),
       ),
     );
+  }
+
+  Widget _buildAreaDropdown(BuildContext context) {
+    return Obx(() {
+      if (controller.isLoadingAreas.value) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.location_city_outlined, color: AppColors.primary),
+              const SizedBox(width: 16),
+              const Text('Loading areas...'),
+              const Spacer(),
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ],
+          ),
+        );
+      }
+
+      return DropdownButtonFormField<String>(
+        value: controller.selectedArea.value?.areaId,
+        decoration: InputDecoration(
+          labelText: 'Delivery Area',
+          prefixIcon:
+              Icon(Icons.location_city_outlined, color: AppColors.primary),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.error),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.error, width: 2),
+          ),
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+        ),
+        items: controller.areas.map((area) {
+          return DropdownMenuItem<String>(
+            value: area.areaId,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${area.name} (${area.pin})',
+                    style: const TextStyle(fontSize: 14),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.delivery_dining,
+                        size: 14,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '₹${area.charge}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+        onChanged: (value) {
+          if (value != null) {
+            final area = controller.areas.firstWhere(
+              (a) => a.areaId == value,
+            );
+            controller.selectArea(area);
+          }
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select a delivery area';
+          }
+          return null;
+        },
+        isExpanded: true,
+        icon: const Icon(Icons.arrow_drop_down),
+        iconEnabledColor: AppColors.primary,
+      );
+    });
   }
 }
