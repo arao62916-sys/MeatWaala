@@ -8,6 +8,8 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:meatwaala_app/modules/profile/model/user_model.dart';
 import 'package:meatwaala_app/modules/profile/profile_service.dart';
 import 'package:meatwaala_app/modules/checkout/checkout_service.dart';
+import 'package:meatwaala_app/data/models/area_model.dart';
+import 'package:meatwaala_app/data/services/area_api_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 
 class CheckoutController extends GetxController {
@@ -38,6 +40,11 @@ class CheckoutController extends GetxController {
   final ProfileService _profileService = ProfileService();
   final OrderService _orderService = OrderService();
   final StorageService _storage = StorageService();
+  final AreaApiService _areaService = AreaApiService();
+
+  // Area info
+  final Rx<AreaModel?> selectedArea = Rx<AreaModel?>(null);
+  final RxString areaName = ''.obs;
 
   // Razorpay
   late Razorpay _razorpay;
@@ -48,8 +55,34 @@ class CheckoutController extends GetxController {
   void onInit() {
     super.onInit();
     _initializeRazorpay();
+    loadAreaInfo();
     loadUserProfile();
     _loadCartData();
+  }
+
+  /// Load area information from storage and fetch area details
+  Future<void> loadAreaInfo() async {
+    try {
+      final areaId = _storage.getSelectedAreaId();
+      areaName.value = _storage.getSelectedAreaName() ?? '';
+
+      if (areaId != null && areaId.isNotEmpty) {
+        log('🌍 CheckoutController: Loading area info for area ID: $areaId');
+        final result = await _areaService.getAreaInfo(areaId);
+
+        if (result.success && result.data != null) {
+          selectedArea.value = result.data;
+          // Update delivery fee from area charge
+          deliveryFee.value = result.data!.deliveryCharge;
+          calculateTotal();
+          log('✅ CheckoutController: Area loaded - ${result.data!.name}, Delivery: ₹${result.data!.charge}');
+        } else {
+          log('⚠️ CheckoutController: Failed to load area info: ${result.message}');
+        }
+      }
+    } catch (e) {
+      log('❌ CheckoutController: Error loading area info: $e');
+    }
   }
 
   /// Load cart data from navigation arguments
@@ -144,22 +177,15 @@ class CheckoutController extends GetxController {
 
   /// Navigate to edit profile screen
   void editProfile() {
-    Get.toNamed(AppRoutes.editProfile)?.then((value) {
-      if (value != null) {
-        // Reload profile after edit
-        loadUserProfile();
-      }
-    });
+    Get.toNamed(AppRoutes.editProfile, arguments: {'returnTo': 'cart'});
+    // No need for .then() as profile controller will handle navigation to cart
   }
 
   /// Navigate to add address (profile edit with focus on address)
   void addAddress() {
-    Get.toNamed(AppRoutes.editProfile, arguments: {'focus': 'address'})
-        ?.then((value) {
-      if (value != null) {
-        loadUserProfile();
-      }
-    });
+    Get.toNamed(AppRoutes.editProfile,
+        arguments: {'focus': 'address', 'returnTo': 'cart'});
+    // No need for .then() as profile controller will handle navigation to cart
   }
 
   /// Check if profile has all mandatory fields for order
@@ -245,8 +271,7 @@ class CheckoutController extends GetxController {
     print('💰 Amount in Paise: $amountInPaise');
 
     var options = {
-      'key':
-          NetworkConstantsUtil.razorpay_key_Id,
+      'key': NetworkConstantsUtil.razorpay_key_Id,
       'amount': amountInPaise,
       'name': 'Meat Waala',
       'description': 'Order Payment',

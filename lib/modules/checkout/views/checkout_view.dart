@@ -200,6 +200,54 @@ class CheckoutView extends GetView<CheckoutController> {
                     ),
                   ],
 
+                  // Area Info
+                  Obx(() {
+                    final areaName = controller.areaName.value;
+                    final selectedArea = controller.selectedArea.value;
+                    if (areaName.isNotEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.location_city,
+                                size: 14, color: Colors.grey.shade600),
+                            const SizedBox(width: 6),
+                            Text(
+                              areaName,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            if (selectedArea != null) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '₹${selectedArea.charge}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+
                   // Warning for missing fields
                   if (!isComplete) ...[
                     const SizedBox(height: 12),
@@ -373,8 +421,14 @@ class CheckoutView extends GetView<CheckoutController> {
                   children: [
                     _buildPriceRow('Subtotal', controller.subtotal.value),
                     const SizedBox(height: 12),
-                    _buildPriceRow(
-                        'Delivery Fee', controller.deliveryFee.value),
+                    Obx(() {
+                      final areaName = controller.areaName.value;
+                      final label = areaName.isNotEmpty
+                          ? 'Delivery Fee ($areaName)'
+                          : 'Delivery Fee';
+                      return _buildPriceRow(
+                          label, controller.deliveryFee.value);
+                    }),
                     if (controller.discount.value > 0) ...[
                       const SizedBox(height: 12),
                       _buildPriceRow(

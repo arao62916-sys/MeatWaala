@@ -183,6 +183,12 @@ class ProfileController extends GetxController {
     selectedArea.value = area;
     if (area != null) {
       areaIdController.text = area.areaId;
+      // Save selected area to storage immediately
+      _storage.saveSelectedArea(
+        areaId: area.areaId,
+        areaName: area.name,
+      );
+      log('✅ ProfileController: Area saved to storage: ${area.name} (${area.areaId})');
     } else {
       areaIdController.clear();
     }
@@ -225,6 +231,15 @@ class ProfileController extends GetxController {
       await _storage.saveUserEmail(formData['email_id']!);
       await _storage.saveUserPhone(formData['mobile']!);
 
+      // Save selected area to storage if area was changed
+      if (selectedArea.value != null) {
+        await _storage.saveSelectedArea(
+          areaId: selectedArea.value!.areaId,
+          areaName: selectedArea.value!.name,
+        );
+        log('✅ ProfileController: Updated area saved to storage: ${selectedArea.value!.name}');
+      }
+
       // Refresh drawer if controller exists
       try {
         final drawerController = Get.find<AppDrawerController>();
@@ -233,10 +248,19 @@ class ProfileController extends GetxController {
         log('⚠️ Drawer controller not found, skipping refresh');
       }
 
-      Get.back(); // Close edit screen
+      await fetchProfile(); // Refresh profile
+
       AppSnackbar.success(message);
 
-      await fetchProfile(); // Refresh profile
+      // Check if we need to navigate to cart after update
+      final args = Get.arguments;
+      if (args != null && args is Map && args['returnTo'] == 'cart') {
+        log('🛒 Navigating to cart after profile update');
+        Get.offAllNamed(
+            AppRoutes.cart); // Navigate to cart and clear navigation stack
+      } else {
+        Get.back(result: true); // Return success to caller
+      }
     } catch (e) {
       log('❌ ProfileController: Update failed: $e');
       AppSnackbar.error(e.toString().replaceAll('Exception: ', ''));

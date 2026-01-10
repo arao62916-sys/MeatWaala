@@ -14,6 +14,48 @@ class CartView extends GetView<CartController> {
       appBar: AppBar(
         title: const Text('My Cart'),
         actions: [
+          // Area badge
+          Obx(() {
+            final areaName = controller.areaName.value;
+            final deliveryCharge = controller.shippingCharge.value;
+            if (areaName.isNotEmpty) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.delivery_dining,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '₹$deliveryCharge',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
           // Cart count badge
           Obx(() => controller.cartCount.value > 0
               ? Padding(
@@ -177,7 +219,7 @@ class CartView extends GetView<CartController> {
                             Column(children: [
                               Container(
                                 height: 50,
-                           
+
                                 decoration: BoxDecoration(
                                   color: AppColors.background,
                                   borderRadius: BorderRadius.circular(8),
@@ -271,11 +313,18 @@ class CartView extends GetView<CartController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Delivery Fee'),
-                      Text(
-                        '₹${controller.deliveryFee.toStringAsFixed(2)}',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
+                      Obx(() {
+                        final areaName = controller.areaName.value;
+                        return Text(
+                          areaName.isNotEmpty
+                              ? 'Delivery Fee ($areaName)'
+                              : 'Delivery Fee',
+                        );
+                      }),
+                      Obx(() => Text(
+                            '₹${controller.shippingCharge.value.toStringAsFixed(2)}',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          )),
                     ],
                   ),
                   const Divider(height: 24),
