@@ -200,11 +200,11 @@ class CartInfoModel {
     }
 
     // Parse totals from aCart object
-    final billAmount = _parseDouble(aCart['bill_amount'] ?? 0);
+    final billAmount = _parseDouble(aCart['amount'] ?? 0);
     final shippingCharge = _parseDouble(aCart['shipping_charge'] ?? 0);
     final discount = _parseDouble(aCart['discount'] ?? 0);
     final discountedAmount = _parseDouble(aCart['discounted_amount'] ?? 0);
-    final total = _parseDouble(aCart['amount'] ?? 0);
+    final total = _parseDouble(aCart['bill_amount'] ?? 0);
     final itemCount = _parseInt(aCart['items'] ?? aCart['qty'] ?? itemsList.length);
 
     return CartInfoModel(

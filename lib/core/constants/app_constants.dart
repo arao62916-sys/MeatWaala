@@ -78,7 +78,7 @@ class AppConstants {
   ];
 
   // Validation
-  static const int minPasswordLength = 6;
+  static const int minPasswordLength = 4;
   static const int otpLength = 6;
 
   // Animation Durations

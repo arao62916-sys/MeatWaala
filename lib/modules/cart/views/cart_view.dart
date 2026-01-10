@@ -75,6 +75,31 @@ class CartView extends GetView<CartController> {
                   itemCount: controller.cartItems.length,
                   itemBuilder: (context, index) {
                     final item = controller.cartItems[index];
+                    // Safely compute weight text (handles CartItemModel or raw Map)
+                    String weightText() {
+                      try {
+                        if (item is Map) {
+                          final Map m = item as Map;
+                          final w = (m['weight'] ?? m['selectedWeight'] ?? '')
+                              .toString();
+                          final u = (m['weight_unit'] ??
+                                  m['weightUnit'] ??
+                                  m['unit'] ??
+                                  '')
+                              .toString();
+                          return w.isNotEmpty
+                              ? (u.isNotEmpty ? '$w $u' : w)
+                              : '';
+                        }
+                        // assume model-like
+                        final w = (item.selectedWeight ?? '').toString();
+                        final u = (item.weightUnit ?? '').toString();
+                        return w.isNotEmpty ? (u.isNotEmpty ? '$w $u' : w) : '';
+                      } catch (_) {
+                        return '';
+                      }
+                    }
+
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       elevation: 2,
@@ -129,7 +154,7 @@ class CartView extends GetView<CartController> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    item.selectedWeight,
+                                    '${item.selectedWeight}${item.weightUnit.isNotEmpty ? ' ${item.weightUnit}' : ''}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondary,

@@ -41,6 +41,7 @@ class CheckoutController extends GetxController {
   // Razorpay
   late Razorpay _razorpay;
   String? _paymentId;
+  String? _paymentOrderId;
 
   @override
   void onInit() {
@@ -66,7 +67,13 @@ class CheckoutController extends GetxController {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     log('✅ Payment Success: ${response.paymentId}');
+    log('📦 Razorpay Order ID: ${response.orderId}');
     _paymentId = response.paymentId;
+    // Use Razorpay's orderId if available, otherwise use pre-generated order ID
+    if (response.orderId != null && response.orderId!.isNotEmpty) {
+      _paymentOrderId = response.orderId;
+    }
+    log('📦 Using Payment Order ID: $_paymentOrderId');
     AppSnackbar.success('Payment successful!');
     // Submit order after payment success
     submitOrder();
@@ -190,7 +197,9 @@ class CheckoutController extends GetxController {
     // Check payment method and proceed accordingly
     if (selectedPaymentMethod.value == 'cod') {
       // For COD, submit order directly
-      _paymentId = 'COD_${DateTime.now().millisecondsSinceEpoch}';
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      _paymentId = 'COD_$timestamp';
+      _paymentOrderId = 'ORDER_COD_$timestamp';
       await submitOrder();
     } else if (selectedPaymentMethod.value == 'upi') {
       // For UPI, open Razorpay with UPI method
@@ -203,6 +212,12 @@ class CheckoutController extends GetxController {
 
   void _openRazorpayCheckout({String? method}) {
     print('🚀 Starting Razorpay Checkout');
+
+    // Generate unique order reference ID
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final customerId = _storage.getUserId() ?? 'GUEST';
+    _paymentOrderId = 'ORD_${customerId}_$timestamp';
+    log('📦 Generated Order Reference ID: $_paymentOrderId');
 
     final profile = selectedProfile.value!;
     print('👤 User Profile Loaded');
@@ -221,6 +236,10 @@ class CheckoutController extends GetxController {
       'prefill': {
         'contact': profile.mobile,
         'email': profile.emailId,
+      },
+      'notes': {
+        'order_ref': _paymentOrderId,
+        'customer_id': customerId,
       },
       'theme': {
         'color': '#D32F2F',
@@ -263,7 +282,15 @@ class CheckoutController extends GetxController {
 
       final profile = selectedProfile.value!;
 
-      // Prepare order data with all mandatory fields from CustomerProfileModel
+      // Validate payment IDs are present
+      if (_paymentId == null || _paymentId!.isEmpty) {
+        throw Exception('Payment ID not found');
+      }
+      if (_paymentOrderId == null || _paymentOrderId!.isEmpty) {
+        throw Exception('Payment Order ID not found');
+      }
+
+      // Prepare order data with ONLY required fields
       final orderData = {
         // Mandatory fields
         'name': profile.name,
@@ -272,22 +299,12 @@ class CheckoutController extends GetxController {
         'address_line1': profile.addressLine1,
         'address_line2': profile.addressLine2,
         'area_id': profile.areaId,
-        'payment_id': _paymentId ?? '',
-        'remarks': remarksController.text.trim(),
+        'payment_id': _paymentId!,
+        'payment_order_id': _paymentOrderId!,
 
-        // Additional fields from profile
-        'landmark': profile.landmark,
-        'city': profile.city,
-        'state': profile.state,
-        'pincode': profile.pincode,
-        'country': profile.country,
-
-        // Order details
-        'payment_method': selectedPaymentMethod.value,
-        'subtotal': subtotal.value.toString(),
-        'delivery_fee': deliveryFee.value.toString(),
-        'discount': discount.value.toString(),
-        'total_amount': totalAmount.value.toString(),
+        // Optional fields
+        if (remarksController.text.trim().isNotEmpty)
+          'remarks': remarksController.text.trim(),
       };
 
       log('📦 Submitting order with data: $orderData');

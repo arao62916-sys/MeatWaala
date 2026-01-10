@@ -57,33 +57,109 @@ class HomeView extends GetView<HomeController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Categories Section
-                _buildSectionHeader(context, 'Categories'),
+                // Search Bar
+                _buildSearchBar(),
                 const SizedBox(height: 12),
-                _buildCategories(),
-
-                const SizedBox(height: 24),
-
-                // Featured Products Section
-                _buildSectionHeader(context, 'Featured Products'),
-                const SizedBox(height: 12),
-                _buildFeaturedProducts(),
-
-                const SizedBox(height: 24),
-
-                // All Products Section
-                _buildSectionHeader(context, 'All Products'),
-                const SizedBox(height: 12),
+                // Product filter moved to top
                 _buildSortBar(),
-                const SizedBox(height: 12),
-                _buildAllProducts(),
+                const SizedBox(height: 8),
 
-                const SizedBox(height: 24),
+                // Show loading indicator during search
+                if (controller.isSearching.value)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else ...[
+                  // Categories Section
+                  _buildSectionHeader(context, 'Categories'),
+                  const SizedBox(height: 12),
+                  _buildCategories(),
+
+                  const SizedBox(height: 24),
+
+                  // Featured Products Section (hide when searching)
+                  if (controller.searchQuery.value.isEmpty) ...[
+                    _buildSectionHeader(context, 'Featured Products'),
+                    const SizedBox(height: 12),
+                    _buildFeaturedProducts(),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // All Products Section
+                  _buildSectionHeader(
+                    context,
+                    controller.searchQuery.value.isEmpty
+                        ? 'All Products'
+                        : 'Search Results',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildAllProducts(),
+
+                  const SizedBox(height: 24),
+                ],
               ],
             ),
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Obx(() => TextField(
+            controller: controller.searchController,
+            onChanged: controller.onSearchChanged,
+            decoration: InputDecoration(
+              hintText: 'Search products (e.g., leg piece, keema)...',
+              hintStyle: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+              ),
+              prefixIcon: const Icon(
+                Icons.search,
+                color: AppColors.primary,
+              ),
+              suffixIcon: controller.searchQuery.value.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.clear,
+                        color: AppColors.textSecondary,
+                      ),
+                      onPressed: controller.clearSearch,
+                    )
+                  : null,
+              filled: true,
+              fillColor: AppColors.border.withOpacity(0.1),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.border.withOpacity(0.3),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.border.withOpacity(0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+            ),
+          )),
     );
   }
 
@@ -198,125 +274,120 @@ class HomeView extends GetView<HomeController> {
     });
   }
 
-  Widget _buildProductCard(BuildContext context, dynamic product) {
-    return GestureDetector(
-      onTap: () => controller.navigateToProductDetail(product.id),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.textPrimary.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product Image
-            Expanded(
-              flex: 3,
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(12)),
-                child: Stack(
-                  children: [
-                    CachedNetworkImage(
-                      imageUrl: product.imageUrl,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.fill,
-                      placeholder: (context, url) => Container(
-                        color: AppColors.border.withOpacity(0.3),
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: AppColors.border.withOpacity(0.3),
-                        child: const Icon(Icons.image_not_supported_outlined,
-                            size: 40, color: AppColors.textSecondary),
-                      ),
-                    ),
-                    // Discount Badge
-                    if (product.discount != null)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.success,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            product.discount!,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            // Product Details
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Product Name
-                    Flexible(
-                      child: Text(
-                        product.name,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              height: 1.2,
-                            ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    // Price
-                    Text(
-                      '₹${product.basePrice}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                            fontSize: 15,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+ Widget _buildProductCard(BuildContext context, dynamic product) {
+  return GestureDetector(
+    onTap: () => controller.navigateToProductDetail(product.id),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textPrimary.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-    );
-  }
-
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Product Image
+          Expanded(
+            flex: 3,
+            child: ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
+              child: Stack(
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: product.imageUrl,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.fill,
+                    placeholder: (context, url) => Container(
+                      color: AppColors.border.withOpacity(0.3),
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: AppColors.border.withOpacity(0.3),
+                      child: const Icon(Icons.image_not_supported_outlined,
+                          size: 40, color: AppColors.textSecondary),
+                    ),
+                  ),
+                  // Discount Badge
+                  if (product.discount != null)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.success,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          product.discount!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          // Product Details - Fixed Section
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Product Name
+                Text(
+                  product.name,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        height: 1.2,
+                      ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                // Price
+                Text(
+                  '₹${product.basePrice}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                        fontSize: 15,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -333,26 +404,40 @@ class HomeView extends GetView<HomeController> {
   Widget _buildAllProducts() {
     return Obx(() {
       if (controller.products.isEmpty) {
-        return const Center(
+        final isSearching = controller.searchQuery.value.isNotEmpty;
+        return Center(
           child: Padding(
-            padding: EdgeInsets.all(32.0),
+            padding: const EdgeInsets.all(32.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  Icons.shopping_bag_outlined,
+                  isSearching ? Icons.search_off : Icons.shopping_bag_outlined,
                   size: 64,
-                  color: Color(0x80757575),
+                  color: const Color(0x80757575),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
-                  'No products available',
-                  style: TextStyle(
+                  isSearching
+                      ? 'No products found for "${controller.searchQuery.value}"'
+                      : 'No products available',
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textSecondary,
                   ),
+                  textAlign: TextAlign.center,
                 ),
+                if (isSearching) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Try different keywords',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary.withOpacity(0.7),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

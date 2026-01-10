@@ -37,7 +37,7 @@ class OrderItemModel {
       orderItemId: (json['order_item_id'] ?? json['id'] ?? '').toString(),
       productId: (json['product_id'] ?? '').toString(),
       productName: json['product_name'] ?? json['name'] ?? '',
-      productImage: json['product_image'] ?? json['image'] ?? '',
+      productImage: json['image_url'] ?? json['image'] ?? '',
       weight: json['weight'] ?? json['qty_weight'] ?? '',
       quantity: _parseInt(json['qty'] ?? json['quantity'] ?? 1),
       price: _parseDouble(json['price'] ?? 0),

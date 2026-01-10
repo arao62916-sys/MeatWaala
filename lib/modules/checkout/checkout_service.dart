@@ -6,9 +6,9 @@ class OrderService {
   final BaseApiService _apiService = BaseApiService();
 
   /// Submit order after payment
-  /// 
+  ///
   /// Endpoint: base_url/order/submit/$customer_id
-  /// 
+  ///
   /// Required fields:
   /// - name: Customer name (Mandatory)
   /// - mobile: Customer mobile (Mandatory)
@@ -22,10 +22,11 @@ class OrderService {
     String customerId,
     Map<String, String> orderData,
   ) async {
-    print('📦 OrderService: Preparing to submit order for customer: $customerId');
+    print(
+        '📦 OrderService: Preparing to submit order for customer: $customerId');
     try {
       final endpoint = '${NetworkConstantsUtil.orderSubmit}/$customerId';
-      
+
       log('📦 OrderService: Submitting order for customer: $customerId');
       log('📦 OrderService: Order data: $orderData');
 
@@ -40,18 +41,18 @@ class OrderService {
       if (result.success && result.data != null) {
         log('✅ OrderService: Order submitted successfully');
         log('✅ OrderService: Response data: ${result.data}');
-        
+
         // Extract order ID from response
-        final orderId = result.data?['order_id']?.toString() ?? 
-                       result.data?['orderId']?.toString() ?? 
-                       result.data?['id']?.toString() ??
-                       'ORD${DateTime.now().millisecondsSinceEpoch}';
-        
+        final orderId = result.data?['order_id']?.toString() ??
+            result.data?['orderId']?.toString() ??
+            result.data?['id']?.toString() ??
+            'ORD${DateTime.now().millisecondsSinceEpoch}';
+
         return orderId;
       } else {
         log('❌ OrderService: Order submission failed: ${result.message}');
-        throw Exception(result.message.isNotEmpty 
-            ? result.message 
+        throw Exception(result.message.isNotEmpty
+            ? result.message
             : 'Failed to submit order');
       }
     } catch (e) {
@@ -70,10 +71,11 @@ class OrderService {
       'address_line2',
       'area_id',
       'payment_id',
+      'payment_order_id',
     ];
 
     final missingFields = <String>[];
-    
+
     for (final field in requiredFields) {
       if (!orderData.containsKey(field) || orderData[field]?.isEmpty == true) {
         missingFields.add(field);
@@ -116,7 +118,7 @@ class OrderService {
   // Future<Map<String, dynamic>?> fetchOrderDetails(String orderId) async {
   //   try {
   //     final endpoint = '${NetworkConstantsUtil.orderDetails}/$orderId';
-      
+
   //     log('📦 OrderService: Fetching order details for: $orderId');
 
   //     final result = await _apiService.get<Map<String, dynamic>>(
@@ -141,7 +143,7 @@ class OrderService {
   // Future<List<Map<String, dynamic>>> fetchOrderHistory(String customerId) async {
   //   try {
   //     final endpoint = '${NetworkConstantsUtil.orderHistory}/$customerId';
-      
+
   //     log('📦 OrderService: Fetching order history for customer: $customerId');
 
   //     final result = await _apiService.get<List<dynamic>>(
@@ -166,7 +168,7 @@ class OrderService {
   // Future<String> cancelOrder(String orderId, String reason) async {
   //   try {
   //     final endpoint = '${NetworkConstantsUtil.orderCancel}/$orderId';
-      
+
   //     log('📦 OrderService: Cancelling order: $orderId');
   //     log('📦 OrderService: Reason: $reason');
 
@@ -194,7 +196,7 @@ class OrderService {
   // Future<Map<String, dynamic>?> trackOrder(String orderId) async {
   //   try {
   //     final endpoint = '${NetworkConstantsUtil.orderTrack}/$orderId';
-      
+
   //     log('📦 OrderService: Tracking order: $orderId');
 
   //     final result = await _apiService.get<Map<String, dynamic>>(
@@ -214,6 +216,4 @@ class OrderService {
   //     rethrow;
   //   }
   // }
-
-
 }

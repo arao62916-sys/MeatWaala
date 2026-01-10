@@ -5,6 +5,7 @@ class CartItemModel {
   final String productName;
   final String productImage;
   final String selectedWeight;
+  final String weightUnit;
   final int quantity;
   final double price;
   final double mrp;
@@ -19,6 +20,7 @@ class CartItemModel {
     required this.quantity,
     required this.price,
     this.mrp = 0.0,
+    this.weightUnit = '',
   });
 
   double get totalPrice => price * quantity;
@@ -32,17 +34,25 @@ class CartItemModel {
     final cartItemId =
         (json['cart_item_id'] ?? json['id'] ?? productId).toString();
 
+    String _parseString(dynamic v) => v == null ? '' : v.toString();
+
     return CartItemModel(
       id: cartItemId,
       cartItemId: cartItemId,
       productId: productId,
       productName: json['product_name'] ?? json['name'] ?? '',
       productImage:
-          json['product_image'] ?? json['image'] ?? json['imageUrl'] ?? '',
-      selectedWeight: json['weight'] ?? json['selectedWeight'] ?? '',
+          json['image_url'] ?? json['image'] ?? json['imageUrl'] ?? '',
+      selectedWeight: _parseString(json['weight'] ??
+          json['selectedWeight'] ??
+          json['weight_value'] ??
+          ''),
+      weightUnit: _parseString(
+          json['weight_unit'] ?? json['weightUnit'] ?? json['unit'] ?? ''),
       quantity: _parseInt(json['qty'] ?? json['quantity'] ?? 1),
-      price: _parseDouble(json['price'] ?? 0),
-      mrp: _parseDouble(json['mrp'] ?? json['price'] ?? 0),
+      price:
+          _parseDouble(json['price'] ?? json['amount'] ?? json['total'] ?? 0),
+      mrp: _parseDouble(json['mrp'] ?? json['mrp_price'] ?? json['price'] ?? 0),
     );
   }
 
@@ -70,6 +80,7 @@ class CartItemModel {
       'product_name': productName,
       'product_image': productImage,
       'selectedWeight': selectedWeight,
+      'weight_unit': weightUnit,
       'quantity': quantity,
       'price': price,
       'mrp': mrp,
@@ -83,6 +94,7 @@ class CartItemModel {
     String? productName,
     String? productImage,
     String? selectedWeight,
+    String? weightUnit,
     int? quantity,
     double? price,
     double? mrp,
@@ -94,6 +106,7 @@ class CartItemModel {
       productName: productName ?? this.productName,
       productImage: productImage ?? this.productImage,
       selectedWeight: selectedWeight ?? this.selectedWeight,
+      weightUnit: weightUnit ?? this.weightUnit,
       quantity: quantity ?? this.quantity,
       price: price ?? this.price,
       mrp: mrp ?? this.mrp,

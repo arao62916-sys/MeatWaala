@@ -126,6 +126,8 @@ class ProductModel {
 
   // Compatibility getters for UI
   String get id => productId;
+  String get titleText => name;
+  String get subtitleText => '$weight$weightUnit - $packing';
   double get basePrice => priceDouble;
   String? get discount => hasDiscount ? discountPercentage : null;
   int get reviewCount => reviewsInt;

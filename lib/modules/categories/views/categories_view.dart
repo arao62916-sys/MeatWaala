@@ -211,7 +211,7 @@ class CategoriesView extends GetView<CategoriesController> {
                 ),
               ),
             ),
-
+            Container(height: 1, color: AppColors.border.withOpacity(0.5)),
             // Category Info - Compact text section
             Expanded(
               flex: 1,
@@ -225,8 +225,8 @@ class CategoriesView extends GetView<CategoriesController> {
                       child: Text(
                         category.name,
                         style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
                           height: 1.2,
                         ),
                         maxLines: 2,

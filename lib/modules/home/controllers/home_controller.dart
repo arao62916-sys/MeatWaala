@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/category_model.dart';
 import 'package:meatwaala_app/data/models/product_model.dart';
@@ -18,6 +20,13 @@ class HomeController extends GetxController {
   final currentBannerIndex = 0.obs;
   final errorMessage = ''.obs;
 
+  // Search functionality
+  final searchController = TextEditingController();
+  final searchQuery = ''.obs;
+  final isSearching = false.obs;
+  Worker? _searchDebouncer;
+  Timer? _debounceTimer;
+
   // Sort functionality
   final sortOptions = <String, String>{}.obs;
   final selectedSortKey = RxnString();
@@ -29,6 +38,27 @@ class HomeController extends GetxController {
     super.onInit();
     loadData();
     loadSortOptions();
+    _initializeSearch();
+  }
+
+  void _initializeSearch() {
+    // Debounce search input to avoid excessive API calls
+    _searchDebouncer = debounce(
+      searchQuery,
+      (_) {
+        print('Debounce triggered with query: ${searchQuery.value}');
+        _performSearch();
+      },
+      time: const Duration(milliseconds: 500),
+    );
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    _searchDebouncer?.dispose();
+    _debounceTimer?.cancel();
+    super.onClose();
   }
 
   Future<void> loadData() async {
@@ -57,7 +87,7 @@ class HomeController extends GetxController {
     }
   }
 
-  /// Load products with current sort order
+  /// Load products with current sort order and search query
   Future<void> _loadProducts() async {
     products.clear();
     featuredProducts.clear();
@@ -65,12 +95,16 @@ class HomeController extends GetxController {
     try {
       final productResult = await _productService.getProductList(
         sortOrder: selectedSortKey.value,
+        searchQuery: searchQuery.value.isEmpty ? null : searchQuery.value,
       );
       if (productResult.success && productResult.data != null) {
         products.assignAll(productResult.data!);
-        featuredProducts.assignAll(
-          productResult.data!.where((product) => product.isFeatured).toList(),
-        );
+        // Only show featured products when not searching
+        if (searchQuery.value.isEmpty) {
+          featuredProducts.assignAll(
+            productResult.data!.where((product) => product.isFeatured).toList(),
+          );
+        }
       }
     } finally {
       isSortLoading.value = false;
@@ -165,6 +199,58 @@ class HomeController extends GetxController {
 
   Future<void> onRefresh() async {
     await loadData();
+  }
+
+  /// Handle search query changes
+  void onSearchChanged(String query) {
+    print('Search changed: "$query"');
+
+    // Cancel previous timer if exists
+    _debounceTimer?.cancel();
+
+    // Update the search query
+    searchQuery.value = query.trim();
+    print('Search query observable updated to: "${searchQuery.value}"');
+
+    // Start new timer for debounce
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      print('Timer fired, calling _performSearch()');
+      _performSearch();
+    });
+  }
+
+  /// Perform the actual search
+  Future<void> _performSearch() async {
+    print('_performSearch called with query: "${searchQuery.value}"');
+    if (isSearching.value) {
+      print('Already searching, skipping...');
+      return; // Prevent concurrent searches
+    }
+
+    isSearching.value = true;
+    try {
+      await _loadProducts();
+
+      // Show feedback for empty results
+      if (searchQuery.value.isNotEmpty && products.isEmpty) {
+        // UI will handle displaying "No products found" message
+        print('Search completed: No products found');
+      } else {
+        print('Search completed: ${products.length} products found');
+      }
+    } catch (e) {
+      print('Search error: $e');
+      AppSnackbar.error('Failed to search products');
+    } finally {
+      isSearching.value = false;
+    }
+  }
+
+  /// Clear search and reset to default view
+  void clearSearch() {
+    searchController.clear();
+    searchQuery.value = '';
+    _performSearch(); // Reload default products
   }
 
   void navigateToCategoryDetail(String categoryId, String categoryName) {

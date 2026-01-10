@@ -185,9 +185,9 @@ class AuthController extends GetxController {
     if (value == null || value.isEmpty) {
       return 'Password is required';
     }
-    if (value.length < AppConstants.minPasswordLength) {
-      return 'Password must be at least ${AppConstants.minPasswordLength} characters';
-    }
+    // if (value.length < AppConstants.minPasswordLength) {
+    //   return 'Password must be at least ${AppConstants.minPasswordLength} characters';
+    // }
     return null;
   }
 
