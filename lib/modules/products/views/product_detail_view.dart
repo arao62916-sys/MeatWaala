@@ -325,21 +325,29 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget _buildProductDetails(BuildContext context, ProductDetailModel product) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Product Details',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Product Details',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        _buildDetailRow('Weight', '${product.weight} ${product.weightUnit}'),
-        _buildDetailRow('Packing', product.packing),
-        _buildDetailRow('Category', product.category),
-        _buildDetailRow('Menu', product.menu),
-      ],
+          const SizedBox(height: 12),
+          _buildDetailRow('Weight', '${product.weight} ${product.weightUnit}'),
+          _buildDetailRow('Packing', product.packing),
+          _buildDetailRow('Category', product.category),
+          _buildDetailRow('Menu', product.menu),
+        ],
+      ),
     );
   }
 
@@ -372,47 +380,55 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget _buildDescription(BuildContext context, ProductDetailModel product) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Description',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),  
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Description',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Obx(() {
-          final showFull = controller.showFullDescription.value;
-          final description = product.description;
-          final shouldTruncate = description.length > 200;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                shouldTruncate && !showFull
-                    ? '${description.substring(0, 200)}...'
-                    : description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                  height: 1.5,
-                ),
-              ),
-              if (shouldTruncate)
-                TextButton(
-                  onPressed: controller.toggleDescription,
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: const Size(0, 0),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          const SizedBox(height: 12),
+          Obx(() {
+            final showFull = controller.showFullDescription.value;
+            final description = product.description;
+            final shouldTruncate = description.length > 200;
+      
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  shouldTruncate && !showFull
+                      ? '${description.substring(0, 200)}...'
+                      : description,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.5,
                   ),
-                  child: Text(showFull ? 'Show less' : 'Show more'),
                 ),
-            ],
-          );
-        }),
-      ],
+                if (shouldTruncate)
+                  TextButton(
+                    onPressed: controller.toggleDescription,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(0, 0),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(showFull ? 'Show less' : 'Show more'),
+                  ),
+              ],
+            );
+          }),
+        ],
+      ),
     );
   }
 

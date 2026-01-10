@@ -352,101 +352,190 @@ class EditProfileView extends GetView<ProfileController> {
         );
       }
 
-      return DropdownButtonFormField<String>(
-        value: controller.selectedArea.value?.areaId,
-        decoration: InputDecoration(
-          labelText: 'Delivery Area',
-          prefixIcon:
-              Icon(Icons.location_city_outlined, color: AppColors.primary),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.primary, width: 2),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.error),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.error, width: 2),
-          ),
-          filled: true,
-          fillColor: Colors.grey.shade50,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
-        ),
-        items: controller.areas.map((area) {
-          return DropdownMenuItem<String>(
-            value: area.areaId,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${area.name} (${area.pin})',
-                    style: const TextStyle(fontSize: 14),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.delivery_dining,
-                        size: 14,
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '₹${area.charge}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-        onChanged: (value) {
-          if (value != null) {
-            final area = controller.areas.firstWhere(
-              (a) => a.areaId == value,
-            );
-            controller.selectArea(area);
-          }
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
+      return FormField<String>(
+        initialValue: controller.selectedArea.value?.areaId,
+        validator: (val) {
+          if (controller.selectedArea.value == null) {
             return 'Please select a delivery area';
           }
           return null;
         },
-        isExpanded: true,
-        icon: const Icon(Icons.arrow_drop_down),
-        iconEnabledColor: AppColors.primary,
+        builder: (state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  if (controller.areas.isEmpty) {
+                    await controller.fetchAreas();
+                  }
+
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
+                    builder: (ctx) {
+                      return SafeArea(
+                        child: SizedBox(
+                          height: MediaQuery.of(ctx).size.height * 0.6,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    const Expanded(
+                                      child: Text(
+                                        'Select Delivery Area',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.close),
+                                      onPressed: () => Navigator.of(ctx).pop(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Divider(height: 1),
+                              Expanded(
+                                child: ListView.separated(
+                                  itemCount: controller.areas.length,
+                                  separatorBuilder: (_, __) =>
+                                      const Divider(height: 1),
+                                  itemBuilder: (c, i) {
+                                    final area = controller.areas[i];
+                                    final isSelected =
+                                        controller.selectedArea.value?.areaId ==
+                                            area.areaId;
+                                    return ListTile(
+                                      tileColor: isSelected
+                                          ? AppColors.primary.withOpacity(0.06)
+                                          : null,
+                                      title: Text(area.name),
+                                      subtitle: Text('PIN: ${area.pin}'),
+                                      trailing: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.delivery_dining,
+                                                size: 14,
+                                                color: AppColors.primary),
+                                            const SizedBox(width: 6),
+                                            Text('₹${area.charge}',
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppColors.primary)),
+                                          ],
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        controller.selectArea(area);
+                                        state.didChange(area.areaId);
+                                        Navigator.of(ctx).pop();
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                              const Divider(height: 1),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    onPressed: () => Navigator.of(ctx).pop(),
+                                    child: const Text('Close'),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Delivery Area',
+                    prefixIcon: Icon(Icons.location_city_outlined,
+                        color: AppColors.primary),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300)),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 16),
+                    errorText: state.errorText,
+                  ),
+                  isEmpty: controller.selectedArea.value == null,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          controller.selectedArea.value != null
+                              ? '${controller.selectedArea.value!.name} (${controller.selectedArea.value!.pin})'
+                              : 'Choose delivery area',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: controller.selectedArea.value != null
+                                ? Colors.black87
+                                : Colors.grey.shade600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (controller.selectedArea.value != null) ...[
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.delivery_dining,
+                                  size: 14, color: AppColors.primary),
+                              const SizedBox(width: 6),
+                              Text('₹${controller.selectedArea.value!.charge}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       );
     });
   }

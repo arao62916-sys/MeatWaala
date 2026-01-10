@@ -174,53 +174,65 @@ class CartView extends GetView<CartController> {
                             ),
 
                             // Quantity Controls
-                            Column(
-                              children: [
-                                Row(
+                            Column(children: [
+                              Container(
+                                height: 50,
+                           
+                                decoration: BoxDecoration(
+                                  color: AppColors.background,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                // alignment: Alignment.centerRight,
+                                child: Column(
                                   children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        controller.updateQuantity(
-                                          item.productId,
-                                          item.quantity - 1,
-                                        );
-                                      },
-                                      icon: const Icon(
-                                          Icons.remove_circle_outline),
-                                      color: AppColors.primary,
-                                      iconSize: 20,
-                                    ),
-                                    Text(
-                                      '${item.quantity}',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        controller.updateQuantity(
-                                          item.productId,
-                                          item.quantity + 1,
-                                        );
-                                      },
-                                      icon:
-                                          const Icon(Icons.add_circle_outline),
-                                      color: AppColors.primary,
-                                      iconSize: 20,
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            controller.updateQuantity(
+                                              item.productId,
+                                              item.quantity - 1,
+                                            );
+                                          },
+                                          icon: const Icon(
+                                              Icons.remove_circle_outline),
+                                          color: AppColors.primary,
+                                          iconSize: 20,
+                                        ),
+                                        Text(
+                                          '${item.quantity}',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            controller.updateQuantity(
+                                              item.productId,
+                                              item.quantity + 1,
+                                            );
+                                          },
+                                          icon: const Icon(
+                                              Icons.add_circle_outline),
+                                          color: AppColors.primary,
+                                          iconSize: 20,
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                                TextButton(
-                                  onPressed: () =>
-                                      controller.removeItem(item.cartItemId),
-                                  child: const Text(
-                                    'Remove',
-                                    style: TextStyle(color: AppColors.error),
-                                  ),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    controller.removeItem(item.cartItemId),
+                                child: const Text(
+                                  'Remove',
+                                  style: TextStyle(color: AppColors.error),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ]),
                           ],
                         ),
                       ),
