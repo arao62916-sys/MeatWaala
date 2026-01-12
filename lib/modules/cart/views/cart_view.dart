@@ -12,6 +12,7 @@ class CartView extends GetView<CartController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
         title: const Text('My Cart'),
         actions: [
           // Area badge
@@ -269,9 +270,25 @@ class CartView extends GetView<CartController> {
                               TextButton(
                                 onPressed: () =>
                                     controller.removeItem(item.cartItemId),
-                                child: const Text(
-                                  'Remove',
-                                  style: TextStyle(color: AppColors.error),
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: AppColors.error),
+                                  ),
+                                  child: Row(
+                                    children: [ Icon(
+                                        Icons.delete_outline,
+                                        size: 16,
+                                        color: AppColors.error,
+                                      ),
+                                      const Text(
+                                        'Remove',
+                                        style: TextStyle(color: AppColors.error),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ]),
