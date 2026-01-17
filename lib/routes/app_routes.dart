@@ -14,6 +14,7 @@ class AppRoutes {
   static const String productList = '/product-list';
   static const String productDetail = '/product-detail';
   static const String cart = '/cart';
+  static const String shopClosed = '/shop-closed';
   static const String checkout = '/checkout';
   static const String orderSuccess = '/order-success';
   static const String orderHistory = '/order-history';

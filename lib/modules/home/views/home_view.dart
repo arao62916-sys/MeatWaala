@@ -274,120 +274,138 @@ class HomeView extends GetView<HomeController> {
     });
   }
 
- Widget _buildProductCard(BuildContext context, dynamic product) {
-  return GestureDetector(
-    onTap: () => controller.navigateToProductDetail(product.id),
-    child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.textPrimary.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product Image
-          Expanded(
-            flex: 3,
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Stack(
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: product.imageUrl,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.fill,
-                    placeholder: (context, url) => Container(
-                      color: AppColors.border.withOpacity(0.3),
-                      child: const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
+  Widget _buildProductCard(BuildContext context, dynamic product) {
+    return GestureDetector(
+      onTap: () => controller.navigateToProductDetail(product.id),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.textPrimary.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product Image
+            Expanded(
+              flex: 3,
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Stack(
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: product.imageUrl,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.fill,
+                      placeholder: (context, url) => Container(
+                        color: AppColors.border.withOpacity(0.3),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: AppColors.border.withOpacity(0.3),
+                        child: const Icon(Icons.image_not_supported_outlined,
+                            size: 40, color: AppColors.textSecondary),
                       ),
                     ),
-                    errorWidget: (context, url, error) => Container(
-                      color: AppColors.border.withOpacity(0.3),
-                      child: const Icon(Icons.image_not_supported_outlined,
-                          size: 40, color: AppColors.textSecondary),
-                    ),
-                  ),
-                  // Discount Badge
-                  if (product.discount != null)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.success,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
+                    // Discount Badge
+                    if (product.discount != null)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.success,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            product.discount!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        child: Text(
-                          product.discount!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Product Details - Fixed Section
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Product Name
+                  Text(
+                    product.name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          height: 1.2,
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  // Price: show MRP struck-through when discounted, and current price
+                  Row(
+                    children: [
+                      if (product.hasDiscount) ...[
+                        Text(
+                          '₹${product.mrpDouble.toStringAsFixed(0)}',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    decoration: TextDecoration.lineThrough,
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                  ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Text(
+                        '₹${product.basePrice.toStringAsFixed(0)}',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                  fontSize: 15,
+                                ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-          ),
-          // Product Details - Fixed Section
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Product Name
-                Text(
-                  product.name,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        height: 1.2,
-                      ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                // Price
-                Text(
-                  '₹${product.basePrice}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                        fontSize: 15,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),

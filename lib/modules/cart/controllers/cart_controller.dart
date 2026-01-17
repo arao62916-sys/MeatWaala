@@ -25,6 +25,7 @@ class CartController extends GetxController {
   final RxString errorMessage = ''.obs;
   final Rx<AreaModel?> selectedArea = Rx<AreaModel?>(null);
   final RxString areaName = ''.obs;
+  final Rx<IsOrderAllowed?> isOrderAllowed = Rx<IsOrderAllowed?>(null);
 
   @override
   void onInit() {
@@ -75,6 +76,7 @@ class CartController extends GetxController {
         discount.value = cartInfo.discount;
         total.value = cartInfo.total;
         cartCount.value = cartInfo.itemCount;
+        isOrderAllowed.value = cartInfo.isOrderAllowed;
       } else {
         errorMessage.value = result.message;
         // Don't show error for empty cart
@@ -186,6 +188,15 @@ class CartController extends GetxController {
   void proceedToCheckout() {
     if (cartItems.isEmpty) {
       AppSnackbar.error('Please add items to cart', title: 'Empty Cart');
+      return;
+    }
+
+    // Check if orders are allowed
+    if (isOrderAllowed.value != null && !isOrderAllowed.value!.status) {
+      // Show shop closed screen
+      Get.toNamed(AppRoutes.shopClosed, arguments: {
+        'message': isOrderAllowed.value!.appMessage,
+      });
       return;
     }
 

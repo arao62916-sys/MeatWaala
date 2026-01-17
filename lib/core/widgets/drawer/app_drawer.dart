@@ -113,6 +113,12 @@ class AppDrawer extends StatelessWidget {
         route: AppRoutes.aboutUs,
         onTap: () => _navigate(AppRoutes.aboutUs),
       ),
+        DrawerMenuItem(
+        title: 'Contact Us',
+        icon: Icons.info_outline,
+        route: AppRoutes.contactUs,
+        onTap: () => _navigate(AppRoutes.contactUs),
+      ),
     ];
 
     return Drawer(

@@ -418,108 +418,188 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCustomer = message.isCustomerMessage;
-    final alignment =
-        isCustomer ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final isSupport = !isCustomer;
+    final senderLower = message.sender.toLowerCase();
+    final isExecutive = senderLower.contains('executive') ||
+        (message.senderName?.toLowerCase() ?? '').contains('executive');
+
     final bubbleColor =
         isCustomer ? AppColors.primary.withOpacity(0.1) : Colors.grey[200];
     final textColor = isCustomer ? AppColors.primary : AppColors.textPrimary;
 
+    // Shape: slightly different bottom corner to indicate message side
+    final bubbleRadius = BorderRadius.only(
+      topLeft: const Radius.circular(12),
+      topRight: const Radius.circular(12),
+      bottomLeft: Radius.circular(isCustomer ? 12 : 4),
+      bottomRight: Radius.circular(isCustomer ? 4 : 12),
+    );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: alignment,
+      child: Row(
+        mainAxisAlignment:
+            isCustomer ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Sender Name
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4, left: 12, right: 12),
-            child: Text(
-              message.displayName,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+          // Left-side avatar for support messages (support/executive)
+          if (isSupport) ...[
+            CircleAvatar(
+              radius: 12,
+              backgroundColor:
+                  isExecutive ? Colors.deepPurple : Colors.grey[300],
+              child: Icon(
+                isExecutive ? Icons.star : Icons.support_agent,
+                size: 14,
+                color: Colors.white,
               ),
             ),
-          ),
+            const SizedBox(width: 8),
+          ],
 
-          // Message Bubble
-          Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.75,
-            ),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: bubbleColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isCustomer
-                    ? AppColors.primary.withOpacity(0.3)
-                    : Colors.grey[300]!,
-              ),
-            ),
+          Flexible(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: isCustomer
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
-                // Message Text
-                Text(
-                  message.message,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 14,
+                // Sender Name (and role badge for executives)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4, left: 4, right: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        message.displayName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      if (isSupport && isExecutive) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color: Colors.deepPurple.withOpacity(0.2)),
+                          ),
+                          child: Text(
+                            'Executive',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.deepPurple[700],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
 
-                // Attachment
-                if (message.hasAttachment) ...[
-                  const SizedBox(height: 8),
-                  InkWell(
-                    onTap: () => _openAttachment(message.attachmentUrl ?? ''),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
+                // Message Bubble
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: bubbleColor,
+                    borderRadius: bubbleRadius,
+                    border: Border.all(
+                      color: isCustomer
+                          ? AppColors.primary.withOpacity(0.3)
+                          : Colors.grey[300]!,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Message Text
+                      Text(
+                        message.message,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 14,
+                        ),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.attach_file,
-                            size: 16,
-                            color: AppColors.primary,
+
+                      // Attachment
+                      if (message.hasAttachment) ...[
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: () =>
+                              _openAttachment(message.attachmentUrl ?? ''),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.attach_file,
+                                  size: 16,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    message.attachment ?? 'Attachment',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.primary,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              message.attachment ?? 'Attachment',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.primary,
-                                decoration: TextDecoration.underline,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+
+                      // Timestamp aligned to the side of the message
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: isCustomer
+                            ? MainAxisAlignment.end
+                            : MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat('hh:mm a').format(message.createdAt),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
-
-                // Timestamp
-                const SizedBox(height: 4),
-                Text(
-                  DateFormat('hh:mm a').format(message.createdAt),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: AppColors.textSecondary,
+                    ],
                   ),
                 ),
               ],
             ),
           ),
+
+          // Right-side avatar for customer messages
+          if (isCustomer) ...[
+            const SizedBox(width: 8),
+            CircleAvatar(
+              radius: 12,
+              backgroundColor: AppColors.primary,
+              child: Icon(Icons.person, size: 14, color: Colors.white),
+            ),
+          ],
         ],
       ),
     );

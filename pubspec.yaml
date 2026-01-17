@@ -35,6 +35,8 @@ dependencies:
   file_picker: ^10.3.8
   connectivity_plus: ^7.0.0
   flutter_launcher_icons: ^0.14.4
+  icons_plus: ^5.0.0
+  url_launcher: ^6.3.2
 flutter_launcher_icons:
   android: true
   ios: true
@@ -55,4 +57,5 @@ flutter:
     - assets/images/failed.png
     - assets/data/Cooking.json
     - assets/data/Delivery Fudis.json
+    - assets/images/meat_wala_store_closed.png
     - assets/icons/

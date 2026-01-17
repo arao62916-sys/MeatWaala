@@ -26,6 +26,7 @@ import 'package:meatwaala_app/modules/products/views/product_list_view.dart';
 import 'package:meatwaala_app/modules/products/views/product_detail_view.dart';
 import 'package:meatwaala_app/modules/cart/bindings/cart_binding.dart';
 import 'package:meatwaala_app/modules/cart/views/cart_view.dart';
+import 'package:meatwaala_app/modules/cart/views/shop_closed_view.dart';
 import 'package:meatwaala_app/modules/checkout/bindings/checkout_binding.dart';
 import 'package:meatwaala_app/modules/checkout/views/checkout_view.dart';
 import 'package:meatwaala_app/modules/orders/bindings/orders_binding.dart';
@@ -40,7 +41,11 @@ import 'package:meatwaala_app/modules/support/views/ticket_chat_view.dart';
 import 'package:meatwaala_app/modules/support/controllers/support_controller.dart';
 import 'package:meatwaala_app/modules/profile/bindings/profile_binding.dart';
 import 'package:meatwaala_app/modules/profile/views/profile_view.dart';
-import 'package:meatwaala_app/modules/static_pages/views/static_pages_views.dart';
+import 'package:meatwaala_app/modules/profile/views/about_us_view.dart';
+import 'package:meatwaala_app/modules/profile/views/contact_us_view.dart';
+import 'package:meatwaala_app/modules/profile/views/privacy_policy_view.dart';
+import 'package:meatwaala_app/modules/profile/views/terms_view.dart';
+import 'package:meatwaala_app/modules/profile/controllers/cms_controller.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -107,13 +112,17 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.productDetail,
-      page: () =>  ProductDetailView(),
+      page: () => ProductDetailView(),
       binding: ProductBinding(),
     ),
     GetPage(
       name: AppRoutes.cart,
       page: () => const CartView(),
       binding: CartBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.shopClosed,
+      page: () => const ShopClosedView(),
     ),
     GetPage(
       name: AppRoutes.checkout,
@@ -155,7 +164,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.createTicket,
-      page: () => const CreateTicketView( ),
+      page: () => const CreateTicketView(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => SupportController());
       }),
@@ -185,18 +194,30 @@ class AppPages {
     GetPage(
       name: AppRoutes.aboutUs,
       page: () => const AboutUsView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => CmsController());
+      }),
     ),
     GetPage(
       name: AppRoutes.contactUs,
       page: () => const ContactUsView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => CmsController());
+      }),
     ),
     GetPage(
       name: AppRoutes.privacyPolicy,
       page: () => const PrivacyPolicyView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => CmsController());
+      }),
     ),
     GetPage(
       name: AppRoutes.terms,
       page: () => const TermsView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => CmsController());
+      }),
     ),
   ];
 }

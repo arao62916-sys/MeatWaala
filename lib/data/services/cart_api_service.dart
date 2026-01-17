@@ -3,6 +3,38 @@ import 'package:meatwaala_app/core/network/network_constents.dart';
 import 'package:meatwaala_app/data/models/cart_item_model.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
 
+/// Order Allowed Status Model
+class IsOrderAllowed {
+  final bool status;
+  final String message;
+  final String appMessage;
+
+  IsOrderAllowed({
+    required this.status,
+    required this.message,
+    required this.appMessage,
+  });
+
+  factory IsOrderAllowed.fromJson(Map<String, dynamic> json) {
+    return IsOrderAllowed(
+      status: json['status'] == true ||
+          json['status'] == 1 ||
+          json['status'] == '1',
+      message: json['message']?.toString() ?? '',
+      appMessage:
+          json['app_message']?.toString() ?? json['message']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status,
+      'message': message,
+      'app_message': appMessage,
+    };
+  }
+}
+
 class CartApiService {
   final BaseApiService _apiService = BaseApiService();
   final StorageService _storage = StorageService();
@@ -162,6 +194,7 @@ class CartApiService {
     );
   }
 }
+
 /// Cart Info Response Model
 class CartInfoModel {
   final List<CartItemModel> items;
@@ -173,6 +206,7 @@ class CartInfoModel {
   final String? coupon;
   final String? areaId;
   final Map<String, dynamic>? areaInfo;
+  final IsOrderAllowed? isOrderAllowed;
 
   CartInfoModel({
     required this.items,
@@ -184,12 +218,13 @@ class CartInfoModel {
     this.coupon,
     this.areaId,
     this.areaInfo,
+    this.isOrderAllowed,
   });
 
   factory CartInfoModel.fromJson(Map<String, dynamic> json) {
     // Extract aCart object
     final aCart = json['aCart'] as Map<String, dynamic>? ?? {};
-    
+
     // Parse cart items from aItem array
     final itemsList = <CartItemModel>[];
     if (aCart['aItem'] != null && aCart['aItem'] is List) {
@@ -205,7 +240,14 @@ class CartInfoModel {
     final discount = _parseDouble(aCart['discount'] ?? 0);
     final discountedAmount = _parseDouble(aCart['discounted_amount'] ?? 0);
     final total = _parseDouble(aCart['bill_amount'] ?? 0);
-    final itemCount = _parseInt(aCart['items'] ?? aCart['qty'] ?? itemsList.length);
+    final itemCount =
+        _parseInt(aCart['items'] ?? aCart['qty'] ?? itemsList.length);
+
+    // Parse isOrderAllowed
+    IsOrderAllowed? isOrderAllowed;
+    if (aCart['isOrderAllowed'] != null && aCart['isOrderAllowed'] is Map) {
+      isOrderAllowed = IsOrderAllowed.fromJson(aCart['isOrderAllowed']);
+    }
 
     return CartInfoModel(
       items: itemsList,
@@ -217,6 +259,7 @@ class CartInfoModel {
       coupon: aCart['coupon']?.toString(),
       areaId: aCart['area_id']?.toString(),
       areaInfo: aCart['aArea'] as Map<String, dynamic>?,
+      isOrderAllowed: isOrderAllowed,
     );
   }
 
@@ -247,6 +290,7 @@ class CartInfoModel {
       'coupon': coupon,
       'areaId': areaId,
       'areaInfo': areaInfo,
+      'isOrderAllowed': isOrderAllowed?.toJson(),
     };
   }
 }

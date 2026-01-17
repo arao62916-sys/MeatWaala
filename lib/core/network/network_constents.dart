@@ -8,7 +8,7 @@ class NetworkConstantsUtil {
   // Razorpay Key
   // static const String razorpay_secret_Key = "yMPhS0tFLLDxNmLnckwDLgmY";
   static const String razorpay_key_Id = "rzp_live_S1gruqMz5n8NBa";
-// $config['keyId'] = "rzp_live_S1gruqMz5n8NBa"; 
+// $config['keyId'] = "rzp_live_S1gruqMz5n8NBa";
 // $config['keySecret'] = "yMPhS0tFLLDxNmLnckwDLgmY";
   // *************** Company API *************//
   static const String company = 'company';
@@ -78,4 +78,10 @@ class NetworkConstantsUtil {
       'support/reply'; // support/reply/{customer_id}/{ticket_id} (multipart)
   static const String supportClose =
       'support/close'; // support/close/{customer_id}/{ticket_id}
+
+  // *************** CMS API *************//
+  static const String cmsAboutUs = 'cms/info/about-us';
+  static const String cmsContactUs = 'cms/info/contact-us';
+  static const String cmsPrivacyPolicy = 'cms/info/privacy-and-policy';
+  static const String cmsTerms = 'cms/info/terms-and-conditions';
 }
