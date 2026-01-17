@@ -264,15 +264,32 @@ class SupportController extends GetxController {
   /// Pick image from gallery (with permission)
   Future<void> pickImageFromGallery() async {
     try {
-      final PermissionStatus status = Platform.isAndroid
-          ? await Permission.storage.request()
-          : await Permission.photos.request();
+      // Request appropriate permissions for Android/iOS.
+      if (Platform.isAndroid) {
+        // On Android, newer SDKs use READ_MEDIA_IMAGES (mapped by Permission.photos in some setups).
+        final PermissionStatus storageStatus =
+            await Permission.storage.request();
+        final PermissionStatus photosStatus = await Permission.photos.request();
 
-      if (!status.isGranted) {
-        AppSnackbar.warning('Storage permission is required to pick images',
-            title: 'Permission');
-        if (status.isPermanentlyDenied) openAppSettings();
-        return;
+        if (!storageStatus.isGranted && !photosStatus.isGranted) {
+          AppSnackbar.warning(
+            'Storage permission is required to pick images',
+            title: 'Permission',
+          );
+          if (storageStatus.isPermanentlyDenied ||
+              photosStatus.isPermanentlyDenied) {
+            openAppSettings();
+          }
+          return;
+        }
+      } else {
+        final PermissionStatus status = await Permission.photos.request();
+        if (!status.isGranted) {
+          AppSnackbar.warning('Photos permission is required to pick images',
+              title: 'Permission');
+          if (status.isPermanentlyDenied) openAppSettings();
+          return;
+        }
       }
 
       final XFile? picked = await ImagePicker().pickImage(

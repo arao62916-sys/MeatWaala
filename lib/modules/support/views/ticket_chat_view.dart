@@ -334,64 +334,164 @@ class _ModernInitialMessageCard extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Message Card
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withOpacity(0.08),
-                  AppColors.primary.withOpacity(0.04),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primary.withOpacity(0.2)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child:
-                          Icon(Icons.topic, size: 16, color: AppColors.primary),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        ticket.subject,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
+          // Initial Message - Customer message (LEFT side)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Customer avatar on left
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF64B5F6).withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
-                Text(
-                  ticket.message,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
-                    height: 1.6,
+                child: const Icon(Icons.person, size: 20, color: Colors.white),
+              ),
+              const SizedBox(width: 8),
+
+              // Message content
+              Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Sender name
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6, left: 12),
+                        child: Text(
+                          'You',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ),
+
+                      // Message bubble
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(18),
+                            topRight: Radius.circular(18),
+                            bottomLeft: Radius.circular(4),
+                            bottomRight: Radius.circular(18),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Subject
+                            Row(
+                              children: [
+                                Icon(Icons.topic, 
+                                    size: 16, 
+                                    color: AppColors.primary),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    ticket.subject,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+
+                            // Message
+                            Text(
+                              ticket.message,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textPrimary,
+                                height: 1.5,
+                              ),
+                            ),
+
+                            // Attachment if exists
+                            if (ticket.fileUrl != null && 
+                                ticket.fileUrl!.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              InkWell(
+                                onTap: () => _openAttachment(ticket.fileUrl!),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        color: Colors.grey[300]!),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.attach_file,
+                                          size: 16,
+                                          color: AppColors.primary),
+                                      const SizedBox(width: 6),
+                                      Flexible(
+                                        child: Text(
+                                          ticket.file ?? 'Attachment',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.primary,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+
+                            // Timestamp
+                            const SizedBox(height: 8),
+                            Text(
+                              DateFormat('hh:mm a').format(ticket.createdAt),
+                              style: TextStyle(
+                                  fontSize: 10, color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  DateFormat('hh:mm a').format(ticket.createdAt),
-                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
 
           if (ticket.conversation.isNotEmpty) const SizedBox(height: 24),
@@ -399,9 +499,16 @@ class _ModernInitialMessageCard extends StatelessWidget {
       ),
     );
   }
+
+  void _openAttachment(String url) {
+    AppSnackbar.info(
+      'Opening: $url',
+      title: 'Attachment',
+    );
+  }
 }
 
-// Modern Message Bubble
+// Modern Message Bubble - CORRECTED for Left-Right alignment
 class _ModernMessageBubble extends StatelessWidget {
   final TicketMessageModel message;
 
@@ -409,20 +516,21 @@ class _ModernMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Customer messages on LEFT, Support messages on RIGHT
     final isCustomer = message.isCustomerMessage;
     final screenWidth = MediaQuery.of(context).size.width;
-    final maxBubbleWidth = screenWidth * 0.8;
+    final maxBubbleWidth = screenWidth * 0.75;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         mainAxisAlignment:
-            isCustomer ? MainAxisAlignment.end : MainAxisAlignment.start,
+            isCustomer ? MainAxisAlignment.start : MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Left avatar (Admin/Support)
-          if (!isCustomer) ...[
-            _buildAvatar(isCustomer: false),
+          // Left avatar (Customer)
+          if (isCustomer) ...[
+            _buildAvatar(isCustomer: true),
             const SizedBox(width: 8),
           ],
 
@@ -432,8 +540,8 @@ class _ModernMessageBubble extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: maxBubbleWidth),
               child: Column(
                 crossAxisAlignment: isCustomer
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
+                    ? CrossAxisAlignment.start
+                    : CrossAxisAlignment.end,
                 children: [
                   // Sender name
                   Padding(
@@ -454,12 +562,14 @@ class _ModernMessageBubble extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: isCustomer 
+                          ? Colors.grey[100] 
+                          : AppColors.primary,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(18),
                         topRight: const Radius.circular(18),
-                        bottomLeft: Radius.circular(isCustomer ? 18 : 4),
-                        bottomRight: Radius.circular(isCustomer ? 4 : 18),
+                        bottomLeft: Radius.circular(isCustomer ? 4 : 18),
+                        bottomRight: Radius.circular(isCustomer ? 18 : 4),
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -474,8 +584,10 @@ class _ModernMessageBubble extends StatelessWidget {
                       children: [
                         Text(
                           message.message,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: isCustomer 
+                                ? AppColors.textPrimary 
+                                : Colors.white,
                             fontSize: 14,
                             height: 1.5,
                           ),
@@ -490,24 +602,33 @@ class _ModernMessageBubble extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: isCustomer 
+                                    ? Colors.white
+                                    : Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(10),
+                                border: isCustomer 
+                                    ? Border.all(color: Colors.grey[300]!)
+                                    : null,
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.attach_file,
                                     size: 16,
-                                    color: Colors.white,
+                                    color: isCustomer 
+                                        ? AppColors.primary 
+                                        : Colors.white,
                                   ),
                                   const SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
                                       message.attachment ?? 'Attachment',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.white,
+                                        color: isCustomer 
+                                            ? AppColors.primary 
+                                            : Colors.white,
                                         decoration: TextDecoration.underline,
                                       ),
                                       maxLines: 1,
@@ -526,7 +647,9 @@ class _ModernMessageBubble extends StatelessWidget {
                           DateFormat('hh:mm a').format(message.createdAt),
                           style: TextStyle(
                             fontSize: 10,
-                            color: Colors.white.withOpacity(0.8),
+                            color: isCustomer 
+                                ? Colors.grey[600] 
+                                : Colors.white.withOpacity(0.8),
                           ),
                         ),
                       ],
@@ -537,10 +660,10 @@ class _ModernMessageBubble extends StatelessWidget {
             ),
           ),
 
-          // Right avatar (Customer)
-          if (isCustomer) ...[
+          // Right avatar (Support Executive)
+          if (!isCustomer) ...[
             const SizedBox(width: 8),
-            _buildAvatar(isCustomer: true),
+            _buildAvatar(isCustomer: false),
           ],
         ],
       ),
@@ -554,15 +677,15 @@ class _ModernMessageBubble extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isCustomer
-              ? [AppColors.primary, AppColors.primary.withOpacity(0.8)]
-              : [const Color(0xFF7E57C2), const Color(0xFF9575CD)],
+              ? [const Color(0xFF64B5F6), const Color(0xFF42A5F5)]
+              : [AppColors.primary, AppColors.primary.withOpacity(0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: (isCustomer ? AppColors.primary : const Color(0xFF7E57C2))
+            color: (isCustomer ? const Color(0xFF64B5F6) : AppColors.primary)
                 .withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -578,10 +701,14 @@ class _ModernMessageBubble extends StatelessWidget {
   }
 
   Future<void> _openAttachment(String url) async {
-    AppSnackbar.info(
-      'URL launcher not installed. Add url_launcher to pubspec.yaml',
-      title: 'Feature Unavailable',
-    );
+    if (url.isNotEmpty) {
+      AppSnackbar.info(
+        'Opening attachment: $url',
+        title: 'Attachment',
+      );
+      // TODO: Implement url_launcher
+      // await launchUrl(Uri.parse(url));
+    }
   }
 }
 
@@ -758,34 +885,60 @@ class _ModernReplyInput extends StatelessWidget {
   }
 
   Future<void> _pickFile(BuildContext context) async {
-    // Show bottom sheet to choose camera or gallery
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take Photo'),
-              onTap: () async {
-                Get.back();
-                await controller.pickImageFromCamera();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
-              onTap: () async {
-                Get.back();
-                await controller.pickImageFromGallery();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.close),
-              title: const Text('Cancel'),
-              onTap: () => Get.back(),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.camera_alt, color: AppColors.primary),
+                ),
+                title: const Text('Take Photo'),
+                onTap: () async {
+                  Get.back();
+                  await controller.pickImageFromCamera();
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.photo_library, color: AppColors.primary),
+                ),
+                title: const Text('Choose from Gallery'),
+                onTap: () async {
+                  Get.back();
+                  await controller.pickImageFromGallery();
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, color: Colors.grey),
+                ),
+                title: const Text('Cancel'),
+                onTap: () => Get.back(),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-/// Ticket Message Model (Conversation Item)
+// Ticket Message Model (Conversation Item)
 /// Represents a single message in the ticket conversation (aItem)
 class TicketMessageModel {
   final String messageId;
@@ -6,9 +6,10 @@ class TicketMessageModel {
   final String? attachment;
   final String? attachmentUrl;
   final DateTime createdAt;
-  final bool isCustomerMessage; // true = customer, false = support
-  final String sender; // 'customer' or 'support'
+  final bool isCustomerMessage; // true = customer (left), false = support (right)
+  final String sender; // 'Customer' or 'User'
   final String? senderName;
+  final String align; // 'left' or 'right' from API
 
   TicketMessageModel({
     required this.messageId,
@@ -19,23 +20,36 @@ class TicketMessageModel {
     required this.isCustomerMessage,
     required this.sender,
     this.senderName,
+    required this.align,
   });
 
   factory TicketMessageModel.fromJson(Map<String, dynamic> json) {
-    final sender = json['sender']?.toString().toLowerCase() ?? 'customer';
-    final isCustomer = sender == 'customer' || sender == 'user';
+    // Use the align field from API to determine message side
+    // align: "left" = Customer message (left side)
+    // align: "right" = Support Executive message (right side)
+    final align = json['align']?.toString().toLowerCase() ?? 'left';
+    final isCustomer = align == 'left';
+    
+    // Parse the date field
+    DateTime parsedDate = DateTime.now();
+    if (json['date'] != null) {
+      try {
+        parsedDate = DateTime.parse(json['date']);
+      } catch (e) {
+        parsedDate = DateTime.now();
+      }
+    }
 
     return TicketMessageModel(
       messageId: (json['id'] ?? json['message_id'] ?? '').toString(),
       message: json['message'] ?? json['msg'] ?? '',
-      attachment: json['attachment'] ?? json['file'],
-      attachmentUrl: json['attachment_url'] ?? json['file_url'],
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at']) ?? DateTime.now()
-          : DateTime.now(),
+      attachment: json['file'],
+      attachmentUrl: json['file_url'],
+      createdAt: parsedDate,
       isCustomerMessage: isCustomer,
-      sender: sender,
-      senderName: json['sender_name'] ?? json['name'],
+      sender: json['sender'] ?? 'Customer',
+      senderName: json['name'],
+      align: align,
     );
   }
 
@@ -43,11 +57,12 @@ class TicketMessageModel {
     return {
       'message_id': messageId,
       'message': message,
-      'attachment': attachment,
-      'attachment_url': attachmentUrl,
-      'created_at': createdAt.toIso8601String(),
+      'file': attachment,
+      'file_url': attachmentUrl,
+      'date': createdAt.toIso8601String(),
       'sender': sender,
-      'sender_name': senderName,
+      'name': senderName,
+      'align': align,
     };
   }
 

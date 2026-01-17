@@ -11,6 +11,8 @@ class SupportTicketModel {
   final DateTime createdAt;
   final DateTime? respondedAt;
   final DateTime? updatedAt;
+  final String? file;
+  final String? fileUrl;
   final bool isOpen;
   final List<TicketMessageModel> conversation;
 
@@ -21,6 +23,8 @@ class SupportTicketModel {
     required this.message,
     required this.status,
     this.response,
+    this.file,
+    this.fileUrl,
     required this.createdAt,
     this.respondedAt,
     this.updatedAt,
@@ -34,14 +38,16 @@ class SupportTicketModel {
         json.containsKey('aTicket') ? json['aTicket'] : json;
 
     final status = data['status'] ?? '';
-    final isOpen =
-        status.toString().toLowerCase() == 'open' || status == '1' || status == 1;
+    final isOpen = status.toString().toLowerCase() == 'open' ||
+        status == '1' ||
+        status == 1;
 
     // 🔹 Parse conversation (aItem)
     List<TicketMessageModel> messages = [];
     if (data['aItem'] is List) {
-      messages =
-          (data['aItem'] as List).map((e) => TicketMessageModel.fromJson(e)).toList();
+      messages = (data['aItem'] as List)
+          .map((e) => TicketMessageModel.fromJson(e))
+          .toList();
     }
 
     return SupportTicketModel(
@@ -51,8 +57,11 @@ class SupportTicketModel {
       message: data['message'] ?? data['description'] ?? '',
       status: status.toString(),
       response: data['response'] ?? data['reply'],
-      createdAt: DateTime.tryParse(
-              data['created_at'] ?? data['date'] ?? '') ??
+      file:
+          (data['file'] ?? data['attachment'] ?? data['file_name'])?.toString(),
+      fileUrl: (data['file_url'] ?? data['attachment_url'] ?? data['fileUrl'])
+          ?.toString(),
+      createdAt: DateTime.tryParse(data['created_at'] ?? data['date'] ?? '') ??
           DateTime.now(),
       respondedAt: data['responded_at'] != null
           ? DateTime.tryParse(data['responded_at'])
@@ -73,6 +82,8 @@ class SupportTicketModel {
       'message': message,
       'status': status,
       'response': response,
+      'file': file,
+      'file_url': fileUrl,
       'created_at': createdAt.toIso8601String(),
       'responded_at': respondedAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
@@ -101,6 +112,8 @@ class SupportTicketModel {
     String? message,
     String? status,
     String? response,
+    String? file,
+    String? fileUrl,
     DateTime? createdAt,
     DateTime? respondedAt,
     DateTime? updatedAt,
@@ -114,6 +127,8 @@ class SupportTicketModel {
       message: message ?? this.message,
       status: status ?? this.status,
       response: response ?? this.response,
+      file: file ?? this.file,
+      fileUrl: fileUrl ?? this.fileUrl,
       createdAt: createdAt ?? this.createdAt,
       respondedAt: respondedAt ?? this.respondedAt,
       updatedAt: updatedAt ?? this.updatedAt,
