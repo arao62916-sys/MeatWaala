@@ -87,17 +87,17 @@ class AppDrawer extends StatelessWidget {
 
     // Group 3: Account & Settings
     final List<DrawerMenuItem> accountItems = [
-      DrawerMenuItem(
-        title: 'Addresses',
-        icon: Icons.location_on_outlined,
-        route: '/addresses',
-        onTap: () => _navigate('/addresses'),
-      ),
-      const DrawerMenuItem(
-        title: 'Notifications',
-        icon: Icons.notifications_outlined,
-        route: '/notifications',
-      ),
+      // DrawerMenuItem(
+      //   title: 'Addresses',
+      //   icon: Icons.location_on_outlined,
+      //   route: '/addresses',
+      //   onTap: () => _navigate('/addresses'),
+      // ),
+      // const DrawerMenuItem(
+      //   title: 'Notifications',
+      //   icon: Icons.notifications_outlined,
+      //   route: '/notifications',
+      // ),
     ];
 
     // Group 4: Help & Info
@@ -310,22 +310,22 @@ class AppDrawer extends StatelessWidget {
                           ),
                     ),
                   ),
-                  if (item.showBadge && (item.badgeCount ?? 0) > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '${item.badgeCount ?? 0}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                  // if (item.showBadge && (item.badgeCount ?? 0) > 0)
+                  //   Container(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  //     decoration: BoxDecoration(
+                  //       color: AppColors.primary,
+                  //       borderRadius: BorderRadius.circular(10),
+                  //     ),
+                  //     child: Text(
+                  //       '${item.badgeCount ?? 0}',
+                  //       style: const TextStyle(
+                  //         color: Colors.white,
+                  //         fontSize: 12,
+                  //         fontWeight: FontWeight.bold,
+                  //       ),
+                  //     ),
+                  //   ),
                 ],
               ),
             ),
