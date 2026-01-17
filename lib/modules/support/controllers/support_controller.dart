@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/support_ticket_model.dart';
 import 'package:meatwaala_app/data/models/ticket_message_model.dart';
@@ -257,6 +259,62 @@ class SupportController extends GetxController {
   void selectFile(File file) {
     selectedFile.value = file;
     selectedFileName.value = file.path.split('/').last;
+  }
+
+  /// Pick image from gallery (with permission)
+  Future<void> pickImageFromGallery() async {
+    try {
+      final PermissionStatus status = Platform.isAndroid
+          ? await Permission.storage.request()
+          : await Permission.photos.request();
+
+      if (!status.isGranted) {
+        AppSnackbar.warning('Storage permission is required to pick images',
+            title: 'Permission');
+        if (status.isPermanentlyDenied) openAppSettings();
+        return;
+      }
+
+      final XFile? picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1600,
+        maxHeight: 1600,
+      );
+
+      if (picked != null) {
+        selectFile(File(picked.path));
+      }
+    } catch (e) {
+      AppSnackbar.error('Failed to pick image: $e');
+    }
+  }
+
+  /// Capture image from camera (with permission)
+  Future<void> pickImageFromCamera() async {
+    try {
+      final PermissionStatus status = await Permission.camera.request();
+
+      if (!status.isGranted) {
+        AppSnackbar.warning('Camera permission is required to take photos',
+            title: 'Permission');
+        if (status.isPermanentlyDenied) openAppSettings();
+        return;
+      }
+
+      final XFile? picked = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+        maxWidth: 1600,
+        maxHeight: 1600,
+      );
+
+      if (picked != null) {
+        selectFile(File(picked.path));
+      }
+    } catch (e) {
+      AppSnackbar.error('Failed to capture image: $e');
+    }
   }
 
   /// Clear selected file
