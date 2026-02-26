@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/support_ticket_model.dart';
 import 'package:meatwaala_app/data/models/ticket_message_model.dart';
@@ -21,10 +19,6 @@ class SupportController extends GetxController {
   final RxBool isClosing = false.obs;
   final RxString errorMessage = ''.obs;
   final RxBool hasLoadedTicket = false.obs;
-
-  // Chat-related state
-  final Rxn<File> selectedFile = Rxn<File>();
-  final RxString selectedFileName = ''.obs;
 
   // ✅ ALL TextEditingControllers managed by controller - NOT in widget build()
   // This prevents "used after being disposed" errors
@@ -121,11 +115,10 @@ class SupportController extends GetxController {
     }
   }
 
-  /// Submit new support ticket with optional file
+  /// Submit new support ticket
   Future<bool> submitTicket({
     String? subject,
     String? message,
-    File? file,
   }) async {
     try {
       // ✅ Read from controller-owned TextEditingControllers if not provided
@@ -143,7 +136,6 @@ class SupportController extends GetxController {
       final result = await _supportService.submitSupportTicket(
         subject: ticketSubject,
         message: ticketMessage,
-        file: file ?? selectedFile.value,
       );
 
       if (result.success) {
@@ -168,11 +160,10 @@ class SupportController extends GetxController {
     }
   }
 
-  /// Reply to ticket with optional file
+  /// Reply to ticket
   Future<bool> replyToTicket({
     required String ticketId,
     String? messageText,
-    File? file,
   }) async {
     try {
       // ✅ Get message from controller-owned TextEditingController
@@ -195,13 +186,11 @@ class SupportController extends GetxController {
       final result = await _supportService.replyToTicket(
         ticketId: ticketId,
         message: message,
-        file: file ?? selectedFile.value,
       );
 
       if (result.success) {
         // ✅ Clear reply form - safe because controller is owned by GetX controller
         replyMessageController.clear();
-        clearSelectedFile();
 
         AppSnackbar.success('Reply sent successfully!');
 
@@ -255,96 +244,10 @@ class SupportController extends GetxController {
     }
   }
 
-  /// Select file for upload
-  void selectFile(File file) {
-    selectedFile.value = file;
-    selectedFileName.value = file.path.split('/').last;
-  }
-
-  /// Pick image from gallery (with permission)
-  Future<void> pickImageFromGallery() async {
-    try {
-      // Request appropriate permissions for Android/iOS.
-      if (Platform.isAndroid) {
-        // On Android, newer SDKs use READ_MEDIA_IMAGES (mapped by Permission.photos in some setups).
-        final PermissionStatus storageStatus =
-            await Permission.storage.request();
-        final PermissionStatus photosStatus = await Permission.photos.request();
-
-        if (!storageStatus.isGranted && !photosStatus.isGranted) {
-          AppSnackbar.warning(
-            'Storage permission is required to pick images',
-            title: 'Permission',
-          );
-          if (storageStatus.isPermanentlyDenied ||
-              photosStatus.isPermanentlyDenied) {
-            openAppSettings();
-          }
-          return;
-        }
-      } else {
-        final PermissionStatus status = await Permission.photos.request();
-        if (!status.isGranted) {
-          AppSnackbar.warning('Photos permission is required to pick images',
-              title: 'Permission');
-          if (status.isPermanentlyDenied) openAppSettings();
-          return;
-        }
-      }
-
-      final XFile? picked = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 80,
-        maxWidth: 1600,
-        maxHeight: 1600,
-      );
-
-      if (picked != null) {
-        selectFile(File(picked.path));
-      }
-    } catch (e) {
-      AppSnackbar.error('Failed to pick image: $e');
-    }
-  }
-
-  /// Capture image from camera (with permission)
-  Future<void> pickImageFromCamera() async {
-    try {
-      final PermissionStatus status = await Permission.camera.request();
-
-      if (!status.isGranted) {
-        AppSnackbar.warning('Camera permission is required to take photos',
-            title: 'Permission');
-        if (status.isPermanentlyDenied) openAppSettings();
-        return;
-      }
-
-      final XFile? picked = await ImagePicker().pickImage(
-        source: ImageSource.camera,
-        imageQuality: 80,
-        maxWidth: 1600,
-        maxHeight: 1600,
-      );
-
-      if (picked != null) {
-        selectFile(File(picked.path));
-      }
-    } catch (e) {
-      AppSnackbar.error('Failed to capture image: $e');
-    }
-  }
-
-  /// Clear selected file
-  void clearSelectedFile() {
-    selectedFile.value = null;
-    selectedFileName.value = '';
-  }
-
   /// ✅ Clear create ticket form
   void clearCreateForm() {
     subjectController.clear();
     createMessageController.clear();
-    clearSelectedFile();
   }
 
   /// Scroll chat to bottom

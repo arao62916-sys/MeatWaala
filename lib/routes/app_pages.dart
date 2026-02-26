@@ -37,7 +37,8 @@ import 'package:meatwaala_app/modules/orders/views/order_details_view.dart';
 import 'package:meatwaala_app/modules/orders/controllers/order_controller.dart';
 import 'package:meatwaala_app/modules/support/views/support_list_view.dart';
 import 'package:meatwaala_app/modules/support/views/create_ticket_view.dart';
-import 'package:meatwaala_app/modules/support/views/ticket_chat_view.dart';
+import 'package:meatwaala_app/modules/support/views/ticket_chat_view.dart'
+    hide CreateTicketView;
 import 'package:meatwaala_app/modules/support/controllers/support_controller.dart';
 import 'package:meatwaala_app/modules/profile/bindings/profile_binding.dart';
 import 'package:meatwaala_app/modules/profile/views/profile_view.dart';
@@ -171,7 +172,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.ticketChat,
-      page: () => const TicketChatView(),
+      page: () =>  TicketChatView(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => SupportController());
       }),
