@@ -4,6 +4,6 @@ import 'package:meatwaala_app/modules/profile/controllers/profile_controller.dar
 class ProfileBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ProfileController>(() => ProfileController());
+    Get.lazyPut<ProfileController>(() => ProfileController(), fenix: true);
   }
 }

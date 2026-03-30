@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:meatwaala_app/modules/profile/controllers/profile_controller.dart';
 
 class BottomNavController extends GetxController {
   final RxInt selectedIndex = 0.obs;
@@ -16,6 +17,13 @@ class BottomNavController extends GetxController {
 
     pageController = PageController(initialPage: 0);
     notchBottomBarController = NotchBottomBarController(index: 0);
+
+    // Fetch profile data on every navigation to main screen (e.g., after login)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        Get.find<ProfileController>().fetchProfile();
+      } catch (_) {}
+    });
   }
 
   void openDrawer() {

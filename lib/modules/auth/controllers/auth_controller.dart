@@ -420,9 +420,10 @@ class AuthController extends GetxController {
         // Save email for login prefill
         await _storage.saveTempEmail(emailController.text.trim());
 
+        final cleanMessage = _stripHtml(data.message);
         AppSnackbar.success(
-          data.message.isNotEmpty
-              ? data.message
+          cleanMessage.isNotEmpty
+              ? cleanMessage
               : 'New password sent to your email',
           title: 'Success 🔐',
         );
