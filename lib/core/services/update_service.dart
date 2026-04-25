@@ -1,5 +1,8 @@
 import 'dart:developer';
+import 'package:http/http.dart' as http;
 import 'package:in_app_update/in_app_update.dart';
+
+const String _packageName = 'com.meatwaala.meatwaala_app';
 
 class UpdateResult {
   final bool isUpdateAvailable;
@@ -8,6 +11,7 @@ class UpdateResult {
   final int? availableVersionCode;
   final int? updatePriority;
   final int? clientVersionStalenessDays;
+  final String? playStoreVersion;
 
   UpdateResult({
     required this.isUpdateAvailable,
@@ -16,6 +20,7 @@ class UpdateResult {
     this.availableVersionCode,
     this.updatePriority,
     this.clientVersionStalenessDays,
+    this.playStoreVersion,
   });
 
   bool get isCriticalUpdate =>
@@ -43,8 +48,45 @@ class UpdateService {
 
       return UpdateResult(isUpdateAvailable: false);
     } catch (e) {
-      log('⚠️ Update check failed (expected on non-Play Store installs): $e');
+      log('⚠️ in_app_update failed, falling back to Play Store check: $e');
       return UpdateResult(isUpdateAvailable: false);
+    }
+  }
+
+  Future<String?> fetchPlayStoreVersion() async {
+    try {
+      final url = Uri.parse(
+          'https://play.google.com/store/apps/details?id=$_packageName&hl=en');
+      final response = await http.get(url, headers: {
+        'User-Agent': 'Mozilla/5.0',
+      }).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode != 200) {
+        log('⚠️ Play Store fetch failed: HTTP ${response.statusCode}');
+        return null;
+      }
+
+      final body = response.body;
+
+      final versionMatch =
+          RegExp(r'\[\[\["(\d+\.\d+\.\d+)"\]\]').firstMatch(body);
+      if (versionMatch != null) {
+        final version = versionMatch.group(1);
+        log('✅ Play Store version found: $version');
+        return version;
+      }
+
+      final altMatch =
+          RegExp(r'Current Version.*?>([\d.]+)<', dotAll: true).firstMatch(body);
+      if (altMatch != null) {
+        return altMatch.group(1);
+      }
+
+      log('⚠️ Could not parse Play Store version from page');
+      return null;
+    } catch (e) {
+      log('⚠️ Play Store version fetch error: $e');
+      return null;
     }
   }
 

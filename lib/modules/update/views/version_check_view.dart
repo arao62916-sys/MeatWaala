@@ -290,7 +290,7 @@ class VersionCheckView extends GetView<UpdateController> {
             iconColor: AppColors.primary,
             label: 'Installed Version',
             version: controller.currentVersion.value,
-            buildNumber: controller.currentBuildNumber.value,
+            buildNumber: 'Build ${controller.currentBuildNumber.value}',
             showDivider: true,
           ),
           
@@ -301,12 +301,12 @@ class VersionCheckView extends GetView<UpdateController> {
                 ? const Color(0xFFE65100)
                 : AppColors.success,
             label: 'Play Store Version',
-            version: hasError 
-                ? 'N/A' 
-                : controller.currentVersion.value,
-            buildNumber: updateAvailable && controller.availableVersionCode.value != null
-                ? controller.availableVersionCode.value.toString()
-                : controller.currentBuildNumber.value,
+            version: hasError
+                ? 'N/A'
+                : controller.playStoreVersion.value.isNotEmpty
+                    ? controller.playStoreVersion.value
+                    : controller.currentVersion.value,
+            buildNumber: hasError ? '' : 'Play Store',
             isPlayStore: true,
             showBadge: updateAvailable,
             showDivider: false,
@@ -396,18 +396,20 @@ class VersionCheckView extends GetView<UpdateController> {
                             letterSpacing: -0.5,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: Text(
-                            'Build $buildNumber',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary.withValues(alpha: 0.7),
-                              fontWeight: FontWeight.w500,
+                        if (buildNumber.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: Text(
+                              buildNumber,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary.withValues(alpha: 0.7),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ],

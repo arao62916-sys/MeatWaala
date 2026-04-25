@@ -14,27 +14,39 @@ class UpdateController extends GetxController {
   // Version info
   final currentVersion = ''.obs;
   final currentBuildNumber = ''.obs;
-  final availableVersionCode = RxnInt();
+  final playStoreVersion = ''.obs;
   final isChecking = false.obs;
   final checkError = ''.obs;
 
-  bool get isUpToDate => !isUpdateAvailable.value && checkError.value.isEmpty;
+  bool get isUpToDate =>
+      !isUpdateAvailable.value && checkError.value.isEmpty;
 
   Future<void> checkForUpdate() async {
     try {
       _updateResult = await _updateService.checkForUpdate();
 
-      if (!_updateResult!.isUpdateAvailable) {
-        log('✅ App is up to date');
-        isUpdateAvailable.value = false;
+      if (_updateResult!.isUpdateAvailable) {
+        isUpdateAvailable.value = true;
+        log('🔄 Update available via in_app_update');
+        _showUpdateDialog();
         return;
       }
 
-      isUpdateAvailable.value = true;
-      availableVersionCode.value = _updateResult!.availableVersionCode;
-      log('🔄 Update available — critical: ${_updateResult!.isCriticalUpdate}');
+      // Fallback: check Play Store directly by package name
+      final storeVersion = await _updateService.fetchPlayStoreVersion();
+      if (storeVersion != null) {
+        final packageInfo = await PackageInfo.fromPlatform();
+        if (_isNewerVersion(storeVersion, packageInfo.version)) {
+          isUpdateAvailable.value = true;
+          playStoreVersion.value = storeVersion;
+          log('🔄 Update available via Play Store check: $storeVersion > ${packageInfo.version}');
+          _showUpdateDialog();
+          return;
+        }
+      }
 
-      _showUpdateDialog();
+      log('✅ App is up to date');
+      isUpdateAvailable.value = false;
     } catch (e) {
       log('⚠️ Update check error: $e');
     }
@@ -49,14 +61,25 @@ class UpdateController extends GetxController {
       currentVersion.value = packageInfo.version;
       currentBuildNumber.value = packageInfo.buildNumber;
 
+      // Try in_app_update first
       _updateResult = await _updateService.checkForUpdate();
 
       if (_updateResult!.isUpdateAvailable) {
         isUpdateAvailable.value = true;
-        availableVersionCode.value = _updateResult!.availableVersionCode;
+        playStoreVersion.value =
+            _updateResult!.playStoreVersion ?? '';
+        return;
+      }
+
+      // Fallback: fetch version from Play Store page
+      final storeVersion = await _updateService.fetchPlayStoreVersion();
+      if (storeVersion != null) {
+        playStoreVersion.value = storeVersion;
+        isUpdateAvailable.value =
+            _isNewerVersion(storeVersion, packageInfo.version);
       } else {
-        isUpdateAvailable.value = false;
-        availableVersionCode.value = null;
+        playStoreVersion.value = '';
+        checkError.value = 'Could not fetch Play Store version';
       }
     } catch (e) {
       log('⚠️ Version check error: $e');
@@ -64,6 +87,19 @@ class UpdateController extends GetxController {
     } finally {
       isChecking.value = false;
     }
+  }
+
+  bool _isNewerVersion(String storeVersion, String localVersion) {
+    final storeParts = storeVersion.split('.').map(int.tryParse).toList();
+    final localParts = localVersion.split('.').map(int.tryParse).toList();
+
+    for (var i = 0; i < storeParts.length; i++) {
+      final s = storeParts[i] ?? 0;
+      final l = (i < localParts.length) ? (localParts[i] ?? 0) : 0;
+      if (s > l) return true;
+      if (s < l) return false;
+    }
+    return false;
   }
 
   void _showUpdateDialog() {
