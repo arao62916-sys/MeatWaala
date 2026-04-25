@@ -64,6 +64,7 @@ class HomeController extends GetxController {
   void onClose() {
     searchController.dispose();
     sliderPageController.dispose();
+    _sliderTimer?.cancel();
     _searchDebouncer?.dispose();
     _debounceTimer?.cancel();
     super.onClose();
