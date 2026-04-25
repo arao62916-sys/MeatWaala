@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:meatwaala_app/core/theme/app_colors.dart';
 import 'package:meatwaala_app/modules/home/controllers/home_controller.dart';
 import 'package:meatwaala_app/modules/home/views/widgets/sort_bottom_sheet.dart';
@@ -60,6 +61,13 @@ class HomeView extends GetView<HomeController> {
                 // Search Bar
                 _buildSearchBar(),
                 const SizedBox(height: 12),
+
+                // Slider / Banner Carousel
+                if (controller.sliders.isNotEmpty) ...[
+                  _buildSlider(),
+                  const SizedBox(height: 12),
+                ],
+
                 // Product filter moved to top
                 _buildSortBar(),
                 const SizedBox(height: 8),
@@ -160,6 +168,62 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
           )),
+    );
+  }
+
+  Widget _buildSlider() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 180,
+          child: PageView.builder(
+            controller: controller.sliderPageController,
+            onPageChanged: controller.onSliderChanged,
+            itemCount: controller.sliders.length,
+            itemBuilder: (context, index) {
+              final slider = controller.sliders[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: slider.image,
+                    width: double.infinity,
+                    height: 180,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: AppColors.border.withOpacity(0.3),
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: AppColors.border.withOpacity(0.3),
+                      child: const Icon(
+                        Icons.image_not_supported_outlined,
+                        size: 40,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        Obx(() => SmoothPageIndicator(
+              controller: controller.sliderPageController,
+              count: controller.sliders.length,
+              effect: const WormEffect(
+                dotHeight: 8,
+                dotWidth: 8,
+                activeDotColor: AppColors.primary,
+                dotColor: AppColors.border,
+                spacing: 6,
+              ),
+            )),
+      ],
     );
   }
 

@@ -13,6 +13,9 @@ class NetworkConstantsUtil {
   // *************** Company API *************//
   static const String company = 'company';
 
+  // *************** Slider API *************//
+  static const String slider = 'slider';
+
   // *************** Area API *************//
   static const String area = 'area';
   static const String areaInfo = 'area-info'; // area-info/{areaId}

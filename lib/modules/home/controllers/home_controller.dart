@@ -5,20 +5,27 @@ import 'package:meatwaala_app/core/services/app_snackbar.dart';
 import 'package:meatwaala_app/data/models/category_model.dart';
 import 'package:meatwaala_app/data/models/product_model.dart';
 import 'package:meatwaala_app/data/services/category_api_service.dart';
+import 'package:meatwaala_app/data/models/slider_model.dart';
 import 'package:meatwaala_app/data/services/product_api_service.dart';
+import 'package:meatwaala_app/data/services/slider_api_service.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 
 class HomeController extends GetxController {
   final CategoryApiService _categoryService = CategoryApiService();
   final ProductApiService _productService = ProductApiService();
+  final SliderApiService _sliderService = SliderApiService();
 
   final isLoading = false.obs;
   final categories = <CategoryModel>[].obs;
   final featuredProducts = <ProductModel>[].obs;
   final products = <ProductModel>[].obs;
-  final banners = <String>[].obs;
-  final currentBannerIndex = 0.obs;
+  final sliders = <SliderModel>[].obs;
+  final currentSliderIndex = 0.obs;
+  final sliderPageController = PageController();
   final errorMessage = ''.obs;
+
+  // Slider auto-slide
+  Timer? _sliderTimer;
 
   // Search functionality
   final searchController = TextEditingController();
@@ -56,6 +63,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     searchController.dispose();
+    sliderPageController.dispose();
     _searchDebouncer?.dispose();
     _debounceTimer?.cancel();
     super.onClose();
@@ -77,8 +85,10 @@ class HomeController extends GetxController {
       // Load products from API with optional sort order
       await _loadProducts();
 
-      // TODO: Load banners from API or app configuration
-      // For now, banners will be empty unless provided by backend
+      final sliderResult = await _sliderService.getSliders();
+      if (sliderResult.success && sliderResult.data != null) {
+        sliders.value = sliderResult.data!;
+      }
     } catch (e) {
       errorMessage.value = 'Failed to load data: $e';
       AppSnackbar.error('Failed to load home data');
@@ -167,8 +177,8 @@ class HomeController extends GetxController {
     }
   }
 
-  void onBannerChanged(int index) {
-    currentBannerIndex.value = index;
+  void onSliderChanged(int index) {
+    currentSliderIndex.value = index;
   }
 
   void navigateToCategory(String categoryName) {
