@@ -26,6 +26,7 @@ class CheckoutController extends GetxController {
   final discount = 0.0.obs;
   final totalAmount = 0.0.obs;
   final codFromCart = false.obs;
+  final codCharge = 0.0.obs;
 
   final paymentMethods = [
     {'title': 'Credit/Debit Card', 'icon': 'credit_card', 'value': 'razorpay'},
@@ -98,8 +99,9 @@ class CheckoutController extends GetxController {
       if (isCod) {
         codFromCart.value = true;
         selectedPaymentMethod.value = 'cod';
+        codCharge.value = (args['codCharge'] ?? 0.0).toDouble();
       }
-      log('✅ Cart data loaded: Subtotal=₹${subtotal.value}, Delivery=₹${deliveryFee.value}, Total=₹${totalAmount.value}, COD=$isCod');
+      log('✅ Cart data loaded: Subtotal=₹${subtotal.value}, Delivery=₹${deliveryFee.value}, COD Charge=₹${codCharge.value}, Total=₹${totalAmount.value}, COD=$isCod');
     } else {
       log('⚠️ No cart data received, using default values');
       calculateTotal();
@@ -174,7 +176,7 @@ class CheckoutController extends GetxController {
   }
 
   void calculateTotal() {
-    totalAmount.value = subtotal.value + deliveryFee.value - discount.value;
+    totalAmount.value = subtotal.value + deliveryFee.value + codCharge.value - discount.value;
   }
 
   void selectPaymentMethod(String method) {

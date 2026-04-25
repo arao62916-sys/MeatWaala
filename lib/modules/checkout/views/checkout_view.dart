@@ -429,6 +429,19 @@ class CheckoutView extends GetView<CheckoutController> {
                       return _buildPriceRow(
                           label, controller.deliveryFee.value);
                     }),
+                    Obx(() {
+                      if (controller.codCharge.value > 0) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: _buildPriceRow(
+                            'COD Charge',
+                            controller.codCharge.value,
+                            isCodCharge: true,
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    }),
                     if (controller.discount.value > 0) ...[
                       const SizedBox(height: 12),
                       _buildPriceRow(
@@ -474,7 +487,7 @@ class CheckoutView extends GetView<CheckoutController> {
   }
 
   Widget _buildPriceRow(String label, double amount,
-      {bool isDiscount = false}) {
+      {bool isDiscount = false, bool isCodCharge = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -486,11 +499,15 @@ class CheckoutView extends GetView<CheckoutController> {
           ),
         ),
         Text(
-          '${isDiscount ? '-' : ''}₹${amount.abs().toStringAsFixed(2)}',
+          '${isDiscount ? '-' : isCodCharge ? '+ ' : ''}₹${amount.abs().toStringAsFixed(2)}',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: isDiscount ? Colors.green.shade700 : Colors.black87,
+            color: isDiscount
+                ? Colors.green.shade700
+                : isCodCharge
+                    ? Colors.orange
+                    : Colors.black87,
           ),
         ),
       ],

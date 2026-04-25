@@ -234,6 +234,7 @@ class CartController extends GetxController {
         'areaId': _storage.getSelectedAreaId(),
         'areaName': areaName.value,
         'cod': codEnabled.value,
+        'codCharge': codEnabled.value ? codCharge.value : 0.0,
       })?.then((_) {
         // Reload cart when returning from checkout in case area changed
         log('🔄 Returned from checkout, reloading cart...');

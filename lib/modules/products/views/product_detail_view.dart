@@ -105,9 +105,12 @@ class ProductDetailView extends GetView<ProductDetailController> {
                               // Debug: Show when no reviews
                               Text(
                                 'No reviews yet (Review count: ${product.reviewCount}, aReview length: ${product.aReview.length})',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
                               ),
                             ],
                           ],
@@ -118,7 +121,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
                 ),
               ),
             ),
-            
+
             // Bottom Add to Cart Bar
             _buildBottomBar(context),
           ],
@@ -129,7 +132,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
 
   Widget _buildImageCarousel(BuildContext context, ProductDetailModel product) {
     final images = controller.allImages;
-    
+
     return Column(
       children: [
         SizedBox(
@@ -139,7 +142,9 @@ class ProductDetailView extends GetView<ProductDetailController> {
             onPageChanged: controller.onImageChanged,
             itemBuilder: (context, index) {
               return Container(
-                key: index == 0 ? _productImageKey : null, // Assign key to first image
+                key: index == 0
+                    ? _productImageKey
+                    : null, // Assign key to first image
                 child: CachedNetworkImage(
                   imageUrl: images[index],
                   fit: BoxFit.cover,
@@ -156,7 +161,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
             },
           ),
         ),
-        
+
         // Image Indicators
         if (images.length > 1)
           Padding(
@@ -166,16 +171,17 @@ class ProductDetailView extends GetView<ProductDetailController> {
               children: List.generate(
                 images.length,
                 (index) => Obx(() => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: controller.currentImageIndex.value == index ? 24 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: controller.currentImageIndex.value == index
-                        ? AppColors.primary
-                        : AppColors.border,
-                  ),
-                )),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width:
+                          controller.currentImageIndex.value == index ? 24 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: controller.currentImageIndex.value == index
+                            ? AppColors.primary
+                            : AppColors.border,
+                      ),
+                    )),
               ),
             ),
           ),
@@ -184,6 +190,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
   }
 
   Widget _buildProductHeader(BuildContext context, ProductDetailModel product) {
+    print('Stock status: ${product.stockStatus}'); // Debug print
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -194,15 +201,15 @@ class ProductDetailView extends GetView<ProductDetailController> {
               Text(
                 product.name,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 4),
               Text(
                 'Code: ${product.code}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                      color: AppColors.textSecondary,
+                    ),
               ),
             ],
           ),
@@ -210,7 +217,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: product.isInStock ? Colors.green.shade50 : Colors.red.shade50,
+            color:
+                product.isInStock ? Colors.green.shade50 : Colors.red.shade50,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: product.isInStock ? Colors.green : Colors.red,
@@ -219,7 +227,9 @@ class ProductDetailView extends GetView<ProductDetailController> {
           child: Text(
             product.stockStatus,
             style: TextStyle(
-              color: product.isInStock ? Colors.green.shade700 : Colors.red.shade700,
+              color: product.isInStock
+                  ? Colors.green.shade700
+                  : Colors.red.shade700,
               fontWeight: FontWeight.w600,
               fontSize: 12,
             ),
@@ -257,8 +267,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
         Text(
           '${product.reviewCount} reviews',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondary,
-          ),
+                color: AppColors.textSecondary,
+              ),
         ),
       ],
     );
@@ -281,17 +291,17 @@ class ProductDetailView extends GetView<ProductDetailController> {
               Text(
                 '₹${product.price}',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(width: 8),
               Text(
                 '₹${product.mrp}',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                  decoration: TextDecoration.lineThrough,
-                ),
+                      color: AppColors.textSecondary,
+                      decoration: TextDecoration.lineThrough,
+                    ),
               ),
               const SizedBox(width: 8),
               Container(
@@ -315,16 +325,17 @@ class ProductDetailView extends GetView<ProductDetailController> {
           Text(
             'You save ₹${(product.mrpDouble - product.priceDouble).toStringAsFixed(2)}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.green.shade700,
-              fontWeight: FontWeight.w600,
-            ),
+                  color: Colors.green.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildProductDetails(BuildContext context, ProductDetailModel product) {
+  Widget _buildProductDetails(
+      BuildContext context, ProductDetailModel product) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -338,8 +349,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
           Text(
             'Product Details',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 12),
           _buildDetailRow('Weight', '${product.weight} ${product.weightUnit}'),
@@ -386,22 +397,22 @@ class ProductDetailView extends GetView<ProductDetailController> {
         color: AppColors.background,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border),
-      ),  
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Description',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 12),
           Obx(() {
             final showFull = controller.showFullDescription.value;
             final description = product.description;
             final shouldTruncate = description.length > 200;
-      
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -410,9 +421,9 @@ class ProductDetailView extends GetView<ProductDetailController> {
                       ? '${description.substring(0, 200)}...'
                       : description,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.5,
-                  ),
+                        color: AppColors.textSecondary,
+                        height: 1.5,
+                      ),
                 ),
                 if (shouldTruncate)
                   TextButton(
@@ -439,8 +450,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
         Text(
           'Quantity',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 12),
         Container(
@@ -457,14 +468,14 @@ class ProductDetailView extends GetView<ProductDetailController> {
                 color: AppColors.primary,
               ),
               Obx(() => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  '${controller.quantity.value}',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      '${controller.quantity.value}',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  )),
               IconButton(
                 onPressed: controller.incrementQuantity,
                 icon: const Icon(Icons.add),
@@ -477,7 +488,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
     );
   }
 
-  Widget _buildReviewsSection(BuildContext context, ProductDetailModel product) {
+  Widget _buildReviewsSection(
+      BuildContext context, ProductDetailModel product) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -487,8 +499,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
             Text(
               'Customer Reviews',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             TextButton(
               onPressed: () {
@@ -500,9 +512,11 @@ class ProductDetailView extends GetView<ProductDetailController> {
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Show first 3 reviews
-        ...product.reviewsList.take(3).map((review) => _buildReviewCard(context, review)),
+        ...product.reviewsList
+            .take(3)
+            .map((review) => _buildReviewCard(context, review)),
       ],
     );
   }
@@ -549,9 +563,10 @@ class ProductDetailView extends GetView<ProductDetailController> {
                           const SizedBox(width: 8),
                           Text(
                             _formatReviewDate(review.reviewDate),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
                           ),
                         ],
                       ),
@@ -571,8 +586,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
             Text(
               review.review,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
+                    color: AppColors.textSecondary,
+                  ),
             ),
           ],
         ),
@@ -611,34 +626,37 @@ class ProductDetailView extends GetView<ProductDetailController> {
                       '₹${controller.totalPrice.toStringAsFixed(2)}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                   ),
                   if (controller.savings > 0)
                     Text(
                       'Save ₹${controller.savings.toStringAsFixed(2)}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.green,
-                        fontWeight: FontWeight.w600,
-                      ),
+                            color: Colors.green,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                 ],
               ),
             ),
             const SizedBox(width: 12),
             Obx(() => SizedBox(
-              width: 150,
-              child: CustomButton(
-                text: controller.isAddingToCart.value ? 'Adding...' : 'Add to Cart',
-                onPressed: controller.isAddingToCart.value 
-                    ? null 
-                    : () => _handleAddToCart(context),
-                icon: Icons.shopping_cart,
-              ),
-            )),
+                  width: 150,
+                  child: CustomButton(
+                    text: controller.isAddingToCart.value
+                        ? 'Adding...'
+                        : 'Add to Cart',
+                    onPressed: controller.isAddingToCart.value
+                        ? null
+                        : () => _handleAddToCart(context),
+                    icon: Icons.shopping_cart,
+                  ),
+                )),
           ],
         ),
       ),
@@ -658,7 +676,7 @@ class ProductDetailView extends GetView<ProductDetailController> {
       onComplete: () async {
         // Call the actual add to cart logic
         await controller.addToCart();
-        
+
         // Trigger cart icon bounce
         final cartIconState = _cartIconKey.currentState;
         if (cartIconState is AnimatedCartIconState) {
@@ -714,8 +732,8 @@ class ProductDetailView extends GetView<ProductDetailController> {
                   Text(
                     'All Reviews (${product.reviewCount})',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
