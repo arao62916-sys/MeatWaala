@@ -173,8 +173,8 @@ class CartApiService {
   }
 
   /// Get full cart info
-  /// GET: cart/info/{customer_id}/{area_id}
-  Future<ApiResult<CartInfoModel>> getCartInfo() async {
+  /// GET: cart/info/{customer_id}/{area_id}?cod=1
+  Future<ApiResult<CartInfoModel>> getCartInfo({int? cod}) async {
     if (!_validateIds()) {
       return ApiResult.error(
         'Customer ID or Area ID not found. Please login and select area.',
@@ -182,9 +182,12 @@ class CartApiService {
     }
 
     final endpoint = '${NetworkConstantsUtil.cartInfo}/$customerId/$areaId';
+    final Map<String, String>? queryParams =
+        cod != null ? {'cod': cod.toString()} : null;
 
     return await _apiService.get(
       endpoint,
+      queryParams: queryParams,
       parser: (data) {
         if (data is Map<String, dynamic>) {
           return CartInfoModel.fromJson(data);
@@ -207,6 +210,12 @@ class CartInfoModel {
   final String? areaId;
   final Map<String, dynamic>? areaInfo;
   final IsOrderAllowed? isOrderAllowed;
+  final bool codApplicable;
+  final double codCharge;
+  final String codMessage;
+  final String codMessageClass;
+  final double billAmountBeforeCod;
+  final bool codEnabled;
 
   CartInfoModel({
     required this.items,
@@ -219,6 +228,12 @@ class CartInfoModel {
     this.areaId,
     this.areaInfo,
     this.isOrderAllowed,
+    this.codApplicable = false,
+    this.codCharge = 0.0,
+    this.codMessage = '',
+    this.codMessageClass = '',
+    this.billAmountBeforeCod = 0.0,
+    this.codEnabled = false,
   });
 
   factory CartInfoModel.fromJson(Map<String, dynamic> json) {
@@ -249,6 +264,15 @@ class CartInfoModel {
       isOrderAllowed = IsOrderAllowed.fromJson(aCart['isOrderAllowed']);
     }
 
+    final codApplicable =
+        aCart['cod_applicable'] == 1 || aCart['cod_applicable'] == '1';
+    final codCharge = _parseDouble(aCart['cod_charge'] ?? 0);
+    final codMessage = aCart['cod_message']?.toString() ?? '';
+    final codMessageClass = aCart['cod_message_class']?.toString() ?? '';
+    final billAmountBeforeCod =
+        _parseDouble(aCart['bill_amount_before_cod'] ?? 0);
+    final codEnabled = aCart['cod'] == 1 || aCart['cod'] == '1';
+
     return CartInfoModel(
       items: itemsList,
       subtotal: billAmount,
@@ -260,6 +284,12 @@ class CartInfoModel {
       areaId: aCart['area_id']?.toString(),
       areaInfo: aCart['aArea'] as Map<String, dynamic>?,
       isOrderAllowed: isOrderAllowed,
+      codApplicable: codApplicable,
+      codCharge: codCharge,
+      codMessage: codMessage,
+      codMessageClass: codMessageClass,
+      billAmountBeforeCod: billAmountBeforeCod,
+      codEnabled: codEnabled,
     );
   }
 
@@ -291,6 +321,12 @@ class CartInfoModel {
       'areaId': areaId,
       'areaInfo': areaInfo,
       'isOrderAllowed': isOrderAllowed?.toJson(),
+      'codApplicable': codApplicable,
+      'codCharge': codCharge,
+      'codMessage': codMessage,
+      'codMessageClass': codMessageClass,
+      'billAmountBeforeCod': billAmountBeforeCod,
+      'codEnabled': codEnabled,
     };
   }
 }

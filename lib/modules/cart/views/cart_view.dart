@@ -12,7 +12,6 @@ class CartView extends GetView<CartController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-
         title: const Text('My Cart'),
         actions: [
           // Area badge
@@ -278,14 +277,16 @@ class CartView extends GetView<CartController> {
                                     border: Border.all(color: AppColors.error),
                                   ),
                                   child: Row(
-                                    children: [ Icon(
+                                    children: [
+                                      Icon(
                                         Icons.delete_outline,
                                         size: 16,
                                         color: AppColors.error,
                                       ),
                                       const Text(
                                         'Remove',
-                                        style: TextStyle(color: AppColors.error),
+                                        style:
+                                            TextStyle(color: AppColors.error),
                                       ),
                                     ],
                                   ),
@@ -364,6 +365,115 @@ class CartView extends GetView<CartController> {
                           )),
                     ],
                   ),
+                  const SizedBox(height: 12),
+
+                  // COD Section
+                  Obx(() {
+                    if (controller.codApplicable.value) {
+                      // Show checkbox to enable/disable COD
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.primary.withOpacity(0.25),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            CheckboxListTile(
+                              value: controller.codEnabled.value,
+                              onChanged: controller.isLoading.value
+                                  ? null
+                                  : (val) => controller.toggleCod(val ?? false),
+                              title: const Text(
+                                'Pay via Cash on Delivery (COD)',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: controller.codMessage.value.isNotEmpty
+                                  ? Text(
+                                      controller.codMessage.value,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: controller.codMessageClass.value
+                                                .contains('success')
+                                            ? Colors.green
+                                            : AppColors.textSecondary,
+                                      ),
+                                    )
+                                  : null,
+                              activeColor: AppColors.primary,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                            ),
+                            if (controller.codEnabled.value &&
+                                controller.codCharge.value > 0)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'COD Charge',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                    Text(
+                                      '+ ₹${controller.codCharge.value.toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.orange,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    } else if (controller.codMessage.value.isNotEmpty) {
+                      // Show informational message (COD not applicable)
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                controller.codMessage.value,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+
                   const SizedBox(height: 16),
                   CustomButton(
                     text: 'Proceed to Checkout',

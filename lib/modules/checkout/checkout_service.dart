@@ -20,18 +20,20 @@ class OrderService {
   /// - remarks: Order remarks (Optional)
   Future<String> submitOrder(
     String customerId,
-    Map<String, String> orderData,
-  ) async {
+    Map<String, String> orderData, {
+    bool cod = false,
+  }) async {
     print(
         '📦 OrderService: Preparing to submit order for customer: $customerId');
     try {
-      final endpoint = '${NetworkConstantsUtil.orderSubmit}/$customerId';
+      final baseEndpoint = '${NetworkConstantsUtil.orderSubmit}/$customerId';
+      final endpoint = cod ? '$baseEndpoint?cod=1' : baseEndpoint;
 
       log('📦 OrderService: Submitting order for customer: $customerId');
-      log('📦 OrderService: Order data: $orderData');
+      log('📦 OrderService: Order data: $orderData, COD: $cod');
 
-      // Validate mandatory fields
-      _validateOrderData(orderData);
+      // Validate mandatory fields (skip payment IDs for COD)
+      _validateOrderData(orderData, isCod: cod);
 
       final result = await _apiService.postFormData<Map<String, dynamic>>(
         endpoint,
@@ -62,7 +64,7 @@ class OrderService {
   }
 
   /// Validate required order data fields
-  void _validateOrderData(Map<String, String> orderData) {
+  void _validateOrderData(Map<String, String> orderData, {bool isCod = false}) {
     final requiredFields = [
       'name',
       'mobile',
@@ -70,8 +72,8 @@ class OrderService {
       'address_line1',
       'address_line2',
       'area_id',
-      'payment_id',
-      'payment_order_id',
+      if (!isCod) 'payment_id',
+      if (!isCod) 'payment_order_id',
     ];
 
     final missingFields = <String>[];

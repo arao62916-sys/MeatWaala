@@ -22,8 +22,7 @@ class AreaApiService extends BaseApiService {
   /// Fetch details of a specific area
   Future<ApiResult<AreaModel>> getAreaInfo(String areaId) async {
     return get<AreaModel>(
-      NetworkConstantsUtil.areaInfo,
-      queryParams: {'areaId': areaId},
+      '${NetworkConstantsUtil.areaInfo}/$areaId',
       parser: (data) => AreaModel.fromJson(data as Map<String, dynamic>),
     );
   }

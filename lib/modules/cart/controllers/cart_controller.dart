@@ -27,12 +27,26 @@ class CartController extends GetxController {
   final RxString areaName = ''.obs;
   final Rx<IsOrderAllowed?> isOrderAllowed = Rx<IsOrderAllowed?>(null);
 
+  // COD state
+  final RxBool codApplicable = false.obs;
+  final RxBool codEnabled = false.obs;
+  final RxDouble codCharge = 0.0.obs;
+  final RxString codMessage = ''.obs;
+  final RxString codMessageClass = ''.obs;
+  final RxDouble billAmountBeforeCod = 0.0.obs;
+
   @override
   void onInit() {
     super.onInit();
     loadAreaInfo();
     loadCartInfo();
     loadCartCount();
+  }
+
+  /// Toggle COD and reload cart with/without cod param
+  Future<void> toggleCod(bool value) async {
+    codEnabled.value = value;
+    await loadCartInfo(cod: value ? 1 : null);
   }
 
   /// Load area information from storage and fetch area details
@@ -61,12 +75,12 @@ class CartController extends GetxController {
   }
 
   /// Load full cart information from API
-  Future<void> loadCartInfo() async {
+  Future<void> loadCartInfo({int? cod}) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final result = await _cartService.getCartInfo();
+      final result = await _cartService.getCartInfo(cod: cod);
 
       if (result.success && result.data != null) {
         final cartInfo = result.data!;
@@ -77,6 +91,16 @@ class CartController extends GetxController {
         total.value = cartInfo.total;
         cartCount.value = cartInfo.itemCount;
         isOrderAllowed.value = cartInfo.isOrderAllowed;
+        // COD fields
+        codApplicable.value = cartInfo.codApplicable;
+        codCharge.value = cartInfo.codCharge;
+        codMessage.value = cartInfo.codMessage;
+        codMessageClass.value = cartInfo.codMessageClass;
+        billAmountBeforeCod.value = cartInfo.billAmountBeforeCod;
+        // Preserve toggle state from checkbox unless server responds with cod=1
+        if (cod == null) {
+          codEnabled.value = cartInfo.codEnabled;
+        }
       } else {
         errorMessage.value = result.message;
         // Don't show error for empty cart
@@ -179,7 +203,7 @@ class CartController extends GetxController {
   /// Refresh cart (pull-to-refresh)
   Future<void> refreshCart() async {
     await Future.wait([
-      loadCartInfo(),
+      loadCartInfo(cod: codEnabled.value ? 1 : null),
       loadCartCount(),
     ]);
   }
@@ -209,6 +233,7 @@ class CartController extends GetxController {
         'total': total.value,
         'areaId': _storage.getSelectedAreaId(),
         'areaName': areaName.value,
+        'cod': codEnabled.value,
       })?.then((_) {
         // Reload cart when returning from checkout in case area changed
         log('🔄 Returned from checkout, reloading cart...');

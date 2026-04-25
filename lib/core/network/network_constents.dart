@@ -15,7 +15,7 @@ class NetworkConstantsUtil {
 
   // *************** Area API *************//
   static const String area = 'area';
-  static const String areaInfo = 'area-info'; // ?areaId={areaId}
+  static const String areaInfo = 'area-info'; // area-info/{areaId}
 
   // *************** Auth API *************//
   static const String signup =

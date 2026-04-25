@@ -25,6 +25,7 @@ class CheckoutController extends GetxController {
   final deliveryFee = 0.0.obs;
   final discount = 0.0.obs;
   final totalAmount = 0.0.obs;
+  final codFromCart = false.obs;
 
   final paymentMethods = [
     {'title': 'Credit/Debit Card', 'icon': 'credit_card', 'value': 'razorpay'},
@@ -93,7 +94,12 @@ class CheckoutController extends GetxController {
       deliveryFee.value = args['deliveryFee'] ?? 0.0;
       discount.value = args['discount'] ?? 0.0;
       totalAmount.value = args['total'] ?? 0.0;
-      log('✅ Cart data loaded: Subtotal=₹${subtotal.value}, Delivery=₹${deliveryFee.value}, Total=₹${totalAmount.value}');
+      final bool isCod = args['cod'] == true;
+      if (isCod) {
+        codFromCart.value = true;
+        selectedPaymentMethod.value = 'cod';
+      }
+      log('✅ Cart data loaded: Subtotal=₹${subtotal.value}, Delivery=₹${deliveryFee.value}, Total=₹${totalAmount.value}, COD=$isCod');
     } else {
       log('⚠️ No cart data received, using default values');
       calculateTotal();
@@ -238,10 +244,9 @@ class CheckoutController extends GetxController {
 
     // Check payment method and proceed accordingly
     if (selectedPaymentMethod.value == 'cod') {
-      // For COD, submit order directly
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      _paymentId = 'COD_$timestamp';
-      _paymentOrderId = 'ORDER_COD_$timestamp';
+      // For COD, submit order directly with no payment IDs
+      _paymentId = null;
+      _paymentOrderId = null;
       await submitOrder();
     } else if (selectedPaymentMethod.value == 'upi') {
       // For UPI, open Razorpay with UPI method
@@ -323,35 +328,36 @@ class CheckoutController extends GetxController {
       }
 
       final profile = selectedProfile.value!;
+      final bool isCod = selectedPaymentMethod.value == 'cod';
 
-      // Validate payment IDs are present
-      if (_paymentId == null || _paymentId!.isEmpty) {
-        throw Exception('Payment ID not found');
-      }
-      if (_paymentOrderId == null || _paymentOrderId!.isEmpty) {
-        throw Exception('Payment Order ID not found');
+      // For non-COD orders, validate payment IDs are present
+      if (!isCod) {
+        if (_paymentId == null || _paymentId!.isEmpty) {
+          throw Exception('Payment ID not found');
+        }
+        if (_paymentOrderId == null || _paymentOrderId!.isEmpty) {
+          throw Exception('Payment Order ID not found');
+        }
       }
 
-      // Prepare order data with ONLY required fields
-      final orderData = {
-        // Mandatory fields
+      // Prepare order data
+      final orderData = <String, String>{
         'name': profile.name,
         'mobile': profile.mobile,
         'email_id': profile.emailId,
         'address_line1': profile.addressLine1,
         'address_line2': profile.addressLine2,
         'area_id': profile.areaId,
-        'payment_id': _paymentId!,
-        'payment_order_id': _paymentOrderId!,
-
-        // Optional fields
+        if (!isCod) 'payment_id': _paymentId!,
+        if (!isCod) 'payment_order_id': _paymentOrderId!,
         if (remarksController.text.trim().isNotEmpty)
           'remarks': remarksController.text.trim(),
       };
 
-      log('📦 Submitting order with data: $orderData');
+      log('📦 Submitting order with data: $orderData, COD: $isCod');
 
-      final orderId = await _orderService.submitOrder(customerId, orderData);
+      final orderId =
+          await _orderService.submitOrder(customerId, orderData, cod: isCod);
 
       isLoading.value = false;
 
