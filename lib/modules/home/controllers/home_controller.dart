@@ -89,6 +89,7 @@ class HomeController extends GetxController {
       final sliderResult = await _sliderService.getSliders();
       if (sliderResult.success && sliderResult.data != null) {
         sliders.value = sliderResult.data!;
+        _startSliderAutoScroll();
       }
     } catch (e) {
       errorMessage.value = 'Failed to load data: $e';
@@ -176,6 +177,19 @@ class HomeController extends GetxController {
     } finally {
       isSortLoading.value = false;
     }
+  }
+
+  void _startSliderAutoScroll() {
+    _sliderTimer?.cancel();
+    if (sliders.length <= 1) return;
+    _sliderTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      final nextPage = (currentSliderIndex.value + 1) % sliders.length;
+      sliderPageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    });
   }
 
   void onSliderChanged(int index) {

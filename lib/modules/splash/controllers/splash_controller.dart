@@ -4,6 +4,7 @@ import 'package:meatwaala_app/core/constants/app_constants.dart';
 import 'package:meatwaala_app/core/state/app_state.dart';
 import 'package:meatwaala_app/data/models/company_model.dart';
 import 'package:meatwaala_app/data/services/company_api_service.dart';
+import 'package:meatwaala_app/modules/update/controllers/update_controller.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
 
@@ -127,6 +128,9 @@ class SplashController extends GetxController {
     if (isLoggedIn) {
       log('👤 User logged in - navigating to main');
       Get.offAllNamed(AppRoutes.main);
+      Future.delayed(const Duration(seconds: 1), () {
+        Get.find<UpdateController>().checkForUpdate();
+      });
     } else if (hasSelectedArea) {
       log('📍 Area selected but not logged in - navigating to login');
       Get.offAllNamed(AppRoutes.login);

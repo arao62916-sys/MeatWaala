@@ -294,6 +294,13 @@ class ProfileView extends GetView<ProfileController> {
                 onTap: controller.navigateToContactUs,
                 color: AppColors.primary,
               ),
+              _buildSimpleDivider(),
+              _buildColorfulMenuItem(
+                icon: Icons.system_update_outlined,
+                title: 'Check for Updates',
+                onTap: controller.navigateToVersionCheck,
+                color: AppColors.primary,
+              ),
             ],
           ),
         ),

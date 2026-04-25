@@ -47,6 +47,7 @@ import 'package:meatwaala_app/modules/profile/views/contact_us_view.dart';
 import 'package:meatwaala_app/modules/profile/views/privacy_policy_view.dart';
 import 'package:meatwaala_app/modules/profile/views/terms_view.dart';
 import 'package:meatwaala_app/modules/profile/controllers/cms_controller.dart';
+import 'package:meatwaala_app/modules/update/views/version_check_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -219,6 +220,10 @@ class AppPages {
       binding: BindingsBuilder(() {
         Get.lazyPut(() => CmsController());
       }),
+    ),
+    GetPage(
+      name: AppRoutes.versionCheck,
+      page: () => const VersionCheckView(),
     ),
   ];
 }

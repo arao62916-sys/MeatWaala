@@ -5,6 +5,7 @@ import 'package:meatwaala_app/modules/auth/controllers/auth_controller.dart';
 import 'package:meatwaala_app/modules/location/controllers/area_controller.dart';
 import 'package:meatwaala_app/modules/profile/controllers/profile_controller.dart';
 import 'package:meatwaala_app/modules/splash/controllers/company_controller.dart';
+import 'package:meatwaala_app/modules/update/controllers/update_controller.dart';
 import 'package:meatwaala_app/routes/app_routes.dart';
 import 'package:meatwaala_app/routes/app_pages.dart';
 import 'package:meatwaala_app/services/storage_service.dart';
@@ -19,6 +20,7 @@ void main() async {
   Get.put(AuthController());
   Get.put(AreaController());
   Get.put(ProfileController());
+  Get.put(UpdateController());
   // OrderController is managed by OrdersBinding - not global
   runApp(const MeatWaalaApp());
 }

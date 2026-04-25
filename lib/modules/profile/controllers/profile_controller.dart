@@ -421,6 +421,10 @@ class ProfileController extends GetxController {
     Get.toNamed(AppRoutes.terms);
   }
 
+  void navigateToVersionCheck() {
+    Get.toNamed(AppRoutes.versionCheck);
+  }
+
   // ========== LOGOUT ==========
   /// Show logout confirmation dialog
   void logout() {
