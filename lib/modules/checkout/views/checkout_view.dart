@@ -563,29 +563,33 @@ class CheckoutView extends GetView<CheckoutController> {
           const Divider(height: 1),
 
           // Payment Options
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _buildPaymentOption(
-                  context,
-                  'Pay Online (UPI, Cards, Wallets)',
-                  Icons.credit_card,
-                  'razorpay',
-                  subtitle: 'Secure payment via Razorpay',
-                  recommended: true,
-                ),
-                // const SizedBox(height: 12),
-                // _buildPaymentOption(
-                //   context,
-                //   'Cash on Delivery',
-                //   Icons.money,
-                //   'cod',
-                //   subtitle: 'Pay when you receive',
-                // ),
-              ],
-            ),
-          ),
+          Obx(() {
+            final isCod = controller.codFromCart.value;
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  if (isCod)
+                    _buildPaymentOption(
+                      context,
+                      'Cash on Delivery',
+                      Icons.money,
+                      'cod',
+                      subtitle: 'Pay when you receive',
+                    )
+                  else
+                    _buildPaymentOption(
+                      context,
+                      'Pay Online (UPI, Cards, Wallets)',
+                      Icons.credit_card,
+                      'razorpay',
+                      subtitle: 'Secure payment via Razorpay',
+                      recommended: true,
+                    ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
